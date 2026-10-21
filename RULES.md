@@ -1,0 +1,83 @@
+# RULES: coding and implementation
+
+## Principles
+
+1. **SOLID.** Give each file and each function one responsibility. Depend on small, named
+   helpers, not on incidental structure that can shift underneath you.
+2. **DRY at 4.** Extract a shared helper only when the same logic appears 4 or more times.
+   Below that, repetition is acceptable and clearer. The wrong abstraction couples callers that
+   had no reason to be coupled, and it costs more to unwind than the duplication cost to
+   tolerate. Two similar blocks are a coincidence; four are a pattern.
+3. **KISS.** A new function does one thing in the simplest way that passes the check. No
+   options objects, no abstractions "for later", and no configuration that nothing reads. The
+   deadlines (artifact Fri 2026-10-23, web app the week of 2026-10-26) make this a hard
+   constraint, not a preference.
+
+## Stack rules
+
+The plan is Next.js, TypeScript, Vercel, Supabase, and the Claude API. TODO: pin versions here
+once `package.json` exists.
+
+- **TypeScript, strict mode.** No `any` at module boundaries.
+- **Claude calls run only on the server**, in route handlers or server actions. Client
+  components never import the Anthropic SDK.
+- **Prompts are data, not inline strings.** Persona definitions and rubric text live in their
+  own files or tables so they can be versioned and revised without touching call sites.
+- **Model IDs live in one constant.** TODO: choose the model when `bmad-architecture` runs.
+  Use the `claude-api` skill rather than memory.
+- **Artifact (demo):** a single self-contained page that follows the `artifact-design`
+  contract. Load `artifact-capabilities` before adding any runtime behaviour.
+
+## Security rules
+
+- **Secrets:** the Claude API key and the Supabase service-role key are server-side
+  environment variables only. They never go in client bundles, the artifact, the repo, or
+  logs. `.env*` stays in `.gitignore`.
+- **RLS:** every Supabase table has RLS enabled and an explicit policy in the migration that
+  creates it (see `SCHEMA.md`).
+- **Fetching posts:** pull social-media content only through means the platform's terms allow
+  (official APIs or content the user supplies). No logged-in scraping, no evading bot
+  detection, and no fake accounts.
+- **Prompt injection:** treat fetched post text as untrusted input to the model. Keep it
+  clearly delimited from instructions, and never let it change the rubric or persona.
+
+## Data rules
+
+- **No personal data about third parties.** Evaluate the ministry's own posts. Do not store
+  the names, handles, or comments of followers or commenters.
+- **Record versions on every evaluation.** Each evaluation records the persona version and
+  rubric version that produced it. Metrics are expected to keep changing, and without the
+  versions, old and new scores cannot be compared.
+- **Version, don't edit.** Personas and rubrics are never edited in place once an evaluation
+  references them. Changing one creates a new version.
+
+Field and column contracts in `SCHEMA.md` are fixed. Add new fields at the end, and update
+`SCHEMA.md` in the same change.
+
+## Output rules (domain)
+
+- **Personas are people, not caricatures.** Each persona has a believable background and
+  reasons for its views. No persona exists only to be hostile or only to be persuaded.
+- **Feedback is charitable and specific.** Criticism of a ministry points to a concrete post
+  and a concrete change it could make. No mockery, and no theological verdicts on the ministry.
+- **Labelled as simulated.** Persona reactions are presented as simulated perspectives, never
+  as real people's opinions, and are kept apart from any real interview data.
+
+## Process rules
+
+- All eight context files exist and are current before any implementation: CLAUDE, AGENTS,
+  ARCHITECTURE, DESIGN, PRD, RULES, SCHEMA, SKILLS.
+- `PRD.md` is the scope contract. Work that falls outside it stops and asks rather than
+  widening the scope.
+- TODO: the check command (likely `npm run lint && npm run typecheck && npm run build`) must
+  be green before every handover. Confirm once `package.json` exists.
+- When auditing, keep an explicit resolved/unresolved list. Never imply a pass fixed more
+  than it did.
+- Nothing is committed or pushed unless Bennett asks.
+
+## Prefer enforcement over prose
+
+A rule that a linter, formatter, type checker, or CI check can enforce belongs there instead of
+here. Rules in this file have to be followed by hand every time; a check fails the build once
+and is never forgotten. When a rule above becomes mechanically enforced, delete it from this
+file.

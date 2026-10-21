@@ -5,6 +5,7 @@
 
 import { INTAKE_LIMITS, checkPostIntake, checkSourceUrl, canAddPost, provenanceLabel } from './core.js';
 import { evaluatePost, requestRewrite, createOutreach } from './pipeline.js';
+import { reviewToMarkdown } from './export.js';
 
 // ---------- Fixed UI copy (AD-14). Constants, never model output. Wording owned by bmad-ux. ----------
 
@@ -46,6 +47,7 @@ const FICTIONAL_EXAMPLES = [
 const state = {
   sample: null,
   sampleChecked: false,
+  downloads: null,
   maxImages: 0,
   mediaTypes: [],
   modelId: CONTENT.models.default,
@@ -267,6 +269,50 @@ async function onOutreach(cache) {
   }
   state.busy = false;
   render();
+}
+
+// ---------- Export (the viewer copies or saves; the page keeps nothing) ----------
+
+function exportMarkdown(includeJson) {
+  const posts = state.posts.map((post, i) => ({ position: i + 1, post, evaluation: post.evaluation, status: post.status }));
+  return reviewToMarkdown({ posts, reviewSourceUrl: state.reviewSourceUrl, outreach: state.outreach }, CONTENT, LABELS, {
+    exportedAt: new Date().toISOString(),
+    includeJson,
+  });
+}
+
+async function onCopyReview() {
+  const text = exportMarkdown(false);
+  const box = $('export-fallback');
+  try {
+    await navigator.clipboard.writeText(text);
+    box.hidden = true;
+    $('export-status').textContent = 'Review copied. Paste it into a document to keep it.';
+  } catch {
+    box.value = text;
+    box.hidden = false;
+    box.focus();
+    box.select();
+    $('export-status').textContent = 'Copying is blocked here. The Review is selected below: press Ctrl+C or \u2318C.';
+  }
+}
+
+async function onSaveReview() {
+  if (!state.downloads) return;
+  const stamp = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
+  try {
+    await state.downloads.save({ filename: `witness-review-${stamp}.md`, data: exportMarkdown(true) });
+    $('export-status').textContent = 'Review saved.';
+  } catch (e) {
+    const code = e && e.code;
+    if (code === 'declined') $('export-status').textContent = 'Not saved.';
+    else if (code === 'rate_limited') $('export-status').textContent = 'A save is already waiting for your answer.';
+    else {
+      state.downloads = null;
+      $('export-status').textContent = 'Saving files is not available here. Use Copy Review instead.';
+      render();
+    }
+  }
 }
 
 async function onCopy(text, fallbackId) {
@@ -525,6 +571,10 @@ function render() {
   const pending = state.posts.some((p) => p.status === 'pending');
   $('evaluate-all').disabled = state.busy || !state.sample || !pending;
   $('clear-review').disabled = state.busy || state.posts.length === 0;
+  const anyDone = state.posts.some((p) => p.status === 'done');
+  $('copy-review').disabled = !anyDone;
+  $('save-review').disabled = !anyDone;
+  $('save-review').hidden = !state.downloads;
 
   $('posts').replaceChildren(...state.posts.map(renderPost));
   $('outreach-slot').replaceChildren(state.posts.length ? renderOutreach() : '');
@@ -593,6 +643,8 @@ function start() {
   $('add-examples').addEventListener('click', onAddExamples);
   $('evaluate-all').addEventListener('click', onEvaluateAll);
   $('clear-review').addEventListener('click', onClearReview);
+  $('copy-review').addEventListener('click', onCopyReview);
+  $('save-review').addEventListener('click', onSaveReview);
   $('review-url').addEventListener('change', onReviewUrl);
   $('tab-button-review').addEventListener('click', () => showTab('review'));
   $('tab-button-how').addEventListener('click', () => showTab('how'));
@@ -603,6 +655,12 @@ function start() {
   renderHowItWorks();
   render();
 
+  if (window.claude && window.claude.use) {
+    window.claude.use('downloads').then((downloads) => {
+      state.downloads = downloads;
+      render();
+    }).catch(() => {});
+  }
   const use = window.claude && window.claude.use ? window.claude.use('sample') : Promise.resolve(null);
   use.then(async (sample) => {
     state.sample = sample;

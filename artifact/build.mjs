@@ -44,6 +44,7 @@ const script = [
   `const LABELS = ${inlineJson(labels)};`,
   toScript('core.js'),
   toScript('pipeline.js'),
+  toScript('export.js'),
   toScript('ui.js'),
 ].join('\n');
 
@@ -163,8 +164,12 @@ summary { cursor: pointer; color: var(--accent); }
     <div class="row">
       <button type="button" id="evaluate-all">Evaluate Posts</button>
       <button type="button" id="clear-review">Clear Review</button>
+      <button type="button" id="copy-review">Copy Review</button>
+      <button type="button" id="save-review" hidden>Save Review as file</button>
     </div>
-    <p class="muted">Posts are evaluated one at a time. Persona Reactions are simulated perspectives, not real people’s opinions. Nothing is saved: closing the page clears the Review.</p>
+    <p class="muted">Posts are evaluated one at a time. Persona Reactions are simulated perspectives, not real people’s opinions. <strong>This page saves nothing: closing or reloading it clears the Review.</strong> Use Copy Review or Save Review as file to keep your results.</p>
+    <p id="export-status" class="muted" aria-live="polite"></p>
+    <textarea id="export-fallback" rows="8" readonly hidden aria-label="Review as text"></textarea>
     <div id="posts"></div>
     <div id="outreach-slot"></div>
   </section>

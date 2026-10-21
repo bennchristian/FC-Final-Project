@@ -351,8 +351,9 @@ flowchart LR
   - **Publish:**
     - Through the Artifact tool. The first publish pins contract `0.2.88`.
     - Its URL is recorded in `CLAUDE.md` §2, and every later publish passes that `url`.
-  - **Capabilities:** exactly `{sample: {images: true}}`.
+  - **Capabilities:** exactly `{sample: {images: true}, downloads: true}`. `downloads` was added 2026-10-21 by Bennett so a viewer can keep a Review.
   - **Persistence:** Reviews, Posts and screenshots live in page memory only. `localStorage` holds only per-viewer UI preferences, such as the theme, inside try/catch.
+  - **Export:** the viewer may copy the Review as Markdown, or save it as a `.md` file through `downloads.save` after confirming. The saved file adds a raw JSON appendix. Screenshots are never included. The page itself still keeps nothing.
   - **Network:**
     - Page script makes no fetch or XHR.
     - The only external loads are Google Fonts stylesheets and pinned CDN scripts that the `artifact-design` contract allows.

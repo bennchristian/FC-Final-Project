@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Witness Review Directions</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@400;500&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital,wght@0,400;1,400&family=Libre+Franklin:ital,wght@0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap">
+
+<!-- ============================================================
+     COMPARISON PAGE CHROME (not part of any direction)
+     page bg #E6E5E3, page ink #1F1F1F (13.09:1), page muted #5A5A5A (5.48:1)
+     ============================================================ -->
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{background:#E6E5E3}
+  body{background:#E6E5E3;color:#1F1F1F;font-family:'Source Serif 4',Georgia,'Times New Roman',serif;font-size:17px;line-height:1.5;min-width:1400px}
+  .page-head{padding:56px 60px 40px;border-bottom:1px solid #C9C7C3}
+  .page-head h1{font-family:'Source Serif 4',Georgia,serif;font-weight:500;font-size:34px;line-height:1.2;letter-spacing:-.01em}
+  .page-head p{max-width:820px;margin-top:12px;color:#3E3E3E}
+  .kick{font-family:'IBM Plex Mono',Menlo,'Courier New',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#5A5A5A}
+  .dir{padding:56px 60px 72px;border-bottom:1px solid #C9C7C3}
+  .dir-head{display:grid;grid-template-columns:450px 1fr;column-gap:56px;max-width:1282px;margin-bottom:36px}
+  .dir-head h2{font-family:'Source Serif 4',Georgia,serif;font-weight:500;font-size:40px;line-height:1.1;margin-top:8px}
+  .dir-head .why{color:#2E2E2E}
+  .dir-head .why p+p{margin-top:10px}
+  .tokens{margin-top:18px;font-family:'IBM Plex Mono',Menlo,'Courier New',monospace;font-size:12.5px;line-height:1.9;color:#2E2E2E}
+  .tokens li{list-style:none;display:grid;grid-template-columns:18px 92px 78px 1fr;align-items:center;column-gap:10px}
+  .sw{width:14px;height:14px;border:1px solid rgba(0,0,0,.25);display:inline-block}
+  .fonts{margin-top:12px;font-family:'IBM Plex Mono',Menlo,'Courier New',monospace;font-size:12.5px;color:#2E2E2E}
+  .shot-label{margin:28px 0 10px}
+  .frame{width:1282px;border:1px solid #B5B3AF;background:#FFF}
+  .frame-bar{height:36px;display:flex;align-items:center;gap:8px;padding:0 14px;background:#EFEEEC;border-bottom:1px solid #CFCDC9}
+  .frame-bar i{width:10px;height:10px;border-radius:50%;border:1px solid #A7A5A1;display:block}
+  .frame-bar .url{margin-left:18px;font-family:'IBM Plex Mono',Menlo,'Courier New',monospace;font-size:12px;color:#55524E;background:#F8F8F7;border:1px solid #DDDBD8;border-radius:6px;padding:3px 14px;min-width:380px}
+  .screen{width:1280px;height:800px;overflow:hidden;position:relative}
+  .hide{position:absolute;width:0;height:0;overflow:hidden}
+</style>
+
+<!-- ============================================================
+     DIRECTION A: CORRESPONDENCE
+     --paper  #F6F1E7  background
+     --ink    #1E1915  body, Post, Evidence, reasons ... 15.48:1 on paper
+     --ink2   #574D44  labels, inactive tabs, meta  ...  7.31:1 on paper
+     --acc    #7A1F1A  oxblood accent                ...  9.15:1 on paper
+                       (paper text on oxblood pill   ...  9.15:1)
+     --rule   #D6CCBC  hairlines only, decorative    ...  1.41:1
+     Display: Instrument Serif. Body: Source Serif 4. Labels: IBM Plex Mono.
+     ============================================================ -->
+<style>
+  .A{--paper:#F6F1E7;--ink:#1E1915;--ink2:#574D44;--acc:#7A1F1A;--rule:#D6CCBC}
+  .A .screen{background:var(--paper);color:var(--ink);font-family:'Source Serif 4',Georgia,'Times New Roman',serif;font-size:20px;line-height:1.5}
+  .A .mono{font-family:'IBM Plex Mono',Menlo,'Courier New',monospace;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;line-height:1.4}
+  .A .top{height:88px;display:flex;align-items:center;padding:0 72px;border-bottom:1px solid var(--rule)}
+  .A .brand{display:flex;align-items:center;gap:14px;color:var(--acc)}
+  .A .brand svg{width:36px;height:25px;stroke-width:1.25}
+  .A .word{font-family:'Instrument Serif',Georgia,'Times New Roman',serif;font-size:32px;line-height:1;color:var(--ink);letter-spacing:-.005em}
+  .A .tabs{display:flex;gap:30px;margin-left:72px}
+  .A .tab{font-size:20px;color:var(--ink2)}
+  .A .tab.on{color:var(--ink);text-decoration:underline;text-decoration-color:var(--acc);text-decoration-thickness:1px;text-underline-offset:9px}
+  .A .stamp{margin-left:auto;color:var(--ink2)}
+  .A .body{display:grid;grid-template-rows:712px;column-gap:72px;padding:0 72px;height:712px}
+  .A .s1 .body{grid-template-columns:300px 1fr}
+  .A .s2 .body{grid-template-columns:330px 1fr}
+  .A .margin{display:flex;flex-direction:column;border-right:1px solid var(--rule);padding-right:36px}
+  .A .s1 .margin{padding-top:76px;padding-bottom:44px}
+  .A .s2 .margin{padding-top:34px;padding-bottom:30px}
+  .A .steps{margin-top:18px}
+  .A .step{display:flex;align-items:center;gap:14px;padding:12px 0;color:var(--ink2)}
+  .A .step svg{width:26px;height:18px;stroke-width:1.25;flex:none}
+  .A .step.on{color:var(--acc)}
+  .A .ps{margin-top:auto}
+  .A .ps .mono{color:var(--acc)}
+  .A .ps p{font-style:italic;font-size:19px;line-height:1.45;margin-top:8px;color:var(--ink)}
+  .A .main{padding-top:68px}
+  .A h1{font-family:'Instrument Serif',Georgia,'Times New Roman',serif;font-weight:400;font-size:82px;line-height:.98;letter-spacing:-.018em;max-width:800px}
+  .A h1 em{font-style:italic}
+  .A .cite{color:var(--acc);margin-top:22px}
+  .A .hero{font-size:22px;line-height:1.52;max-width:30em;margin-top:34px}
+  .A .pill{display:inline-block;margin-top:40px;background:var(--acc);color:var(--paper);border-radius:999px;font-family:'Instrument Serif',Georgia,'Times New Roman',serif;font-size:27px;line-height:1;padding:15px 40px 16px;letter-spacing:.005em}
+  /* screen 2 */
+  .A .count{color:var(--ink)}
+  .A .rail{margin-top:10px;margin-bottom:24px}
+  .A .rail .step{padding:7px 0}
+  .A .post{position:relative;font-style:italic;font-size:22px;line-height:1.45;padding-top:6px}
+  .A .post::before{content:'\201C';position:absolute;left:-22px;top:-4px;font-family:'Instrument Serif',Georgia,serif;font-style:normal;font-size:48px;color:var(--acc);line-height:1}
+  .A .afirm{margin-top:20px;font-size:20px;line-height:1.45}
+  .A .afirm em{color:var(--acc)}
+  .A .s2 .main{padding-top:30px;display:flex;flex-direction:column;min-height:0}
+  .A .rows{flex:1;min-height:0;overflow:hidden}
+  .A .act{flex:none;display:flex;align-items:center;gap:32px;padding:18px 0 26px;border-top:1px solid var(--rule)}
+  .A .act .pill{margin-top:0}
+  .A .back{color:var(--ink2);font-size:20px}
+  .A .prof{display:flex;align-items:baseline;gap:18px}
+  .A .prof .name{font-family:'Instrument Serif',Georgia,serif;font-size:38px;line-height:1.05}
+  .A .prof .mono{color:var(--acc)}
+  .A .url{font-family:'IBM Plex Mono',Menlo,'Courier New',monospace;font-size:14px;color:var(--ink2);margin-top:4px;letter-spacing:.02em}
+  .A .rh{display:flex;justify-content:space-between;color:var(--ink2);margin-top:22px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  .A .row{display:grid;grid-template-columns:72px 1fr;column-gap:22px;padding:12px 0 14px;border-bottom:1px solid var(--rule)}
+  .A .sc{font-family:'Instrument Serif',Georgia,serif;font-size:60px;line-height:.86;letter-spacing:-.02em}
+  .A .sc.na{font-size:34px;font-style:italic;line-height:1.3;color:var(--ink2)}
+  .A .sc small{display:block;font-family:'IBM Plex Mono',Menlo,monospace;font-size:11px;letter-spacing:.14em;color:var(--ink2);margin-top:8px}
+  .A .crit{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+  .A .crit b{font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:30px;line-height:1.15}
+  .A .crit .mono{color:var(--acc)}
+  .A .crit .mono.q{color:var(--ink2)}
+  .A .say{margin-top:2px}
+  .A .say .ev{font-style:italic;color:var(--acc);margin-right:.45em}
+</style>
+
+<!-- ============================================================
+     DIRECTION B: BROADSHEET
+     --paper  #F3F0EA  newsprint background
+     --ink    #1A1714  body, Post, Evidence, reasons ... 15.69:1 on paper
+     --ink2   #55504A  labels, inactive tabs, meta  ...  7.01:1 on paper
+     --acc    #9E2A1C  brick accent                  ...  6.59:1 on paper
+                       (passes 4.5:1 for accent text; below 7:1, so Evidence
+                        and other group-read text stay in --ink, never brick)
+                       (paper text on brick pill     ...  6.59:1)
+     --rule   #CEC7BC  column rules, hairlines        ...  1.47:1 decorative
+     Display: Newsreader (opsz 72). Body: Libre Franklin. Labels: IBM Plex Mono.
+     ============================================================ -->
+<style>
+  .B{--paper:#F3F0EA;--ink:#1A1714;--ink2:#55504A;--acc:#9E2A1C;--rule:#CEC7BC}
+  .B .screen{background:var(--paper);color:var(--ink);font-family:'Libre Franklin','Franklin Gothic Medium','Franklin Gothic',Georgia,serif;font-size:20px;line-height:1.42}
+  .B .mono{font-family:'IBM Plex Mono',Menlo,'Courier New',monospace;font-size:12.5px;letter-spacing:.13em;text-transform:uppercase;line-height:1.35}
+  .B .disp{font-family:'Newsreader',Georgia,'Times New Roman',serif;font-variation-settings:'opsz' 72}
+  .B .top{height:74px;display:flex;align-items:center;padding:0 56px}
+  .B .brand{display:flex;align-items:center;gap:12px;color:var(--acc)}
+  .B .brand svg{width:30px;height:21px;stroke-width:1.25}
+  .B .word{font-family:'Newsreader',Georgia,'Times New Roman',serif;font-variation-settings:'opsz' 72;font-weight:500;font-size:34px;line-height:1;letter-spacing:-.015em;color:var(--ink)}
+  .B .tabs{display:flex;gap:28px;margin-left:56px}
+  .B .tab{font-size:20px;color:var(--ink2)}
+  .B .tab.on{color:var(--ink);font-weight:600}
+  .B .stamp{margin-left:auto;color:var(--ink2)}
+  .B .dbl{margin:0 56px;border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);height:5px}
+  .B .strap{margin:0 56px;display:flex;align-items:baseline;gap:22px;padding:12px 0 13px;border-bottom:1px solid var(--rule)}
+  .B .strap .mono{color:var(--acc);flex:none}
+  .B .strap p{font-family:'Newsreader',Georgia,serif;font-style:italic;font-size:21px;line-height:1.3}
+  .B .lead{display:grid;grid-template-columns:repeat(12,1fr);column-gap:32px;margin:0 56px}
+  .B .s1 .lead{padding-top:46px}
+  .B h1{grid-column:1/9;font-family:'Newsreader',Georgia,'Times New Roman',serif;font-variation-settings:'opsz' 72;font-weight:400;font-size:110px;line-height:.93;letter-spacing:-.03em}
+  .B h1 em{font-style:italic;color:var(--acc)}
+  .B .stand{grid-column:9/13;border-left:1px solid var(--rule);padding-left:30px;margin-left:-16px}
+  .B .stand p{font-size:20px;line-height:1.5}
+  .B .pill{display:inline-block;margin-top:30px;background:var(--acc);color:var(--paper);border-radius:999px;font-family:'Libre Franklin','Franklin Gothic Medium',Georgia,serif;font-weight:600;font-size:17px;letter-spacing:.12em;text-transform:uppercase;line-height:1;padding:19px 34px}
+  .B .s1,.B .s2{display:flex;flex-direction:column}
+  .B .s1 .orn{margin-top:auto}
+  .B .s1 .idx{padding-bottom:46px}
+  .B .tw{flex:1;min-height:0;overflow:hidden}
+  .B .act{flex:none;margin:0 56px;display:flex;align-items:center;gap:32px;padding:16px 0 22px;border-top:1px solid var(--ink)}
+  .B .act .pill{margin-top:0}
+  .B .back{color:var(--ink2);font-size:20px}
+  .B .orn{display:flex;align-items:center;gap:18px;margin:40px 56px 0;color:var(--acc)}
+  .B .orn::before,.B .orn::after{content:'';flex:1;border-top:1px solid var(--ink)}
+  .B .orn svg{width:26px;height:18px;stroke-width:1.25}
+  .B .idx{display:grid;grid-template-columns:repeat(3,1fr);margin:0 56px}
+  .B .idx div{padding:18px 0 0 24px;border-left:1px solid var(--rule);display:flex;gap:16px;align-items:baseline;color:var(--ink2)}
+  .B .idx div:first-child{border-left:0;padding-left:0}
+  .B .idx .n{color:var(--acc)}
+  /* screen 2 */
+  .B .date{margin:0 56px;display:grid;grid-template-columns:auto 1fr auto;border-bottom:1px solid var(--ink)}
+  .B .date>div{padding:11px 24px 12px;border-left:1px solid var(--rule)}
+  .B .date>div:first-child{border-left:0;padding-left:0;display:flex;align-items:center}
+  .B .date>div:last-child{padding-right:0;display:flex;align-items:center;gap:26px}
+  .B .pname{display:flex;align-items:baseline;gap:16px}
+  .B .pname b{font-family:'Newsreader',Georgia,serif;font-weight:500;font-size:25px;line-height:1.15}
+  .B .pname .mono{color:var(--acc)}
+  .B .url{font-family:'IBM Plex Mono',Menlo,'Courier New',monospace;font-size:13.5px;color:var(--ink2);letter-spacing:.02em;margin-top:2px}
+  .B .sub{color:var(--ink2);padding-bottom:3px}
+  .B .sub.on{color:var(--acc);border-bottom:2px solid var(--acc)}
+  .B .s2 .lead{padding-top:20px;padding-bottom:18px}
+  .B .post{grid-column:1/9;position:relative;font-family:'Newsreader',Georgia,'Times New Roman',serif;font-style:italic;font-size:29px;line-height:1.24;letter-spacing:-.005em;padding-left:34px}
+  .B .post::before{content:'\201C';position:absolute;left:0;top:-6px;font-style:normal;font-size:64px;line-height:1;color:var(--acc);font-variation-settings:'opsz' 72}
+  .B .afirm{grid-column:9/13;border-left:1px solid var(--rule);padding-left:30px;margin-left:-16px}
+  .B .afirm .mono{color:var(--acc);margin-bottom:6px}
+  .B .afirm p{font-size:20px;line-height:1.42}
+  .B table{margin:0 56px;width:1168px;border-collapse:collapse}
+  .B th{text-align:left;font-weight:400;color:var(--ink2);padding:0 16px 8px;border-bottom:1px solid var(--ink)}
+  .B th:first-child,.B td:first-child{padding-left:0}
+  .B td{vertical-align:top;padding:12px 16px 13px;border-bottom:1px solid var(--rule);border-left:1px solid var(--rule)}
+  .B td:first-child{border-left:0}
+  .B .sc{font-family:'Newsreader',Georgia,serif;font-variation-settings:'opsz' 72;font-size:80px;line-height:.8;letter-spacing:-.04em;display:flex;align-items:flex-start;gap:6px}
+  .B .sc small{font-family:'IBM Plex Mono',Menlo,monospace;font-size:11px;letter-spacing:.12em;color:var(--ink2);margin-top:6px}
+  .B .sc.na{font-size:38px;font-style:italic;line-height:1.1;letter-spacing:0;color:var(--ink2)}
+  .B .cn{font-family:'Newsreader',Georgia,serif;font-weight:500;font-size:23px;line-height:1.15}
+  .B .cn i{font-style:normal;font-family:'IBM Plex Mono',Menlo,monospace;font-size:12px;color:var(--ink2);letter-spacing:.1em;margin-right:10px;vertical-align:3px}
+  .B .tag{color:var(--acc);margin-top:7px}
+  .B .tag.q{color:var(--ink2);margin-top:3px}
+  .B .ev{font-family:'Newsreader',Georgia,serif;font-style:italic;font-size:21px;line-height:1.3}
+  .B .ev.none{color:var(--ink2)}
+  .B .why{font-size:20px;line-height:1.38}
+</style>
+
+<!-- ============================================================
+     DIRECTION C: QUIET ROOM
+     --paper  #F7F4EE  bone background
+     --ink    #221C1A  body, Post, Evidence, reasons ... 15.32:1 on paper
+     --ink2   #5E5551  labels, inactive tabs, footer  ...  6.61:1 on paper
+     --acc    #6E1E22  wine accent                    ... 10.22:1 on paper
+                       (outlined pill: wine text on bone 10.22:1)
+     --rule   #DCD4CA  hairlines, decorative          ...  1.34:1
+     Display: Libre Caslon Display (Libre Caslon Text italic for emphasis).
+     Body: Atkinson Hyperlegible. Labels: DM Mono.
+     ============================================================ -->
+<style>
+  .C{--paper:#F7F4EE;--ink:#221C1A;--ink2:#5E5551;--acc:#6E1E22;--rule:#DCD4CA}
+  .C .screen{background:var(--paper);color:var(--ink);font-family:'Atkinson Hyperlegible',Georgia,'Times New Roman',serif;font-size:20px;line-height:1.5}
+  .C .mono{font-family:'DM Mono',Menlo,'Courier New',monospace;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;line-height:1.4}
+  .C .top{height:86px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 64px}
+  .C .tabs{display:flex;gap:30px}
+  .C .tab{font-size:20px;color:var(--ink2)}
+  .C .tab.on{color:var(--ink);text-decoration:underline;text-decoration-color:var(--acc);text-decoration-thickness:1px;text-underline-offset:9px}
+  .C .brand{display:flex;align-items:center;gap:12px;color:var(--acc)}
+  .C .brand svg{width:30px;height:21px;stroke-width:1.2}
+  .C .word{font-family:'Libre Caslon Display',Georgia,'Times New Roman',serif;font-size:30px;line-height:1;color:var(--ink);letter-spacing:.005em}
+  .C .stamp{justify-self:end;color:var(--ink2)}
+  .C .center{display:flex;flex-direction:column;align-items:center;text-align:center}
+  .C .seal{width:128px;height:90px;color:var(--acc);stroke-width:1.25;margin-top:46px}
+  .C h1{font-family:'Libre Caslon Display',Georgia,'Times New Roman',serif;font-weight:400;font-size:62px;line-height:1.1;letter-spacing:-.005em;max-width:900px;margin-top:34px}
+  .C h1 em{font-family:'Libre Caslon Text',Georgia,serif;font-style:italic;font-size:.9em;color:var(--acc)}
+  .C .hero{max-width:610px;margin-top:26px;font-size:20px;line-height:1.6}
+  .C .pill{display:inline-block;margin-top:34px;border:1.5px solid var(--acc);color:var(--acc);border-radius:999px;font-family:'Libre Caslon Text',Georgia,serif;font-size:21px;line-height:1;padding:16px 46px 17px}
+  .C .steps{display:flex;gap:22px;align-items:center;margin-top:38px;color:var(--ink2)}
+  .C .steps .dash{width:28px;border-top:1px solid var(--rule)}
+  .C .foot{position:absolute;left:0;right:0;bottom:0;height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;background:var(--paper)}
+  .C .foot::before{content:'';width:56px;border-top:1px solid var(--acc)}
+  .C .foot p{font-style:italic;font-size:18px;line-height:1.2;color:var(--ink2)}
+  .C .s2 .foot{height:92px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;column-gap:32px;padding:0 64px;border-top:1px solid var(--rule)}
+  .C .s2 .foot::before{display:none}
+  .C .s2 .foot p{max-width:500px;text-align:center;line-height:1.4}
+  .C .s2 .foot .back{justify-self:start;color:var(--ink2);font-size:20px}
+  .C .s2 .foot .pill{justify-self:end;margin-top:0;padding:15px 36px 16px}
+  /* screen 2 */
+  .C .meta{display:flex;align-items:baseline;justify-content:center;gap:22px;margin-top:6px}
+  .C .meta .pn{font-family:'Libre Caslon Text',Georgia,serif;font-style:italic;font-size:21px}
+  .C .meta .fx{color:var(--acc)}
+  .C .meta .url{font-family:'DM Mono',Menlo,'Courier New',monospace;font-size:13.5px;color:var(--ink2);letter-spacing:.02em}
+  .C .rail{display:flex;justify-content:center;gap:40px;margin-top:14px;color:var(--ink2)}
+  .C .rail span{display:flex;align-items:center;gap:10px}
+  .C .rail .on{color:var(--acc)}
+  .C .rail svg{width:20px;height:14px;stroke-width:1.2}
+  .C .post{max-width:1010px;margin-top:26px;font-size:25px;line-height:1.44}
+  .C .post .qm{font-family:'Libre Caslon Text',Georgia,serif;color:var(--acc)}
+  .C .afirm{margin-top:12px;font-size:20px}
+  .C .afirm em{font-family:'Libre Caslon Text',Georgia,serif;color:var(--acc)}
+  .C .hr{width:56px;border-top:1px solid var(--rule);margin-top:22px}
+  .C .grid{display:grid;grid-template-columns:1fr 1fr;column-gap:0;row-gap:24px;width:1136px;margin:24px auto 0;text-align:left}
+  .C .ent{display:grid;grid-template-columns:62px 1fr;column-gap:18px;padding-right:44px}
+  .C .ent:nth-child(even){border-left:1px solid var(--rule);padding-left:44px;padding-right:0}
+  .C .sc{font-family:'Libre Caslon Display',Georgia,serif;font-size:58px;line-height:.9}
+  .C .sc.na{font-family:'Libre Caslon Text',Georgia,serif;font-style:italic;font-size:30px;line-height:1.3;color:var(--ink2)}
+  .C .cn{font-family:'Libre Caslon Text',Georgia,serif;font-size:23px;line-height:1.2}
+  .C .tags{display:flex;gap:18px;margin-top:5px;color:var(--acc)}
+  .C .tags .q{color:var(--ink2)}
+  .C .ev{font-style:italic;margin-top:5px;line-height:1.4}
+  .C .why{line-height:1.42}
+</style>
+</head>
+<body>
+
+<!-- Letter motif symbols: thin outline, no fill, stroke = currentColor -->
+<svg class="hide" aria-hidden="true">
+  <symbol id="env" viewBox="0 0 40 28">
+    <rect x="1" y="1" width="38" height="26" rx="1.5" fill="none" stroke="currentColor" vector-effect="non-scaling-stroke"/>
+    <path d="M1.6 1.8 L20 15.5 L38.4 1.8" fill="none" stroke="currentColor" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+  </symbol>
+  <symbol id="env-seal" viewBox="0 0 40 28">
+    <rect x="1" y="1" width="38" height="26" rx="1.5" fill="none" stroke="currentColor" vector-effect="non-scaling-stroke"/>
+    <path d="M1.6 1.8 L16.63 12.99 M38.4 1.8 L23.37 12.99" fill="none" stroke="currentColor" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+    <circle cx="20" cy="15.5" r="4.2" fill="none" stroke="currentColor" vector-effect="non-scaling-stroke"/>
+    <circle cx="20" cy="15.5" r="2.1" fill="none" stroke="currentColor" vector-effect="non-scaling-stroke"/>
+  </symbol>
+  <symbol id="env-back" viewBox="0 0 40 28">
+    <rect x="1" y="1" width="38" height="26" rx="1" fill="none" stroke="currentColor" vector-effect="non-scaling-stroke"/>
+    <path d="M1.6 1.8 L20 15.5 L38.4 1.8 M1.6 26.4 L15.6 13.1 M38.4 26.4 L24.4 13.1" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+  </symbol>
+  <symbol id="env-wax" viewBox="0 0 120 84">
+    <rect x="1.5" y="1.5" width="117" height="81" rx="3" fill="none" stroke="currentColor" vector-effect="non-scaling-stroke"/>
+    <path d="M3 3 L51.23 39.36 M117 3 L68.77 39.36 M3 81 L50.64 51.78 M117 81 L69.36 51.78" fill="none" stroke="currentColor" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+    <circle cx="60" cy="46" r="11" fill="none" stroke="currentColor" vector-effect="non-scaling-stroke"/>
+    <circle cx="60" cy="46" r="7" fill="none" stroke="currentColor" vector-effect="non-scaling-stroke"/>
+  </symbol>
+</svg>
+
+<header class="page-head">
+  <div class="kick">Witness Review · UX run 2026-10-21 · directions-1</div>
+  <h1 style="margin-top:10px">Witness Review: three visual directions (working mock, not final)</h1>
+  <p>All three share the fixed decisions: serif headlines with one italic emphasis, a single dark red accent on off-white, one pill per screen, small mono labels, and an outline letter icon. They differ in register, density and layout. Each shows the opening screen and Post 03 of 10 on its Scores step, at 1280 by 800 with a 20px body.</p>
+</header>
+
+<!-- ======================== A ======================== -->
+<section class="dir A">
+  <div class="dir-head">
+    <div>
+      <div class="kick">Direction A</div>
+      <h2>Correspondence</h2>
+      <ul class="tokens">
+        <li><span class="sw" style="background:#F6F1E7"></span><span>paper</span><span>#F6F1E7</span><span>background</span></li>
+        <li><span class="sw" style="background:#1E1915"></span><span>ink</span><span>#1E1915</span><span>15.48:1 on paper</span></li>
+        <li><span class="sw" style="background:#574D44"></span><span>ink-2</span><span>#574D44</span><span>7.31:1, labels and meta</span></li>
+        <li><span class="sw" style="background:#7A1F1A"></span><span>oxblood</span><span>#7A1F1A</span><span>9.15:1, the only accent</span></li>
+        <li><span class="sw" style="background:#D6CCBC"></span><span>rule</span><span>#D6CCBC</span><span>hairlines only</span></li>
+      </ul>
+      <div class="fonts">Instrument Serif · Source Serif 4 · IBM Plex Mono</div>
+    </div>
+    <div class="why">
+      <p>A Review read as a letter on good stationery. Everything is serif, the measure is narrow, and a ruled margin down the left holds the marginalia: the steps, the post being read, and a postscript that carries the standing reminder.</p>
+      <p>The sealed envelope sits beside the wordmark and marks every step, so the 2 Corinthians 3:2 idea runs quietly through the tool. It is the warmest and least dense of the three, which means long Evaluations scroll more.</p>
+    </div>
+  </div>
+
+  <div class="kick shot-label">Screen 1 · Opening</div>
+  <div class="frame">
+    <div class="frame-bar"><i></i><i></i><i></i><span class="url">claude.ai/artifact/witness-review</span></div>
+    <div class="screen s1">
+      <div class="top">
+        <div class="brand"><svg><use href="#env-seal"/></svg><span class="word">Witness Review</span></div>
+        <nav class="tabs"><span class="tab on">Review</span><span class="tab">Roadmap</span></nav>
+        <span class="stamp mono">witness-rubric@1 · personas@1</span>
+      </div>
+      <div class="body">
+        <aside class="margin">
+          <div class="mono" style="color:var(--ink2)">The Review</div>
+          <div class="steps">
+            <div class="step"><svg><use href="#env"/></svg><span class="mono">01 Profile &amp; Posts</span></div>
+            <div class="step"><svg><use href="#env"/></svg><span class="mono">02 Evaluations</span></div>
+            <div class="step"><svg><use href="#env"/></svg><span class="mono">03 Outreach Plan</span></div>
+          </div>
+          <div class="ps">
+            <div class="mono">P.S.</div>
+            <p>A post can land on anyone’s page, so witness matters whatever your intended audience.</p>
+          </div>
+        </aside>
+        <main class="main">
+          <h1>You are a letter, <em>known and read</em> by everyone.</h1>
+          <div class="mono cite">2 Corinthians 3:2 (NIV)</div>
+          <p class="hero">See how a public post might land with seven different people who don’t share the faith. Each post is scored against a witness rubric drawn from Scripture, with the evidence quoted, and you get a gentler way to say the same thing.</p>
+          <span class="pill">Start a Review</span>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <div class="kick shot-label">Screen 2 · Post 03 of 10 · Scores</div>
+  <div class="frame">
+    <div class="frame-bar"><i></i><i></i><i></i><span class="url">claude.ai/artifact/witness-review</span></div>
+    <div class="screen s2">
+      <div class="top">
+        <div class="brand"><svg><use href="#env-seal"/></svg><span class="word">Witness Review</span></div>
+        <nav class="tabs"><span class="tab on">Review</span><span class="tab">Roadmap</span></nav>
+        <span class="stamp mono">witness-rubric@1 · personas@1</span>
+      </div>
+      <div class="body">
+        <aside class="margin">
+          <div class="mono count">Post 03 / 10</div>
+          <div class="rail">
+            <div class="step on"><svg><use href="#env-seal"/></svg><span class="mono">Scores</span></div>
+            <div class="step"><svg><use href="#env"/></svg><span class="mono">Reactions</span></div>
+            <div class="step"><svg><use href="#env"/></svg><span class="mono">Rewrite</span></div>
+            <div class="step"><svg><use href="#env"/></svg><span class="mono">Questions</span></div>
+          </div>
+          <p class="post">If you’re not washed in the blood, you’re still dead in your sins. The world won’t tell you this, but we will. Repent today. #truth</p>
+          <p class="afirm"><em>What lands well:</em> it says plainly what it believes and asks for a response.</p>
+          <div class="ps">
+            <div class="mono">P.S.</div>
+            <p>A post can land on anyone’s page, so witness matters whatever your intended audience.</p>
+          </div>
+        </aside>
+        <main class="main">
+          <div class="prof"><span class="name">Harbor Light Fellowship</span><span class="mono">Fictional example</span></div>
+          <div class="url">instagram.com/harborlight.fellowship</div>
+          <div class="rh mono"><span>Rubric Scores</span><span>Witness-rubric@1</span></div>
+          <div class="rows">
+
+          <div class="row"><div class="sc">2<small>OF 5</small></div><div>
+            <div class="crit"><b>Outsider Clarity</b><span class="mono">Jargon</span></div>
+            <p class="say"><span class="ev">“washed in the blood”, “dead in your sins”</span>Someone with no church background is unlikely to know what these phrases mean.</p></div></div>
+
+          <div class="row"><div class="sc">2<small>OF 5</small></div><div>
+            <div class="crit"><b>Cultural Awareness</b><span class="mono">Tone</span></div>
+            <p class="say"><span class="ev">“The world won’t tell you this”</span>It treats the reader’s world as an opponent before showing it understands it.</p></div></div>
+
+          <div class="row"><div class="sc">2<small>OF 5</small></div><div>
+            <div class="crit"><b>Gentleness &amp; Respect</b><span class="mono">Tone</span></div>
+            <p class="say"><span class="ev">“you’re still dead in your sins”</span>It opens with a charge against the reader, with no warmth first.</p></div></div>
+
+          <div class="row"><div class="sc">2<small>OF 5</small></div><div>
+            <div class="crit"><b>Welcome over Judgment</b><span class="mono">Tone</span><span class="mono q">Claim · not scored down</span></div>
+            <p class="say"><span class="ev">“Repent today.”</span>The call to repent is the claim itself and is not scored down; the score reflects that the only welcome offered is a command.</p></div></div>
+
+          <div class="row"><div class="sc na">N/A</div><div>
+            <div class="crit"><b>Kingdom over Party</b></div>
+            <p class="say">The post has no political content.</p></div></div>
+
+          <div class="row"><div class="sc">3<small>OF 5</small></div><div>
+            <div class="crit"><b>Humility &amp; Integrity</b><span class="mono">Tone</span></div>
+            <p class="say"><span class="ev">“but we will”</span>It casts the church as the one brave enough to speak, which can read as self-congratulation.</p></div></div>
+
+          <div class="row"><div class="sc">2<small>OF 5</small></div><div>
+            <div class="crit"><b>Love Made Visible</b><span class="mono">Tone</span></div>
+            <p class="say"><span class="ev">The whole post</span>Nothing in it shows care for a real person.</p></div></div>
+
+          <div class="row"><div class="sc">2<small>OF 5</small></div><div>
+            <div class="crit"><b>Invitation &amp; Dialogue</b><span class="mono">Tone</span></div>
+            <p class="say"><span class="ev">“Repent today.”</span>It leaves no door open for questions.</p></div></div>
+
+          <div class="row"><div class="sc">5<small>OF 5</small></div><div>
+            <div class="crit"><b>Clear Conviction</b></div>
+            <p class="say"><span class="ev">“Repent today.”</span>It states its belief and the response it hopes for, plainly.</p></div></div>
+
+          <div class="row"><div class="sc na">N/A</div><div>
+            <div class="crit"><b>Self-Presentation Alignment</b></div>
+            <p class="say">Used only when creators review their own posts.</p></div></div>
+
+          </div>
+          <div class="act"><span class="pill">Next: Reactions</span><span class="back">Back</span></div>
+        </main>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== B ======================== -->
+<section class="dir B">
+  <div class="dir-head">
+    <div>
+      <div class="kick">Direction B</div>
+      <h2>Broadsheet</h2>
+      <ul class="tokens">
+        <li><span class="sw" style="background:#F3F0EA"></span><span>newsprint</span><span>#F3F0EA</span><span>background</span></li>
+        <li><span class="sw" style="background:#1A1714"></span><span>ink</span><span>#1A1714</span><span>15.69:1 on newsprint</span></li>
+        <li><span class="sw" style="background:#55504A"></span><span>ink-2</span><span>#55504A</span><span>7.01:1, labels and meta</span></li>
+        <li><span class="sw" style="background:#9E2A1C"></span><span>brick</span><span>#9E2A1C</span><span>6.59:1, accent only</span></li>
+        <li><span class="sw" style="background:#CEC7BC"></span><span>rule</span><span>#CEC7BC</span><span>column rules and hairlines</span></li>
+      </ul>
+      <div class="fonts">Newsreader (display opsz) · Libre Franklin · IBM Plex Mono</div>
+    </div>
+    <div class="why">
+      <p>The editorial register of a good newspaper: a masthead over a double rule, an asymmetric column grid, column rules, and score numerals set very large. The standing reminder runs as a strap under the masthead on every screen.</p>
+      <p>It is the densest of the three, so the Post and four Criteria sit above the fold together, and the Rubric reads like a set of results. The envelope works as a printer’s ornament: beside the wordmark and breaking the rule above the step index.</p>
+    </div>
+  </div>
+
+  <div class="kick shot-label">Screen 1 · Opening</div>
+  <div class="frame">
+    <div class="frame-bar"><i></i><i></i><i></i><span class="url">claude.ai/artifact/witness-review</span></div>
+    <div class="screen s1">
+      <div class="top">
+        <div class="brand"><svg><use href="#env-back"/></svg><span class="word">Witness Review</span></div>
+        <nav class="tabs"><span class="tab on">Review</span><span class="tab">Roadmap</span></nav>
+        <span class="stamp mono">witness-rubric@1 · personas@1</span>
+      </div>
+      <div class="dbl"></div>
+      <div class="strap"><span class="mono">Standing note</span><p>A post can land on anyone’s page, so witness matters whatever your intended audience.</p></div>
+      <div class="lead">
+        <h1>Your post could land on <em>anyone’s</em> page.</h1>
+        <div class="stand">
+          <p>See how a public post might land with seven different people who don’t share the faith. Each post is scored against a witness rubric drawn from Scripture, with the evidence quoted, and you get a gentler way to say the same thing.</p>
+          <span class="pill">Start a Review</span>
+        </div>
+      </div>
+      <div class="orn"><svg><use href="#env-back"/></svg></div>
+      <div class="idx">
+        <div class="mono"><span class="n">01</span><span>Profile &amp; Posts</span></div>
+        <div class="mono"><span class="n">02</span><span>Evaluations</span></div>
+        <div class="mono"><span class="n">03</span><span>Outreach Plan</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="kick shot-label">Screen 2 · Post 03 of 10 · Scores</div>
+  <div class="frame">
+    <div class="frame-bar"><i></i><i></i><i></i><span class="url">claude.ai/artifact/witness-review</span></div>
+    <div class="screen s2">
+      <div class="top">
+        <div class="brand"><svg><use href="#env-back"/></svg><span class="word">Witness Review</span></div>
+        <nav class="tabs"><span class="tab on">Review</span><span class="tab">Roadmap</span></nav>
+        <span class="stamp mono">witness-rubric@1 · personas@1</span>
+      </div>
+      <div class="dbl"></div>
+      <div class="strap"><span class="mono">Standing note</span><p>A post can land on anyone’s page, so witness matters whatever your intended audience.</p></div>
+      <div class="date">
+        <div><span class="mono">Post 03 / 10</span></div>
+        <div>
+          <div class="pname"><b>Harbor Light Fellowship</b><span class="mono">Fictional example</span></div>
+          <div class="url">instagram.com/harborlight.fellowship</div>
+        </div>
+        <div>
+          <span class="mono sub on">Scores</span><span class="mono sub">Reactions</span><span class="mono sub">Rewrite</span><span class="mono sub">Questions</span>
+        </div>
+      </div>
+      <div class="lead">
+        <p class="post">If you’re not washed in the blood, you’re still dead in your sins. The world won’t tell you this, but we will. Repent today. #truth</p>
+        <div class="afirm"><div class="mono">What lands well</div><p>It says plainly what it believes and asks for a response.</p></div>
+      </div>
+      <div class="tw"><table>
+        <colgroup><col style="width:118px"><col style="width:322px"><col style="width:280px"><col></colgroup>
+        <thead><tr><th class="mono">Score</th><th class="mono">Criterion</th><th class="mono">Evidence</th><th class="mono">Why</th></tr></thead>
+        <tbody>
+          <tr><td><div class="sc">2<small>/5</small></div></td><td><div class="cn"><i>01</i>Outsider Clarity</div><div class="mono tag">Jargon</div></td><td class="ev">“washed in the blood”, “dead in your sins”</td><td class="why">Someone with no church background is unlikely to know what these phrases mean.</td></tr>
+          <tr><td><div class="sc">2<small>/5</small></div></td><td><div class="cn"><i>02</i>Cultural Awareness</div><div class="mono tag">Tone</div></td><td class="ev">“The world won’t tell you this”</td><td class="why">It treats the reader’s world as an opponent before showing it understands it.</td></tr>
+          <tr><td><div class="sc">2<small>/5</small></div></td><td><div class="cn"><i>03</i>Gentleness &amp; Respect</div><div class="mono tag">Tone</div></td><td class="ev">“you’re still dead in your sins”</td><td class="why">It opens with a charge against the reader, with no warmth first.</td></tr>
+          <tr><td><div class="sc">2<small>/5</small></div></td><td><div class="cn"><i>04</i>Welcome over Judgment</div><div class="mono tag">Tone</div><div class="mono tag q">Claim · not scored down</div></td><td class="ev">“Repent today.”</td><td class="why">The call to repent is the claim itself and is not scored down; the score reflects that the only welcome offered is a command.</td></tr>
+          <tr><td><div class="sc na">N/A</div></td><td><div class="cn"><i>05</i>Kingdom over Party</div></td><td class="ev none">No political content</td><td class="why">The post has no political content.</td></tr>
+          <tr><td><div class="sc">3<small>/5</small></div></td><td><div class="cn"><i>06</i>Humility &amp; Integrity</div><div class="mono tag">Tone</div></td><td class="ev">“but we will”</td><td class="why">It casts the church as the one brave enough to speak, which can read as self-congratulation.</td></tr>
+          <tr><td><div class="sc">2<small>/5</small></div></td><td><div class="cn"><i>07</i>Love Made Visible</div><div class="mono tag">Tone</div></td><td class="ev">The whole post</td><td class="why">Nothing in it shows care for a real person.</td></tr>
+          <tr><td><div class="sc">2<small>/5</small></div></td><td><div class="cn"><i>08</i>Invitation &amp; Dialogue</div><div class="mono tag">Tone</div></td><td class="ev">“Repent today.”</td><td class="why">It leaves no door open for questions.</td></tr>
+          <tr><td><div class="sc">5<small>/5</small></div></td><td><div class="cn"><i>09</i>Clear Conviction</div></td><td class="ev">“Repent today.”</td><td class="why">It states its belief and the response it hopes for, plainly.</td></tr>
+          <tr><td><div class="sc na">N/A</div></td><td><div class="cn"><i>10</i>Self-Presentation Alignment</div></td><td class="ev none">Own-content reviews only</td><td class="why">Used only when creators review their own posts.</td></tr>
+        </tbody>
+      </table></div>
+      <div class="act"><span class="pill">Next: Reactions</span><span class="back">Back</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== C ======================== -->
+<section class="dir C">
+  <div class="dir-head">
+    <div>
+      <div class="kick">Direction C</div>
+      <h2>Quiet Room</h2>
+      <ul class="tokens">
+        <li><span class="sw" style="background:#F7F4EE"></span><span>bone</span><span>#F7F4EE</span><span>background</span></li>
+        <li><span class="sw" style="background:#221C1A"></span><span>ink</span><span>#221C1A</span><span>15.32:1 on bone</span></li>
+        <li><span class="sw" style="background:#5E5551"></span><span>ink-2</span><span>#5E5551</span><span>6.61:1, labels and footer</span></li>
+        <li><span class="sw" style="background:#6E1E22"></span><span>wine</span><span>#6E1E22</span><span>10.22:1, the only accent</span></li>
+        <li><span class="sw" style="background:#DCD4CA"></span><span>rule</span><span>#DCD4CA</span><span>hairlines only</span></li>
+      </ul>
+      <div class="fonts">Libre Caslon Display + Text italic · Atkinson Hyperlegible · DM Mono</div>
+    </div>
+    <div class="why">
+      <p>The closest to House of Stewards: centred, spare, a lot of empty bone around a few things. Libre Caslon gives the headlines their warmth and Atkinson Hyperlegible carries the reading text, chosen because it holds up on a TV across a room.</p>
+      <p>The letter appears once, large and centred like a wax seal, and then only as the small mark on the current step. The reminder sits as a quiet folio at the foot of every screen. On the Scores step it gives up some calm for a two-column grid so four Criteria fit above the fold.</p>
+    </div>
+  </div>
+
+  <div class="kick shot-label">Screen 1 · Opening</div>
+  <div class="frame">
+    <div class="frame-bar"><i></i><i></i><i></i><span class="url">claude.ai/artifact/witness-review</span></div>
+    <div class="screen s1">
+      <div class="top">
+        <nav class="tabs"><span class="tab on">Review</span><span class="tab">Roadmap</span></nav>
+        <div class="brand"><svg><use href="#env"/></svg><span class="word">Witness Review</span></div>
+        <span class="stamp mono">witness-rubric@1 · personas@1</span>
+      </div>
+      <div class="center">
+        <svg class="seal" viewBox="0 0 120 84"><use href="#env-wax"/></svg>
+        <h1>How does your post <em>read</em> from outside the church?</h1>
+        <p class="hero">See how a public post might land with seven different people who don’t share the faith. Each post is scored against a witness rubric drawn from Scripture, with the evidence quoted, and you get a gentler way to say the same thing.</p>
+        <span class="pill">Start a Review</span>
+        <div class="steps mono"><span>01 Profile &amp; Posts</span><span class="dash"></span><span>02 Evaluations</span><span class="dash"></span><span>03 Outreach Plan</span></div>
+      </div>
+      <div class="foot"><p>A post can land on anyone’s page, so witness matters whatever your intended audience.</p></div>
+    </div>
+  </div>
+
+  <div class="kick shot-label">Screen 2 · Post 03 of 10 · Scores</div>
+  <div class="frame">
+    <div class="frame-bar"><i></i><i></i><i></i><span class="url">claude.ai/artifact/witness-review</span></div>
+    <div class="screen s2">
+      <div class="top">
+        <nav class="tabs"><span class="tab on">Review</span><span class="tab">Roadmap</span></nav>
+        <div class="brand"><svg><use href="#env"/></svg><span class="word">Witness Review</span></div>
+        <span class="stamp mono">witness-rubric@1 · personas@1</span>
+      </div>
+      <div class="center">
+        <div class="meta"><span class="mono">Post 03 / 10</span><span class="pn">Harbor Light Fellowship</span><span class="mono fx">Fictional example</span><span class="url">instagram.com/harborlight.fellowship</span></div>
+        <div class="rail mono">
+          <span class="on"><svg><use href="#env-seal"/></svg>Scores</span><span>Reactions</span><span>Rewrite</span><span>Questions</span>
+        </div>
+        <p class="post"><span class="qm">“</span>If you’re not washed in the blood, you’re still dead in your sins. The world won’t tell you this, but we will. Repent today. #truth<span class="qm">”</span></p>
+        <p class="afirm"><em>What lands well:</em> it says plainly what it believes and asks for a response.</p>
+        <div class="hr"></div>
+        <div class="grid">
+          <div class="ent"><div class="sc">2</div><div><div class="cn">Outsider Clarity</div><div class="tags mono"><span>Jargon</span></div><p class="ev">“washed in the blood”, “dead in your sins”</p><p class="why">Someone with no church background is unlikely to know what these phrases mean.</p></div></div>
+          <div class="ent"><div class="sc">2</div><div><div class="cn">Cultural Awareness</div><div class="tags mono"><span>Tone</span></div><p class="ev">“The world won’t tell you this”</p><p class="why">It treats the reader’s world as an opponent before showing it understands it.</p></div></div>
+          <div class="ent"><div class="sc">2</div><div><div class="cn">Gentleness &amp; Respect</div><div class="tags mono"><span>Tone</span></div><p class="ev">“you’re still dead in your sins”</p><p class="why">It opens with a charge against the reader, with no warmth first.</p></div></div>
+          <div class="ent"><div class="sc">2</div><div><div class="cn">Welcome over Judgment</div><div class="tags mono"><span>Tone</span><span class="q">Claim · not scored down</span></div><p class="ev">“Repent today.”</p><p class="why">The call to repent is the claim itself and is not scored down; the score reflects that the only welcome offered is a command.</p></div></div>
+          <div class="ent"><div class="sc na">N/A</div><div><div class="cn">Kingdom over Party</div><p class="why" style="margin-top:6px">The post has no political content.</p></div></div>
+          <div class="ent"><div class="sc">3</div><div><div class="cn">Humility &amp; Integrity</div><div class="tags mono"><span>Tone</span></div><p class="ev">“but we will”</p><p class="why">It casts the church as the one brave enough to speak, which can read as self-congratulation.</p></div></div>
+          <div class="ent"><div class="sc">2</div><div><div class="cn">Love Made Visible</div><div class="tags mono"><span>Tone</span></div><p class="ev">The whole post</p><p class="why">Nothing in it shows care for a real person.</p></div></div>
+          <div class="ent"><div class="sc">2</div><div><div class="cn">Invitation &amp; Dialogue</div><div class="tags mono"><span>Tone</span></div><p class="ev">“Repent today.”</p><p class="why">It leaves no door open for questions.</p></div></div>
+          <div class="ent"><div class="sc">5</div><div><div class="cn">Clear Conviction</div><p class="ev">“Repent today.”</p><p class="why">It states its belief and the response it hopes for, plainly.</p></div></div>
+          <div class="ent"><div class="sc na">N/A</div><div><div class="cn">Self-Presentation Alignment</div><p class="why" style="margin-top:6px">Used only when creators review their own posts.</p></div></div>
+        </div>
+      </div>
+      <div class="foot"><span class="back">Back</span><p>A post can land on anyone’s page, so witness matters whatever your intended audience.</p><span class="pill">Next: Reactions</span></div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

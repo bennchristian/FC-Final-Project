@@ -1,0 +1,14 @@
+{
+  "about": "AD-3: overrides then derivation. `scores` are in rubric order (10 Criteria of witness-rubric@1); null is N/A. Build an assessment from them, apply overrides for `kind`, then derive.",
+  "rubric": "witness-rubric@1",
+  "cases": [
+    { "name": "all 4 or above: lands well, no rewrite", "kind": "others", "scores": [4, 5, 4, 4, null, 4, 5, 4, 5, null], "expect": { "lands_well": true, "rewrite_mode": "none" } },
+    { "name": "lowest is 3: lands well, rewrite offered", "kind": "others", "scores": [3, 4, 4, 4, null, 4, 4, 3, 5, null], "expect": { "lands_well": true, "rewrite_mode": "offer" } },
+    { "name": "one score below 3: auto rewrite", "kind": "others", "scores": [2, 4, 4, 4, null, 4, 4, 4, 5, null], "expect": { "lands_well": false, "rewrite_mode": "auto" } },
+    { "name": "lowest is 1: auto rewrite", "kind": "others", "scores": [4, 4, 1, 2, 1, 4, 4, 4, 5, null], "expect": { "lands_well": false, "rewrite_mode": "auto" } },
+    { "name": "N/A never counts as below 3", "kind": "others", "scores": [5, 5, 5, 5, null, 5, 5, 5, 5, null], "expect": { "lands_well": true, "rewrite_mode": "none" } },
+    { "name": "own-content Criterion forced to N/A on an Others' Review, so its 1 is ignored", "kind": "others", "scores": [4, 4, 4, 4, null, 4, 4, 4, 4, 1], "expect": { "lands_well": true, "rewrite_mode": "none" } },
+    { "name": "only the own-content Criterion scored: nothing assessable after the override", "kind": "others", "scores": [null, null, null, null, null, null, null, null, null, 5], "expect": { "lands_well": false, "rewrite_mode": "not_assessable" } },
+    { "name": "every Criterion N/A: not assessable", "kind": "others", "scores": [null, null, null, null, null, null, null, null, null, null], "expect": { "lands_well": false, "rewrite_mode": "not_assessable" } }
+  ]
+}

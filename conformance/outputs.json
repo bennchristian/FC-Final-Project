@@ -1,0 +1,123 @@
+{
+  "about": "SCHEMA.md §4.1–§4.5 and §4.7: valid and invalid model outputs per call. Each case starts from a deep copy of bases[step], applies `set` ([path, value] pairs) and then `delete` (paths; an array index is spliced out), then validates. Assess runs the full chain for an Others' Review: shape, overrides, cross-field rules.",
+  "rubric": "witness-rubric@1",
+  "personas": "persona-set@1",
+  "outreach_done_positions": [1, 2],
+  "bases": {
+    "assess": {
+      "post_transcript": "Sunday recap! We were SO blessed in the Word this week.",
+      "scores": [
+        { "criterion": "outsider_clarity", "score": 2, "evidence": "blessed in the Word", "explanation": "Insider phrasing with no explanation.", "offence_sources": ["jargon"] },
+        { "criterion": "cultural_awareness", "score": 3, "evidence": "Sunday recap", "explanation": "Speaks mostly to people who were there.", "offence_sources": ["jargon"] },
+        { "criterion": "gentleness_respect", "score": 4, "evidence": "We were SO blessed", "explanation": "Warm and friendly.", "offence_sources": [] },
+        { "criterion": "welcome_over_judgment", "score": 4, "evidence": "We were SO blessed", "explanation": "No judgment of outsiders.", "offence_sources": [] },
+        { "criterion": "kingdom_over_party", "score": null, "evidence": null, "explanation": "No political content.", "offence_sources": [] },
+        { "criterion": "humility_integrity", "score": 3, "evidence": "the altar was FULL", "explanation": "Leans on numbers as a sign of success.", "offence_sources": ["tone"] },
+        { "criterion": "love_made_visible", "score": 3, "evidence": "Sunday recap", "explanation": "Love is implied but not shown toward anyone outside.", "offence_sources": ["claim"] },
+        { "criterion": "invitation_dialogue", "score": 2, "evidence": "what are you waiting for??", "explanation": "Pressure rather than a door.", "offence_sources": ["tone"] },
+        { "criterion": "clear_conviction", "score": 4, "evidence": "blessed in the Word", "explanation": "Clear about what the church values.", "offence_sources": ["claim"] },
+        { "criterion": "self_presentation_alignment", "score": null, "evidence": null, "explanation": "Applies only when Creators review their own posts.", "offence_sources": [] }
+      ],
+      "soundness_flag": null
+    },
+    "react": {
+      "reactions": [
+        { "persona": "seeker", "felt_response": "confused", "valence": "negative", "reasons": ["I don't know what 'the Word' means here."] },
+        { "persona": "drifter", "felt_response": "indifferent", "valence": "negative", "reasons": ["It reads like a members' newsletter."] },
+        { "persona": "neighbor_other_faith", "felt_response": "politely shut out", "valence": "mixed", "reasons": ["It's joyful, but clearly not for me."] },
+        { "persona": "exvangelical", "felt_response": "wary", "valence": "negative", "reasons": ["'Altar was full' feels like scorekeeping.", "The question at the end sounds like a guilt trip."] },
+        { "persona": "skeptic", "felt_response": "unmoved", "valence": "negative", "reasons": ["Nothing here to engage with."] },
+        { "persona": "progressive", "felt_response": "neutral", "valence": "mixed", "reasons": ["Harmless, but nothing for me."] },
+        { "persona": "emboldened_believer", "felt_response": "prompted to recruit", "valence": "mixed", "reasons": ["It makes me want to push friends to come, maybe too hard."] }
+      ]
+    },
+    "discuss": {
+      "questions": [
+        { "text": "If you had posted this recap, what would you have done differently?", "standing": "done_differently", "persona": null },
+        { "text": "What does the Bible say about inviting people in?", "standing": "bible_says", "persona": null },
+        { "text": "How might Jesus have responded to this post?", "standing": "jesus_responded", "persona": null },
+        { "text": "How might Jesus have posted this?", "standing": "jesus_posted", "persona": null },
+        { "text": "In the simulated reaction, the Seeker didn't know what 'the Word' meant. What words do we use that others might not know?", "standing": null, "persona": "seeker" }
+      ]
+    },
+    "rewrite": {
+      "rewrite": "What a Sunday! We talked about a promise in the Bible that God can bring good out of hard things (Romans 8:28). If you're curious, our small groups are open to anyone. Come as you are.",
+      "changes": ["Explained 'the Word' and the verse reference.", "Replaced pressure with an open invitation."]
+    },
+    "outreach": {
+      "outreach_message": "Hi! I've loved seeing the joy in your Sunday posts. Could I share one small thought?",
+      "talking_points": [
+        { "post_position": 1, "criterion": "love_made_visible", "kind": "affirmation", "text": "The joy in the recap is real and attractive.", "change": null, "persona": null },
+        { "post_position": 1, "criterion": "outsider_clarity", "kind": "concern", "text": "Phrases like 'in the Word' may lose people new to church.", "change": "Say it in everyday words or explain it once.", "persona": "seeker" },
+        { "post_position": 2, "criterion": "kingdom_over_party", "kind": "concern", "text": "Linking faith to a voting choice can shut people out.", "change": "Focus on caring for neighbours on every side.", "persona": null },
+        { "post_position": 2, "criterion": "clear_conviction", "kind": "affirmation", "text": "Your convictions come through clearly.", "change": null, "persona": null }
+      ]
+    }
+  },
+  "cases": [
+    { "name": "assess: base is valid", "step": "assess", "valid": true },
+    { "name": "assess: unknown top-level key", "step": "assess", "set": [[["mood"], "happy"]], "valid": false },
+    { "name": "assess: missing soundness_flag", "step": "assess", "delete": [["soundness_flag"]], "valid": false },
+    { "name": "assess: missing post_transcript", "step": "assess", "delete": [["post_transcript"]], "valid": false },
+    { "name": "assess: score above 5", "step": "assess", "set": [[["scores", 0, "score"], 6]], "valid": false },
+    { "name": "assess: non-integer score", "step": "assess", "set": [[["scores", 2, "score"], 3.5]], "valid": false },
+    { "name": "assess: score as a string", "step": "assess", "set": [[["scores", 2, "score"], "4"]], "valid": false },
+    { "name": "assess: Criteria out of rubric order", "step": "assess", "set": [[["scores", 0, "criterion"], "cultural_awareness"], [["scores", 1, "criterion"], "outsider_clarity"]], "valid": false },
+    { "name": "assess: a Criterion missing", "step": "assess", "delete": [["scores", 8]], "valid": false },
+    { "name": "assess: unknown key inside a score", "step": "assess", "set": [[["scores", 0, "confidence"], 0.9]], "valid": false },
+    { "name": "assess: scored without evidence", "step": "assess", "set": [[["scores", 2, "evidence"], null]], "valid": false },
+    { "name": "assess: blank evidence on a score", "step": "assess", "set": [[["scores", 2, "evidence"], "  "]], "valid": false },
+    { "name": "assess: evidence on an N/A", "step": "assess", "set": [[["scores", 4, "evidence"], "some quote"]], "valid": false },
+    { "name": "assess: empty explanation", "step": "assess", "set": [[["scores", 3, "explanation"], ""]], "valid": false },
+    { "name": "assess: score of 3 with no offence source", "step": "assess", "set": [[["scores", 5, "offence_sources"], []]], "valid": false },
+    { "name": "assess: score below 3 with claim only", "step": "assess", "set": [[["scores", 7, "offence_sources"], ["claim"]]], "valid": false },
+    { "name": "assess: score below 3 with claim and tone", "step": "assess", "set": [[["scores", 7, "offence_sources"], ["claim", "tone"]]], "valid": true },
+    { "name": "assess: score of 3 with claim only is allowed", "step": "assess", "valid": true },
+    { "name": "assess: claim reported at 5 is allowed", "step": "assess", "set": [[["scores", 8, "score"], 5]], "valid": true },
+    { "name": "assess: offence source on an N/A", "step": "assess", "set": [[["scores", 4, "offence_sources"], ["tone"]]], "valid": false },
+    { "name": "assess: unknown offence source", "step": "assess", "set": [[["scores", 2, "offence_sources"], ["politics"]]], "valid": false },
+    { "name": "assess: duplicate offence source", "step": "assess", "set": [[["scores", 0, "offence_sources"], ["jargon", "jargon"]]], "valid": false },
+    { "name": "assess: own-content Criterion scored on an Others' Review is overridden to N/A", "step": "assess", "set": [[["scores", 9, "score"], 1], [["scores", 9, "evidence"], "x"], [["scores", 9, "offence_sources"], []]], "valid": true },
+    { "name": "assess: soundness flag with line and why", "step": "assess", "set": [[["soundness_flag"], { "line": "God wants you rich", "why": "May be worth discussing with a leader." }]], "valid": true },
+    { "name": "assess: soundness flag with an extra key", "step": "assess", "set": [[["soundness_flag"], { "line": "x", "why": "y", "severity": "high" }]], "valid": false },
+    { "name": "assess: soundness flag with empty why", "step": "assess", "set": [[["soundness_flag"], { "line": "x", "why": "" }]], "valid": false },
+
+    { "name": "react: base is valid", "step": "react", "valid": true },
+    { "name": "react: a Persona missing", "step": "react", "delete": [["reactions", 6]], "valid": false },
+    { "name": "react: duplicate Persona", "step": "react", "set": [[["reactions", 1, "persona"], "seeker"]], "valid": false },
+    { "name": "react: unknown Persona", "step": "react", "set": [[["reactions", 0, "persona"], "hostile_critic"]], "valid": false },
+    { "name": "react: four reasons", "step": "react", "set": [[["reactions", 0, "reasons"], ["a", "b", "c", "d"]]], "valid": false },
+    { "name": "react: no reasons", "step": "react", "set": [[["reactions", 0, "reasons"], []]], "valid": false },
+    { "name": "react: blank reason", "step": "react", "set": [[["reactions", 0, "reasons"], [" "]]], "valid": false },
+    { "name": "react: unknown valence", "step": "react", "set": [[["reactions", 0, "valence"], "neutral"]], "valid": false },
+    { "name": "react: empty felt response", "step": "react", "set": [[["reactions", 0, "felt_response"], ""]], "valid": false },
+    { "name": "react: extra key", "step": "react", "set": [[["reactions", 0, "quote"], "x"]], "valid": false },
+    { "name": "react: any order is fine", "step": "react", "set": [[["reactions", 0, "persona"], "drifter"], [["reactions", 1, "persona"], "seeker"]], "valid": true },
+
+    { "name": "discuss: base is valid", "step": "discuss", "valid": true },
+    { "name": "discuss: four questions is the minimum", "step": "discuss", "delete": [["questions", 4]], "valid": true },
+    { "name": "discuss: three questions", "step": "discuss", "delete": [["questions", 4], ["questions", 3]], "valid": false },
+    { "name": "discuss: seven questions", "step": "discuss", "set": [[["questions", 5], { "text": "a", "standing": null, "persona": null }], [["questions", 6], { "text": "b", "standing": null, "persona": null }]], "valid": false },
+    { "name": "discuss: a standing question missing", "step": "discuss", "set": [[["questions", 3, "standing"], null]], "valid": false },
+    { "name": "discuss: a standing question twice", "step": "discuss", "set": [[["questions", 4, "standing"], "bible_says"]], "valid": false },
+    { "name": "discuss: unknown standing key", "step": "discuss", "set": [[["questions", 4, "standing"], "pray_about_it"]], "valid": false },
+    { "name": "discuss: unknown Persona", "step": "discuss", "set": [[["questions", 4, "persona"], "nobody"]], "valid": false },
+    { "name": "discuss: empty text", "step": "discuss", "set": [[["questions", 0, "text"], ""]], "valid": false },
+
+    { "name": "rewrite: base is valid", "step": "rewrite", "valid": true },
+    { "name": "rewrite: empty rewrite", "step": "rewrite", "set": [[["rewrite"], ""]], "valid": false },
+    { "name": "rewrite: no changes", "step": "rewrite", "set": [[["changes"], []]], "valid": false },
+    { "name": "rewrite: six changes", "step": "rewrite", "set": [[["changes"], ["a", "b", "c", "d", "e", "f"]]], "valid": false },
+    { "name": "rewrite: extra key", "step": "rewrite", "set": [[["tone"], "gentle"]], "valid": false },
+
+    { "name": "outreach: base is valid", "step": "outreach", "valid": true },
+    { "name": "outreach: empty message", "step": "outreach", "set": [[["outreach_message"], ""]], "valid": false },
+    { "name": "outreach: two Talking Points", "step": "outreach", "delete": [["talking_points", 3], ["talking_points", 2]], "valid": false },
+    { "name": "outreach: Post position not evaluated", "step": "outreach", "set": [[["talking_points", 0, "post_position"], 3]], "valid": false },
+    { "name": "outreach: concern without a change", "step": "outreach", "set": [[["talking_points", 1, "change"], null]], "valid": false },
+    { "name": "outreach: four concerns", "step": "outreach", "set": [[["talking_points", 0, "kind"], "concern"], [["talking_points", 0, "change"], "x"], [["talking_points", 3, "kind"], "concern"], [["talking_points", 3, "change"], "y"], [["talking_points", 4], { "post_position": 1, "criterion": "invitation_dialogue", "kind": "concern", "text": "z", "change": "w", "persona": null }]], "valid": false },
+    { "name": "outreach: unknown Criterion", "step": "outreach", "set": [[["talking_points", 0, "criterion"], "theology"]], "valid": false },
+    { "name": "outreach: unknown kind", "step": "outreach", "set": [[["talking_points", 0, "kind"], "praise"]], "valid": false },
+    { "name": "outreach: unknown Persona", "step": "outreach", "set": [[["talking_points", 0, "persona"], "nobody"]], "valid": false }
+  ]
+}

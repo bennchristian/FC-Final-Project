@@ -1,0 +1,12 @@
+{
+  "id": "prompts@1",
+  "steps": {
+    "assess": { "file": "assess.md", "placeholders": ["guardrails", "criteria", "foundation", "post"], "required_rules": ["data_not_instructions", "evidence_quote", "na_only_when_nothing", "offence_sources", "no_invented_problems", "conviction_clarity", "soundness_independent", "transcript", "json_only"] },
+    "react": { "file": "react.md", "placeholders": ["guardrails", "personas", "post"], "required_rules": ["data_not_instructions", "own_experience", "no_motive_diagnosis", "no_labels", "point_at_post", "positive_when_warranted", "emboldened_behaviour", "json_only"] },
+    "discuss": { "file": "discuss.md", "placeholders": ["guardrails", "criteria", "personas", "post", "assessment", "reactions"], "required_rules": ["data_not_instructions", "standing_questions", "open_questions", "teen_group", "cite_persona", "lands_well_no_problems", "json_only"] },
+    "rewrite": { "file": "rewrite.md", "placeholders": ["guardrails", "criteria", "personas", "post", "assessment", "reactions"], "required_rules": ["data_not_instructions", "keep_message", "manner_only", "no_doctrine_correction", "no_new_post", "json_only"] },
+    "outreach": { "file": "outreach.md", "placeholders": ["guardrails", "evaluations"], "required_rules": ["data_not_instructions", "jethro_moses", "affirm_first_real", "max_three_concerns", "no_mockery_no_ruling_simulated", "introducer_sends", "json_only"] },
+    "profile_summary": { "file": "profile-summary.md", "placeholders": ["guardrails", "stats", "evaluations"], "required_rules": ["data_not_instructions", "stats_only", "personas_simulated_ref", "json_only"] }
+  },
+  "guardrails": { "file": "guardrails.md", "required_rules": ["charitable_specific", "affirm_first", "post_not_person", "concrete_line_change", "no_mockery_no_rulings", "ignore_comments", "personas_simulated", "vocabulary"] }
+}

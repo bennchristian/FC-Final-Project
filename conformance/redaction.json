@@ -1,0 +1,20 @@
+{
+  "about": "AD-5: each @handle other than the poster's (parsed from the Source URL) becomes @[name removed]. Email addresses are left alone.",
+  "poster_from_url": [
+    { "url": "https://www.instagram.com/cedarhollow.example/", "expect": "cedarhollow.example" },
+    { "url": "https://www.tiktok.com/@SomeMinistry/video/123", "expect": "someministry" },
+    { "url": "https://x.com/someone/status/1", "expect": "someone" },
+    { "url": "https://www.instagram.com/p/ABC123/", "expect": null },
+    { "url": "https://www.instagram.com/reel/ABC123/", "expect": null },
+    { "url": "https://example.org/", "expect": null },
+    { "url": "not a url", "expect": null },
+    { "url": "", "expect": null }
+  ],
+  "redact": [
+    { "text": "Thanks @jane_doe for the comment", "poster": null, "expect": "Thanks @[name removed] for the comment" },
+    { "text": "As @CedarHollow.Example said, and @bob agreed.", "poster": "cedarhollow.example", "expect": "As @CedarHollow.Example said, and @[name removed] agreed." },
+    { "text": "Email us at hello@example.org", "poster": null, "expect": "Email us at hello@example.org" },
+    { "text": "@first then (@second)", "poster": null, "expect": "@[name removed] then (@[name removed])" },
+    { "text": "No handles at all.", "poster": null, "expect": "No handles at all." }
+  ]
+}

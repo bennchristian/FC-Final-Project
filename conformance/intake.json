@@ -1,0 +1,21 @@
+{
+  "about": "AD-5 intake limits: at most 10 Posts per Review, 4 screenshots per Post (or fewer if the view allows fewer), 4,000 characters of pasted text, 20,000 of transcript, and a Source URL of at most 2,048 characters matching https?://.",
+  "limits": { "maxPosts": 10, "maxImagesPerPost": 4, "maxPastedText": 4000, "maxTranscript": 20000, "maxSourceUrl": 2048 },
+  "posts": [
+    { "name": "text only", "post": { "pasted_text": "Hello", "video_transcript": "", "image_count": 0, "source_url": "" }, "maxImages": 4, "valid": true },
+    { "name": "screenshots only", "post": { "pasted_text": "", "video_transcript": "", "image_count": 2, "source_url": "" }, "maxImages": 4, "valid": true },
+    { "name": "transcript only", "post": { "pasted_text": "", "video_transcript": "Hey everyone", "image_count": 0, "source_url": "" }, "maxImages": 4, "valid": true },
+    { "name": "empty", "post": { "pasted_text": "  ", "video_transcript": "", "image_count": 0, "source_url": "" }, "maxImages": 4, "valid": false },
+    { "name": "five screenshots", "post": { "pasted_text": "x", "video_transcript": "", "image_count": 5, "source_url": "" }, "maxImages": 4, "valid": false },
+    { "name": "view allows fewer screenshots", "post": { "pasted_text": "x", "video_transcript": "", "image_count": 3, "source_url": "" }, "maxImages": 2, "valid": false },
+    { "name": "text too long", "post": { "pasted_text": { "repeat": "a", "times": 4001 }, "video_transcript": "", "image_count": 0, "source_url": "" }, "maxImages": 4, "valid": false },
+    { "name": "text at the limit", "post": { "pasted_text": { "repeat": "a", "times": 4000 }, "video_transcript": "", "image_count": 0, "source_url": "" }, "maxImages": 4, "valid": true },
+    { "name": "transcript too long", "post": { "pasted_text": "", "video_transcript": { "repeat": "a", "times": 20001 }, "image_count": 0, "source_url": "" }, "maxImages": 4, "valid": false },
+    { "name": "bad Source URL scheme", "post": { "pasted_text": "x", "video_transcript": "", "image_count": 0, "source_url": "javascript:alert(1)" }, "maxImages": 4, "valid": false },
+    { "name": "good Source URL", "post": { "pasted_text": "x", "video_transcript": "", "image_count": 0, "source_url": "https://www.instagram.com/p/ABC/" }, "maxImages": 4, "valid": true }
+  ],
+  "post_counts": [
+    { "count": 9, "can_add": true },
+    { "count": 10, "can_add": false }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "about": "SCHEMA.md §4.7 Artifact extraction: the JSON substring from the first { to the last }. Nothing else is stripped.",
+  "cases": [
+    { "text": "{\"a\": 1}", "expect": { "a": 1 } },
+    { "text": "Here it is:\n{\"a\": {\"b\": [1, 2]}}\nThanks.", "expect": { "a": { "b": [1, 2] } } },
+    { "text": "```json\n{\"a\": \"x\"}\n```", "expect": { "a": "x" } },
+    { "text": "no json here", "error": true },
+    { "text": "{\"a\": 1} and {\"b\": 2}", "error": true },
+    { "text": "} backwards {", "error": true }
+  ]
+}

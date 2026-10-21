@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Witness Review Direction 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap">
+<!--
+  DIRECTION 3: the deck, as a web page.
+
+  TYPE: two families, three sizes, weight 400 only.
+    Instrument Serif   display 64px (-0.035em) . body 22px (-0.02em) . italic carries emphasis
+    Helvetica Neue     label 13px, uppercase, +0.06em (system font, not loaded)
+
+  LIGHT
+    ground   #F4F2E7 cream
+    text     #A01916 red ............... 7.07:1 on cream (deck red #AB1C19 is 6.42:1)
+    rule     #D14643 at 35%, 1px ....... renders as #E8B6AE, 1.59:1, decorative only
+  DARK
+    ground   #5C1210 deep red
+    text     #F4F2E7 cream ............. 12.07:1 on #5C1210
+    rule     #F4F2E7 at 35%, 1px ....... renders as #91605B, 2.60:1, decorative only
+
+  Frame: rules 56px in from every edge, full length, like letter paper.
+  One pill per screen. Everything else is a text label. No JS: open rows are drawn open.
+-->
+<style>
+  :root{
+    --cream:#F4F2E7;
+    --red:#A01916;
+    --deck:#AB1C19;
+    --rule:rgba(209,70,67,.35);
+    --deep:#5C1210;
+    --rule-dark:rgba(244,242,231,.35);
+    --serif:'Instrument Serif','Times New Roman',Times,serif;
+    --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--cream)}
+  body{color:var(--red);font-family:var(--serif);font-size:22px;line-height:1.4;letter-spacing:-.02em;font-weight:400;
+    min-width:1440px;padding:56px 80px 64px}
+  em{font-style:italic}
+
+  /* the three sizes */
+  .d{font-family:var(--serif);font-size:64px;line-height:1.05;letter-spacing:-.035em;font-weight:400}
+  .b{font-family:var(--serif);font-size:22px;line-height:1.4;letter-spacing:-.02em;font-weight:400}
+  .l{font-family:var(--sans);font-size:13px;line-height:1.4;letter-spacing:.06em;text-transform:uppercase;font-weight:400}
+
+  /* ---------- comparison page ---------- */
+  .check{display:flex;gap:56px;align-items:flex-start;margin-top:16px}
+  .check img{display:block;width:420px;height:238px;border:1px solid var(--rule)}
+  .check figcaption,.sample .l{margin-top:10px}
+  .samples{display:flex;flex-direction:column;gap:40px;padding-top:40px}
+  .sample p{font-size:40px;line-height:1.1;color:var(--deck)}
+  .sample .is{font-family:'Instrument Serif',serif;letter-spacing:-.035em}
+  .sample .tnr{font-family:'Times New Roman',Times,serif;letter-spacing:-.04em}
+  .cap{margin:48px 0 14px}
+
+  /* browser frame */
+  .win{width:1282px;border:1px solid #CDCAC1;background:var(--cream)}
+  .chrome{height:32px;display:flex;align-items:center;gap:7px;padding:0 14px;background:#E4E2DB;border-bottom:1px solid #CDCAC1}
+  .chrome i{display:block;width:10px;height:10px;border-radius:50%;background:#C6C3BA}
+  .chrome .url{margin-left:16px;font-family:var(--sans);font-size:13px;letter-spacing:.02em;color:#5A5751}
+  .mini{width:802px;height:521px;overflow:hidden}
+  .mini .win{transform:scale(.625);transform-origin:0 0}
+
+  /* ---------- the product ---------- */
+  .scr{position:relative;width:1280px;height:800px;overflow:hidden;background:var(--cream);color:var(--red);--rl:var(--rule)}
+  .scr.dark{background:var(--deep);color:var(--cream);--rl:var(--rule-dark)}
+
+  /* letter-paper rules */
+  .rh,.rv{position:absolute;background:var(--rl)}
+  .rh{left:0;right:0;height:1px}
+  .rv{top:0;bottom:0;width:1px}
+  .rh.t{top:56px}.rh.bt{bottom:56px}.rv.lf{left:56px}.rv.rt{right:56px}
+
+  /* top bar, just inside the top rule */
+  .top{position:absolute;top:57px;left:57px;right:57px;height:56px;padding:0 31px;display:flex;align-items:center;justify-content:space-between}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand svg{width:28px;height:20px;display:block}
+  nav{display:flex;gap:32px}
+  .on{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px}
+
+  .pill{display:inline-block;border:1px solid currentColor;border-radius:999px;padding:12px 34px 13px;line-height:1}
+
+  /* opening */
+  .stage{position:absolute;top:113px;bottom:113px;left:57px;right:57px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .stage svg{width:56px;height:40px;display:block}
+  .stage h1{max-width:780px;margin-top:36px;text-wrap:balance}
+  .stage p{max-width:560px;margin-top:28px;text-wrap:balance}
+  .stage .pill{margin-top:44px}
+  .under{position:absolute;left:0;right:0;bottom:76px;text-align:center}
+
+  /* step screens: two columns inside the rules */
+  .lc{position:absolute;top:140px;left:88px;width:360px}
+  .steps{display:flex;gap:26px;margin-top:12px}
+  .post{margin-top:56px}
+  .says{margin-top:28px}
+  .rc{position:absolute;top:128px;left:520px;right:88px}
+  .foot{position:absolute;left:88px;right:88px;bottom:76px;display:flex;justify-content:space-between;align-items:center}
+
+  /* dropdown rows */
+  .rows{list-style:none}
+  .row{border-bottom:1px solid var(--rl)}
+  .line{display:grid;grid-template-columns:1fr auto 40px;align-items:baseline;padding:5px 0 5px}
+  .line .pm{text-align:right;align-self:center}
+  .open .more{padding:2px 40px 14px 0}
+  .open .more .b{margin-top:2px}
+  .ev span+span{margin-left:28px}
+  .rc > .l{margin-bottom:14px}
+  .persona .more .l{margin-bottom:4px}
+
+  .tokens{display:grid;grid-template-columns:300px 260px auto;column-gap:40px;align-items:baseline;margin-top:16px}
+  .tokens > *{padding:5px 0;border-bottom:1px solid var(--rule)}
+  .sw{display:inline-block;width:13px;height:13px;margin-right:12px;vertical-align:-1px;border:1px solid var(--rule)}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="env-s" viewBox="0 0 28 20">
+    <rect x=".5" y=".5" width="27" height="19" fill="none" stroke="currentColor" stroke-width="1"/>
+    <path d="M.5 .5 14 11.5 27.5 .5" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="env-l" viewBox="0 0 56 40">
+    <rect x=".5" y=".5" width="55" height="39" fill="none" stroke="currentColor" stroke-width="1"/>
+    <path d="M.5 .5 28 23 55.5 .5" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/>
+  </symbol>
+</svg>
+
+<!-- 1. type check -->
+<section>
+  <div class="l">Type check</div>
+  <div class="check">
+    <figure>
+      <img src="../imports/ref-deck-02-question.png" alt="Deck slide: What is the desire of God's heart?">
+      <figcaption class="l">Deck · Times New Roman MT Pro Condensed</figcaption>
+    </figure>
+    <div class="samples">
+      <div class="sample">
+        <p class="is">What is the desire of God’s heart?</p>
+        <div class="l">Instrument Serif · 40px · −0.035em · stand-in</div>
+      </div>
+      <div class="sample">
+        <p class="tnr">What is the desire of God’s heart?</p>
+        <div class="l">Times New Roman, system · 40px · −0.04em</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. screens -->
+<div class="l cap">1 · Opening</div>
+<div class="win">
+  <div class="chrome"><i></i><i></i><i></i><span class="url">claude.ai/artifact/witness-review</span></div>
+  <div class="scr" id="s1">
+    <span class="rh t"></span><span class="rh bt"></span><span class="rv lf"></span><span class="rv rt"></span>
+    <header class="top">
+      <div class="brand"><svg aria-hidden="true"><use href="#env-s"/></svg><span class="b">Witness Review</span></div>
+      <nav class="l"><span class="on">REVIEW</span><span>ROADMAP</span><span>DARK</span></nav>
+    </header>
+    <div class="stage">
+      <svg aria-hidden="true"><use href="#env-l"/></svg>
+      <h1 class="d">How does your post <em>read</em> from outside the church?</h1>
+      <p class="b">See how a post might land with seven people outside the faith, and how to say it more gently.</p>
+      <span class="pill b">Start a Review</span>
+    </div>
+    <div class="under l">ANY POST CAN LAND ON ANYONE’S PAGE</div>
+  </div>
+</div>
+
+<div class="l cap">2 · Post 03 of 10, scores, first criterion open</div>
+<div class="win">
+  <div class="chrome"><i></i><i></i><i></i><span class="url">claude.ai/artifact/witness-review</span></div>
+  <div class="scr" id="s2">
+    <span class="rh t"></span><span class="rh bt"></span><span class="rv lf"></span><span class="rv rt"></span>
+    <header class="top">
+      <div class="brand"><svg aria-hidden="true"><use href="#env-s"/></svg><span class="b">Witness Review</span></div>
+      <nav class="l"><span class="on">REVIEW</span><span>ROADMAP</span><span>DARK</span></nav>
+    </header>
+    <div class="lc">
+      <div class="l">POST 03 / 10</div>
+      <div class="steps l"><span class="on">SCORES</span><span>REACTIONS</span><span>REWRITE</span><span>QUESTIONS</span></div>
+      <p class="post b"><em>“If you’re not washed in the blood, you’re still dead in your sins. The world won’t tell you this, but we will. Repent today. #truth”</em></p>
+      <p class="says b">It says plainly what it believes.</p>
+    </div>
+    <ul class="rc rows">
+      <li class="row open">
+        <div class="line"><span class="b">Outsider Clarity</span><span class="b">2</span><span class="pm l">−</span></div>
+        <div class="more">
+          <div class="l">JARGON</div>
+          <p class="ev b"><em><span>“washed in the blood”</span><span>“dead in your sins”</span></em></p>
+          <p class="b">Someone with no church background may not know these phrases.</p>
+        </div>
+      </li>
+      <li class="row"><div class="line"><span class="b">Cultural Awareness</span><span class="b">2</span><span class="pm l">+</span></div></li>
+      <li class="row"><div class="line"><span class="b">Gentleness &amp; Respect</span><span class="b">2</span><span class="pm l">+</span></div></li>
+      <li class="row"><div class="line"><span class="b">Welcome over Judgment</span><span class="b">2</span><span class="pm l">+</span></div></li>
+      <li class="row"><div class="line"><span class="b">Kingdom over Party</span><span class="b">N/A</span><span class="pm l">+</span></div></li>
+      <li class="row"><div class="line"><span class="b">Humility &amp; Integrity</span><span class="b">3</span><span class="pm l">+</span></div></li>
+      <li class="row"><div class="line"><span class="b">Love Made Visible</span><span class="b">2</span><span class="pm l">+</span></div></li>
+      <li class="row"><div class="line"><span class="b">Invitation &amp; Dialogue</span><span class="b">2</span><span class="pm l">+</span></div></li>
+      <li class="row"><div class="line"><span class="b">Clear Conviction</span><span class="b">5</span><span class="pm l">+</span></div></li>
+      <li class="row"><div class="line"><span class="b">Self-Presentation Alignment</span><span class="b">N/A</span><span class="pm l">+</span></div></li>
+    </ul>
+    <div class="foot">
+      <span class="l">WITNESS-RUBRIC@1 · PERSONA-SET@1 · CLAUDE OPUS 5.5</span>
+      <span class="pill b">Next</span>
+    </div>
+  </div>
+</div>
+
+<div class="l cap">3 · Post 03 of 10, reactions, Seeker open</div>
+<div class="win">
+  <div class="chrome"><i></i><i></i><i></i><span class="url">claude.ai/artifact/witness-review</span></div>
+  <div class="scr" id="s3">
+    <span class="rh t"></span><span class="rh bt"></span><span class="rv lf"></span><span class="rv rt"></span>
+    <header class="top">
+      <div class="brand"><svg aria-hidden="true"><use href="#env-s"/></svg><span class="b">Witness Review</span></div>
+      <nav class="l"><span class="on">REVIEW</span><span>ROADMAP</span><span>DARK</span></nav>
+    </header>
+    <div class="lc">
+      <div class="l">POST 03 / 10</div>
+      <div class="steps l"><span>SCORES</span><span class="on">REACTIONS</span><span>REWRITE</span><span>QUESTIONS</span></div>
+    </div>
+    <div class="rc">
+      <div class="l" style="padding-top:12px">SIMULATED PERSPECTIVES</div>
+      <ul class="rows">
+        <li class="row open persona">
+          <div class="line"><span class="b">Seeker</span><span class="b"><em>confused</em></span><span class="pm l">−</span></div>
+          <div class="more">
+            <div class="l">SIMULATED PERSPECTIVE · GEN Z, NEVER CHURCHED, CURIOUS</div>
+            <p class="b">I don’t know what ‘washed in the blood’ means, and it sounds a bit violent.</p>
+            <p class="b">It sounds like it’s talking down to me.</p>
+          </div>
+        </li>
+        <li class="row"><div class="line"><span class="b">Drifter</span><span class="b"><em>shut out</em></span><span class="pm l">+</span></div></li>
+        <li class="row"><div class="line"><span class="b">Neighbor of Another Faith</span><span class="b"><em>belittled</em></span><span class="pm l">+</span></div></li>
+        <li class="row"><div class="line"><span class="b">Exvangelical</span><span class="b"><em>offended</em></span><span class="pm l">+</span></div></li>
+        <li class="row"><div class="line"><span class="b">Skeptic</span><span class="b"><em>unconvinced</em></span><span class="pm l">+</span></div></li>
+        <li class="row"><div class="line"><span class="b">Progressive</span><span class="b"><em>offended</em></span><span class="pm l">+</span></div></li>
+        <li class="row"><div class="line"><span class="b">Emboldened Believer</span><span class="b"><em>licensed to be harsh</em></span><span class="pm l">+</span></div></li>
+      </ul>
+    </div>
+    <div class="foot">
+      <span class="l">WITNESS-RUBRIC@1 · PERSONA-SET@1 · CLAUDE OPUS 5.5</span>
+      <span class="pill b">Next</span>
+    </div>
+  </div>
+</div>
+
+<div class="l cap">4 · Opening, dark, shown at 62.5%</div>
+<div class="mini">
+<div class="win">
+  <div class="chrome"><i></i><i></i><i></i><span class="url">claude.ai/artifact/witness-review</span></div>
+  <div class="scr dark" id="s4">
+    <span class="rh t"></span><span class="rh bt"></span><span class="rv lf"></span><span class="rv rt"></span>
+    <header class="top">
+      <div class="brand"><svg aria-hidden="true"><use href="#env-s"/></svg><span class="b">Witness Review</span></div>
+      <nav class="l"><span class="on">REVIEW</span><span>ROADMAP</span><span>LIGHT</span></nav>
+    </header>
+    <div class="stage">
+      <svg aria-hidden="true"><use href="#env-l"/></svg>
+      <h1 class="d">How does your post <em>read</em> from outside the church?</h1>
+      <p class="b">See how a post might land with seven people outside the faith, and how to say it more gently.</p>
+      <span class="pill b">Start a Review</span>
+    </div>
+    <div class="under l">ANY POST CAN LAND ON ANYONE’S PAGE</div>
+  </div>
+</div>
+</div>
+
+<!-- 3. tokens -->
+<div class="l cap">Tokens</div>
+<div class="tokens">
+  <span class="l"><i class="sw" style="background:#F4F2E7"></i>Ground</span><span class="b">#F4F2E7</span><span class="b">cream</span>
+  <span class="l"><i class="sw" style="background:#A01916"></i>Text, icon, pill</span><span class="b">#A01916</span><span class="b">7.07:1 on cream</span>
+  <span class="l"><i class="sw" style="background:#AB1C19"></i>Deck red, reference</span><span class="b">#AB1C19</span><span class="b">6.42:1 on cream, so darkened</span>
+  <span class="l"><i class="sw" style="background:#E8B6AE"></i>Rule</span><span class="b">#D14643 at 35%</span><span class="b">1.59:1, decorative</span>
+  <span class="l"><i class="sw" style="background:#5C1210"></i>Dark ground</span><span class="b">#5C1210</span><span class="b">deep red</span>
+  <span class="l"><i class="sw" style="background:#F4F2E7"></i>Dark text, icon, pill</span><span class="b">#F4F2E7</span><span class="b">12.07:1 on #5C1210</span>
+  <span class="l"><i class="sw" style="background:#91605B"></i>Dark rule</span><span class="b">#F4F2E7 at 35%</span><span class="b">2.60:1, decorative</span>
+  <span class="l">Type</span><span class="b">Instrument Serif 64 · 22</span><span class="b">Helvetica Neue 13 for labels, weight 400 only</span>
+</div>
+
+</body>
+</html>

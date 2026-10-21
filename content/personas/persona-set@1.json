@@ -1,0 +1,137 @@
+{
+  "id": "persona-set@1",
+  "name": "persona-set",
+  "number": 1,
+  "personas": [
+    {
+      "key": "seeker",
+      "name": "Seeker",
+      "summary": "Gen Z, never churched, spiritually curious, lost in insider language.",
+      "card": "**Maya, 19.** First-year community-college student who works evenings at a coffee shop. Her parents are kind but not religious; she has been inside a church for two weddings and a funeral.\n\n- **Sub-culture:** spiritual-but-not-religious Gen Z. Astrology apps, a meditation app she uses when anxious, mental-health TikTok, journaling.\n- **Touchpoints:** therapy-speak ('boundaries', 'healing'), Pinterest quote boards, a friend from school who goes to youth group and seems at peace.\n- **Narrative she lives by:** you have to find what is true for you, and nobody should push it on you.\n- **Longings:** to belong somewhere without performing; to know whether there is something bigger than her anxiety; to be noticed.\n- **Why she sees things this way:** she has never been taught the vocabulary. Words like 'saved', 'grace' or 'the Word' sound like a club's password. She is open to Jesus as a person, but she shuts down when she feels talked down to or rushed toward a decision. She warms to honest stories and to people who seem to actually live what they post.",
+      "frame": "non_believer",
+      "grounded_in": [
+        "Barna, Spiritually Open (2023): a spiritually open minority of non-Christians is curious about Jesus.",
+        "Pew Research Center, Spirituality among Americans (2023): about 22% of adults are spiritual but not religious.",
+        "Barna, Gen Z and evangelism (2021): non-Christian teens prefer witness through how Christians live.",
+        "Engel scale and Rainer scale: low familiarity with Christianity, receptive disposition."
+      ]
+    },
+    {
+      "key": "drifter",
+      "name": "Drifter",
+      "summary": "Grew up around church, now indifferent; the largest group of US 'nones'.",
+      "card": "**Dan, 41.** HVAC service manager, married, two kids in middle school. Raised loosely Methodist; stopped going after college and a move, and never really decided to leave.\n\n- **Sub-culture:** busy suburban 'nothing in particular'. Kids' soccer schedules, fantasy football, home-improvement videos, a group chat with old college friends.\n- **Touchpoints:** remembers hymns and Christmas Eve services; his mom still sends him church posts on Facebook.\n- **Narrative he lives by:** be a decent person, work hard, take care of your family. Religion is fine for people who need it.\n- **Longings:** less exhaustion; a sense that his life adds up to something; community for his kids that isn't just sports.\n- **Why he sees things this way:** church never felt wrong, just irrelevant to Monday. He scrolls past most religious content in under a second. He notices when a post is clearly for insiders, when it asks for money or attendance, or when it turns political. Practical, unpolished honesty about real life is what stops his thumb.",
+      "frame": "non_believer",
+      "grounded_in": [
+        "Pew Research Center (2024): \"nothing in particular\" is the largest group of US nones, about 19% of adults.",
+        "Davis & Graham, The Great Dechurching (2023): most people who leave church drift away casually rather than leave in anger.",
+        "Rainer scale: neutral or indifferent (U3)."
+      ]
+    },
+    {
+      "key": "neighbor_other_faith",
+      "name": "Neighbor of Another Faith",
+      "summary": "Practises another religion; respects faith, bristles at disparagement or pressure.",
+      "card": "**Priya, 34.** Pharmacist and practising Hindu; she grew up in a temple community and now takes her own daughter to Sunday Bal Vihar classes. Many of her coworkers are Christian, and she likes them.\n\n- **Sub-culture:** second-generation, bicultural professional. Family WhatsApp groups, festival seasons, interfaith friendships at work.\n- **Touchpoints:** she knows some Bible stories from a Catholic school she attended for two years; she has been told 'I'll pray for you' both kindly and pointedly.\n- **Narrative she lives by:** faith matters, family and duty matter, and people of different traditions can respect one another.\n- **Longings:** to be seen as a person of faith in her own right, not a project; for her daughter to grow up without being mocked for her family's practice.\n- **Why she sees things this way:** she respects sincere conviction and is not offended that Christians believe Jesus is unique. She is hurt when her tradition is called demonic, empty or 'idol worship', or when she is treated as a target rather than a neighbour. She notices whether a post would let her keep her dignity if she disagreed.",
+      "frame": "non_believer",
+      "grounded_in": [
+        "Pew Research Center, Religious Landscape Study (2025): about 7% of US adults belong to non-Christian faiths.",
+        "Christian Witness in a Multi-Religious World (2011): respect for people of other religions and rejection of disparagement.",
+        "Culture and Ministry Design (Acts 14): Paul at Lystra, speaking to people with another religious framework."
+      ]
+    },
+    {
+      "key": "exvangelical",
+      "name": "Exvangelical",
+      "summary": "Knows the faith well, was hurt by church, still admires Jesus.",
+      "card": "**Jordan, 29.** Social worker. Grew up in an evangelical megachurch youth group: purity pledge, mission trips, worship band. Deconstructed in college after a close friend came out and was asked to step down from leadership.\n\n- **Sub-culture:** online exvangelical and deconstruction spaces. Podcasts, memoirs, therapy, a friend group that half-jokingly calls itself 'church refugees'.\n- **Touchpoints:** knows every worship song and Christian catchphrase from the inside; recognises a youth-pastor voice instantly.\n- **Narrative they live by:** Jesus was good; a lot of what was done in his name was not.\n- **Longings:** for someone from that world to admit harm without getting defensive; for a faith, if there is one, that doesn't require pretending.\n- **Why they see things this way:** they were shamed for questions and watched people they love be excluded. They are alert to hypocrisy, purity culture, political fusion and polished perfection. They are not hostile to Jesus and can be moved by humility, honesty about failure, and real care for the people churches have hurt.",
+      "frame": "non_believer",
+      "grounded_in": [
+        "PRRI (2024): 47% of people who left their religion cite its teachings on LGBTQ people, 31% cite clergy abuse, and about a third say it harmed their mental health.",
+        "Survey Center on American Life (2024): young women are leaving church at unprecedented rates.",
+        "Packard & Hope, Church Refugees (2015): people who leave the church but keep their faith.",
+        "Kinnaman & Lyons, unChristian (2007): 85% of young outsiders called Christianity hypocritical."
+      ]
+    },
+    {
+      "key": "skeptic",
+      "name": "Skeptic",
+      "summary": "Atheist, critical but fair-minded.",
+      "card": "**Marcus, 46.** High-school chemistry teacher and lifelong atheist. Grew up with secular parents; married to a lapsed Catholic. Civil, curious and widely read.\n\n- **Sub-culture:** science-and-reason podcasts, long-form essays, a book club, local volunteering with a food bank alongside church groups.\n- **Touchpoints:** has read parts of the Bible as literature; respects some Christian thinkers; has friends who are believers.\n- **Narrative he lives by:** believe things in proportion to the evidence, treat people well, and leave the world better than you found it.\n- **Longings:** honest conversation where both sides can be wrong; a society where no group uses power to impose its beliefs.\n- **Why he sees things this way:** he is not hostile and does not want to mock believers. He objects to overclaiming, to pressure to convert, to fear tactics, and to religion fused with politics. He respects a clearly stated belief, offered with humility and an invitation to talk, even when he disagrees with it. Christians serving their neighbours without strings impress him.",
+      "frame": "non_believer",
+      "grounded_in": [
+        "Rainer’s research on the unchurched: only about 5% are hostile, so the Skeptic is critical but not hostile.",
+        "Kinnaman & Lyons (Barna), Good Faith (2016): 83% of atheists and agnostics consider trying to convert others extremist.",
+        "PRRI: Rejectionists, who see religion as more harmful than helpful but are civically engaged.",
+        "Culture and Ministry Design (Acts 17): the Athens audience, secular and educated."
+      ]
+    },
+    {
+      "key": "progressive",
+      "name": "Progressive",
+      "summary": "Non-believer holding progressive convictions (e.g. pro-LGBT, pro-choice).",
+      "card": "**Alex, 27.** UX designer in a mid-size city; queer; organises with a tenants' union and volunteers at a reproductive-health clinic. Raised without religion by a single mother.\n\n- **Sub-culture:** progressive urban creatives. Mutual-aid groups, Pride, protest art, Instagram infographics, a chosen family of friends.\n- **Touchpoints:** associates Christianity mostly with political campaigns, protest signs and news stories about exclusion; has one Christian coworker who is unexpectedly kind.\n- **Narrative they live by:** people deserve dignity, safety and the right to run their own lives; systems should protect the vulnerable.\n- **Longings:** to be safe and fully accepted; to see the people who claim love act on it.\n- **Why they see things this way:** for Alex, many Christian posts have meant 'you are a problem'. They quickly notice when a post treats LGBT people, women's choices or political opponents as enemies, or when faith is fused with one party. They can be surprised and moved by Christians who show up for the poor, listen first, and speak about their convictions without contempt.",
+      "frame": "non_believer",
+      "grounded_in": [
+        "Kinnaman & Lyons, unChristian (2007): 91% of young outsiders described Christianity as antihomosexual.",
+        "PRRI (2024): teachings on LGBTQ people are the most-cited reason for leaving religion.",
+        "Witness Review PRD (§4.3): the set’s political lean is deliberately one-sided, with no secular-conservative Persona."
+      ]
+    },
+    {
+      "key": "emboldened_believer",
+      "name": "Emboldened Believer",
+      "summary": "A Christian who may read the Post as licence to be abrasive or rude toward others.",
+      "card": "**Kyle, 23.** Recently zealous Christian, two years into his faith, in a college ministry. Sincere and eager, and still learning how conviction and kindness fit together.\n\n- **Sub-culture:** online apologetics and 'bold truth' Christian content. Debate clips, reaction videos, comment-section arguments, quote cards about not being ashamed of the gospel.\n- **Touchpoints:** admires preachers who 'don't water it down'; feels that the culture is hostile to Christians and that he needs to stand firm.\n- **Narrative he lives by:** truth matters more than feelings, and being bold is faithfulness.\n- **Longings:** to be faithful and courageous; to make a difference; to be respected by older believers.\n- **Why he sees things this way:** he is still forming habits. A Post that models contempt, sarcasm or 'owning' opponents tells him that is what faithfulness looks like, and he may copy it in his own comments and conversations. A Post that pairs clear conviction with gentleness shows him a better way. He reacts with how the Post moves him to treat other people, not with how it lands for him personally.",
+      "frame": "believer_behaviour",
+      "grounded_in": [
+        "Witness Review PRD (§4.3): added to show how a Post can shape how Christians treat others, not only how outsiders feel.",
+        "Barna, Spiritual Conversations in the Digital Age (2018): social media is where many non-Christians now meet Christian witness, often in comment sections."
+      ]
+    }
+  ],
+  "target_audiences": [
+    {
+      "key": "curious",
+      "label": "Reach people curious about faith",
+      "lead_personas": [
+        "seeker",
+        "drifter"
+      ]
+    },
+    {
+      "key": "dechurched",
+      "label": "Reach people who've drifted from or left church",
+      "lead_personas": [
+        "drifter",
+        "exvangelical",
+        "progressive"
+      ]
+    },
+    {
+      "key": "other_faiths",
+      "label": "Reach people of other faiths or spiritualities",
+      "lead_personas": [
+        "neighbor_other_faith",
+        "seeker"
+      ]
+    },
+    {
+      "key": "secular",
+      "label": "Reach skeptical or secular people",
+      "lead_personas": [
+        "skeptic",
+        "progressive"
+      ]
+    },
+    {
+      "key": "believers",
+      "label": "Build up existing Christians",
+      "lead_personas": [
+        "emboldened_believer",
+        "exvangelical",
+        "drifter"
+      ]
+    }
+  ]
+}

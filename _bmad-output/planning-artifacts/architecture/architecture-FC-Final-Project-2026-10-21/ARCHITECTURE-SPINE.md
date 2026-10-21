@@ -5,7 +5,7 @@ purpose: build-substrate
 altitude: initiative
 paradigm: 'Functional core, imperative shell — one shared data layer (content, conformance vectors, model config), two thin shells (Demo Artifact, Web App)'
 scope: 'Both MVP surfaces: the Demo Artifact (Fri 2026-10-23) and the Web App (week of 2026-10-26)'
-status: draft
+status: final
 created: '2026-10-21'
 updated: '2026-10-21'
 binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, FR-11, FR-12, FR-13, FR-14, FR-15, FR-16, FR-17, FR-18, FR-19, FR-20, FR-21, FR-22, FR-23, OQ-5]

@@ -112,7 +112,9 @@ A User can attach a Source URL to a Post or to the whole Review (a Profile's URL
 - Attaching a Source URL never triggers a fetch, except through FR-3.
 - The UI states plainly that the tool cannot read posts from a link, and asks for paste or screenshots.
 
-#### FR-3: Permitted Retrieval for TikTok captions [W2, conditional]
+#### FR-3: Permitted Retrieval for TikTok captions [W2, conditional — dropped]
+> **Dropped 2026-10-21:** a live oEmbed test on two real public videos returned no caption (`ARCHITECTURE.md` AD-13).
+
 When the Source URL is a TikTok video, the Web App can pre-fill the Post's caption through TikTok's public oEmbed endpoint.
 - Ships only if a live test on a real public video returns the caption; otherwise dropped without replacement.
 - The User can edit or replace the pre-filled caption.
@@ -142,7 +144,7 @@ When the Source URL is a TikTok video, the Web App can pre-fill the Post's capti
 #### FR-4: Score each Criterion with Evidence [F]
 The system scores every Criterion of the current Rubric Version for each Post, 1–5 or N/A, each with Evidence.
 - Every non-N/A Rubric Score quotes the Post text (or describes the screenshot region) that earned it.
-- Each Rubric Score has a one-sentence reason in plain language.
+- Each Rubric Score has a reason of two or three plain-language sentences: what in the Post earned it, how it is likely to land, and, for a score of 3 or below, what would raise it. *(Changed from one sentence by Bennett, 2026-10-21.)*
 - Criterion 10 is N/A on every Others' Review. Any other Criterion is N/A only when the Post contains nothing it can assess, and the Evaluation states why.
 - Every Rubric Score of 3 or below names its Offence Source. Offence from tone or jargon lowers the score; offence from the claim itself is reported but does not lower it.
 - Rubric Scores are compared only within the same Rubric Version; the tool never converts scores between versions.
@@ -294,7 +296,7 @@ In: FR-1, FR-2, FR-4 to FR-9, FR-11 to FR-13, FR-17, FR-20, FR-22. **No cut line
 
 ### 6.2 Week of 2026-10-26 — Web App
 
-Live public link on Vercel. Everything in 6.1 except FR-22, plus FR-3 (conditional), FR-10, FR-14 to FR-16, FR-18, FR-19, FR-21, FR-23, and Criterion 10. Every week-2 requirement must ship except FR-3, which is conditional.
+Live public link on Vercel. Everything in 6.1 except FR-22, plus FR-10, FR-14 to FR-16, FR-18, FR-19, FR-21, FR-23, and Criterion 10. Every week-2 requirement must ship. FR-3 was dropped on 2026-10-21 (AD-13).
 
 ### 6.3 Out of Scope for MVP
 

@@ -1,0 +1,14 @@
+{
+  "default": "claude-opus-5-5",
+  "artifact_picker": [
+    { "id": "claude-opus-5-5", "label": "Claude Opus 5.5", "sample_tier": "complex" },
+    { "id": "claude-sonnet-5-5", "label": "Claude Sonnet 5.5", "sample_tier": "default" },
+    { "id": "claude-haiku-5-5", "label": "Claude Haiku 5.5", "sample_tier": "quick" }
+  ],
+  "prices_usd_per_mtok": {
+    "claude-opus-5-5": { "input": 4.0, "output": 20.0, "cache_write_5m": 5.0, "cache_read": 0.2 },
+    "claude-sonnet-5-5": { "input": 2.0, "output": 10.0, "cache_write_5m": 2.5, "cache_read": 0.2 },
+    "claude-haiku-5-5": { "input": 0.1, "output": 0.5, "cache_write_5m": 0.125, "cache_read": 0.01 }
+  },
+  "prices_source": "claude-api skill model table, cached 2026-10-06. Cache writes are 1.25x input (5-minute TTL). Haiku 5.5 prices are for prompts up to 100K tokens; its cache_read is the general 0.1x rate. Confirm against the Anthropic pricing page before week-2 cost work."
+}

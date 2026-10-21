@@ -15,22 +15,24 @@
 
 ## Stack rules
 
-The plan is Next.js, TypeScript, Vercel, Supabase, and the Claude API. TODO: pin versions here
-once `package.json` exists.
+The stack is Next.js, TypeScript, Vercel, Supabase, and the Claude API. Versions are pinned in
+`ARCHITECTURE.md` § Stack, and `package.json` must match them once it exists.
 
 - **TypeScript, strict mode.** No `any` at module boundaries.
 - **Claude calls run only on the server**, in route handlers or server actions. Client
-  components never import the Anthropic SDK.
+  components never import the Anthropic SDK. The one sanctioned exception is the Demo
+  Artifact, which calls Claude in the page through `sample()` (`ARCHITECTURE.md` AD-7, AD-12).
 - **Prompts are data, not inline strings.** Persona definitions and rubric text live in their
   own files or tables so they can be versioned and revised without touching call sites.
-- **Model IDs live in one constant.** TODO: choose the model when `bmad-architecture` runs.
-  Use the `claude-api` skill rather than memory.
+- **Model IDs live in one place:** `config/models.json` (default `claude-opus-5-5`, plus prices),
+  read by both surfaces (`ARCHITECTURE.md` AD-7). Use the `claude-api` skill rather than memory
+  when changing it.
 - **Artifact (demo):** a single self-contained page that follows the `artifact-design`
   contract. Load `artifact-capabilities` before adding any runtime behaviour.
 
 ## Security rules
 
-- **Secrets:** the Claude API key and the Supabase service-role key are server-side
+- **Secrets:** the Claude API key and the Supabase secret key (`sb_secret_…`, env `SUPABASE_SECRET_KEY`) are server-side
   environment variables only. They never go in client bundles, the artifact, the repo, or
   logs. `.env*` stays in `.gitignore`.
 - **RLS:** every Supabase table has RLS enabled and an explicit policy in the migration that
@@ -70,8 +72,9 @@ Field and column contracts in `SCHEMA.md` are fixed. Add new fields at the end, 
   ARCHITECTURE, DESIGN, PRD, RULES, SCHEMA, SKILLS.
 - `PRD.md` is the scope contract. Work that falls outside it stops and asks rather than
   widening the scope.
-- TODO: the check command (likely `npm run lint && npm run typecheck && npm run build`) must
-  be green before every handover. Confirm once `package.json` exists.
+- The check command must be green before every handover. Demo Artifact:
+  `node --test artifact/test/ && node artifact/build.mjs`. Web App: see `ARCHITECTURE.md`
+  § Consistency Conventions.
 - When auditing, keep an explicit resolved/unresolved list. Never imply a pass fixed more
   than it did.
 - Nothing is committed or pushed unless Bennett asks.

@@ -17,20 +17,23 @@ not there.
 
 Bennett's Frontier Commons final project: a PR bot that reviews a church's or ministry's social
 media from the point of view of **several kinds of non-believers** and assesses its witness. It
-uses versioned metrics that are expected to keep changing. It also produces plans for
-interviewing real non-believers and plans for telling the ministry how it could adapt. The
-full idea and open questions are in [`docs/brief.md`](docs/brief.md).
+uses versioned metrics that are expected to keep changing, and it produces a gentler rewrite,
+discussion questions, and an outreach plan for raising concerns with a poster. Scope is in
+[`PRD.md`](PRD.md). Interview plans are research done outside the product.
 
-- **Fri 2026-10-23:** demo as a Claude Artifact. The planned input is a profile URL, which has
-  not been checked as feasible yet.
+- **Fri 2026-10-23:** recorded video of a Claude Artifact. Input is pasted text plus
+  screenshots; a profile URL is recorded as the source but never fetched (no platform allows it).
 - **Week of 2026-10-26:** live prototype on Next.js, Vercel, Supabase, and the Claude API.
 
 ## 2. How to work on it
 
-- **Status (2026-10-21):** scaffolded and BMAD v6.12.4 installed (`bmm` module, Claude Code
-  skills in `.claude/skills/`). `PRD.md`, `ARCHITECTURE.md`, and `DESIGN.md` are still stubs.
-- **Next:** `bmad-prd` with `docs/brief.md`, then `bmad-architecture`, then `bmad-ux`. Run
-  one per session. Run `bmad-project-context` only after real code exists.
+- **Status (2026-10-21):** `PRD.md` is final (promoted from
+  `_bmad-output/planning-artifacts/prds/prd-FC-Final-Project-2026-10-21/`, which also holds the
+  addendum, research digests, and decision log). `ARCHITECTURE.md` and `DESIGN.md` are stubs.
+- **Next:** `bmad-architecture`, with `bmad-ux` running alongside in its own session (Bennett
+  chose to run them in parallel). Architecture owns PRD OQ-5, UX owns OQ-6. Run
+  `bmad-project-context` only after real code exists.
+- The interview plan (PRD OQ-3) is a separate Claude session, not part of the product.
 - BMAD writes into dated folders under `_bmad-output/`. Promote the final document to the repo
   root; do not repoint BMAD's output paths.
 - `_bmad/config.toml` and `_bmad/config.user.toml` are managed by the installer. Overrides go

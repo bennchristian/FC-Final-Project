@@ -43,8 +43,9 @@ once `package.json` exists.
 
 ## Data rules
 
-- **No personal data about third parties.** Evaluate the ministry's own posts. Do not store
-  the names, handles, or comments of followers or commenters.
+- **No personal data about third parties.** Evaluate public posts by ministries and
+  individuals, plus a creator's own posts in the week-2 app (`PRD.md` §7.2). Do not store the
+  names, handles, or comments of followers or commenters.
 - **Record versions on every evaluation.** Each evaluation records the persona version and
   rubric version that produced it. Metrics are expected to keep changing, and without the
   versions, old and new scores cannot be compared.

@@ -1,6 +1,6 @@
 ---
 title: "PRD: Witness Review"
-status: draft
+status: final
 created: 2026-10-21
 updated: 2026-10-21
 ---
@@ -10,7 +10,7 @@ updated: 2026-10-21
 
 ## 0. Document Purpose
 
-This PRD is the scope contract for Bennett's Frontier Commons final project. It is written for Bennett (owner), for the downstream BMAD workflows (`bmad-architecture`, `bmad-ux`, `bmad-create-epics-and-stories`), and for any agent implementing a brief. Vocabulary is fixed by the Glossary (§3); features are grouped in §4 with globally numbered requirements (FR-1…FR-N); every requirement is tagged with the delivery it belongs to: **[F]** for the Friday demo Artifact, **[W2]** for the week-2 web app. Inferences not yet confirmed carry an inline `[ASSUMPTION]` and are indexed in §12. Technical detail, research evidence, and rejected alternatives live in [`addendum.md`](addendum.md). Inputs: `docs/brief.md`, Bennett's discovery answers (logged in `.memlog.md`), and three research digests in this folder (`research-feasibility-comparables.md`, `research-frameworks-personas.md`, `reconcile-culture-and-ministry-design.md`).
+This PRD is the scope contract for Bennett's Frontier Commons final project. It is written for Bennett (owner), for the downstream BMAD workflows (`bmad-architecture`, `bmad-ux`, `bmad-create-epics-and-stories`), and for any agent implementing a brief. Vocabulary is fixed by the Glossary (§3); features are grouped in §4 with globally numbered requirements (FR-1…FR-N); every requirement is tagged with the delivery it belongs to: **[F]** for the Friday demo Artifact, **[W2]** for the week-2 web app; FR-22 is Demo-Artifact-only. Drafting assumptions were confirmed by Bennett on 2026-10-21 (§12). Technical detail, research evidence, and rejected alternatives live in [`addendum.md`](addendum.md). Inputs: `docs/brief.md`, Bennett's discovery answers (logged in `.memlog.md`), and three research digests in this folder (`research-feasibility-comparables.md`, `research-frameworks-personas.md`, `reconcile-culture-and-ministry-design.md`).
 
 ## 1. Vision
 
@@ -66,7 +66,8 @@ The first use is formation, not correction: a youth leader puts other people's p
 
 ## 3. Glossary
 
-- **Post** — One piece of public social-media content (caption or on-screen text, images, and for video a transcript), as supplied by the User. Belongs to one Review.
+- **Post** — One piece of social-media content (caption or on-screen text, images, and for video a transcript), as supplied by the User. Usually public; in a Draft Checkpoint, an **Unpublished Post**. Belongs to one Review.
+- **Profile** — One social-media account (a person's or a ministry's). A profile Review is a set of Posts from one Profile that the User supplies; the tool never retrieves a Profile itself.
 - **Source URL** — The link a Post or profile came from. Recorded and displayed; never fetched except through a Permitted Retrieval route.
 - **Permitted Retrieval** — Reading Post content from a Source URL through a route the platform's terms allow. In MVP the only candidate is TikTok's public oEmbed endpoint [W2, conditional].
 - **Review** — One run of the tool over one or more Posts, producing one Evaluation per Post plus Review-level outputs. Records the Rubric Version and Persona Version used.
@@ -76,15 +77,17 @@ The first use is formation, not correction: a youth leader puts other people's p
 - **Criterion** — One dimension of the Rubric, scored per Post. **Rubric Score** — a Criterion's value: 1–5, or N/A when the Criterion does not apply. Every Rubric Score carries **Evidence**: a quote from the Post that earned it.
 - **Persona** — A simulated person with a believable background, used to voice how a Post might land. **Persona Version** — an immutable, numbered release of the Persona set.
 - **Persona Reaction** — A Persona's simulated response to one Post: a Felt Response plus the reasons in the Persona's own voice. Always labelled simulated.
-- **Felt Response** — The emotional landing of a Post for a Persona, e.g. *convicted, encouraged, uplifted, moved to openness* (positive) or *confused, belittled, offended, shut out* (negative).
+- **Felt Response** — The emotional landing of a Post for a Persona, e.g. *convicted, encouraged, uplifted, moved to openness* (positive) or *confused, belittled, offended, shut out* (negative). For the Emboldened Believer it is how the Post moves them to treat others, e.g. *licensed to be harsh* or *prompted to gentleness*.
+- **Offence Source** — Where any offence in a Post comes from: the **claim** itself, the **tone**, or **jargon**.
 - **Gentler Rewrite** — An alternative wording of a Post that would come across more gently while keeping its main message.
 - **Soundness Flag** — A note that a Post's main message may not be theologically sound. A flag only; the tool does not adjudicate or correct doctrine.
 - **Discussion Questions** — Questions for a small group to talk through a Post.
-- **Ministry Outreach Plan** — For an Introducer: a draft message they can send themselves plus Talking Points tied to specific Posts.
+- **Ministry Outreach Plan** — For an Introducer: an **Outreach Message** (a message they can copy and send themselves) plus Talking Points.
+- **Talking Point** — One concern or affirmation for a conversation, tied to a specific Post and Criterion.
 - **Profile Summary** — A roll-up of all Evaluations in a Review of Posts from one profile [W2].
 - **Creator Foundation** — A creator's or ministry's short profile: how they want to come across, and their Target Audiences ranked [W2].
 - **Target Audience** — Who a creator intends a post for (e.g. evangelise non-believers, build up existing Christians).
-- **Draft Checkpoint** — An Own-Content Review of an unpublished Post [W2].
+- **Draft Checkpoint** — An Own-Content Review of an Unpublished Post [W2].
 - **User** — Anyone operating the tool: a **Leader** (UJ-1), a **Creator** (UJ-2, including ministry social-media staff), or an **Introducer** (UJ-3). **Maintainer** — Bennett (UJ-4).
 - **Demo Artifact** — The Claude Artifact delivered for Friday 2026-10-23. **Web App** — the Next.js/Vercel/Supabase prototype for the week of 2026-10-26.
 - **Interview Plan** — Questions for real non-believers, creators, or ministries, and where their answers feed new versions. Produced outside the product.
@@ -95,16 +98,16 @@ The first use is formation, not correction: a youth leader puts other people's p
 
 ### 4.1 Post Intake
 
-**Description:** The User builds a Review by adding Posts. Because no platform offers a terms-compliant way to read someone else's Instagram posts, and Claude cannot watch video, the primary input on both surfaces is user-supplied: pasted text, screenshots, and for video a pasted transcript. A Source URL can be attached so the Evaluation shows where the Post came from. A "profile" review is a set of Posts from one profile that the User supplies, with the profile URL as the Source URL. Realizes UJ-1, UJ-2, UJ-3.
+**Description:** The User builds a Review by adding Posts. Because no platform offers a terms-compliant way to read someone else's Instagram posts, and Claude cannot watch video, the primary input on both surfaces is user-supplied: pasted text, screenshots, and for video a pasted transcript. A Source URL can be attached so the Evaluation shows where the Post came from. A profile Review is a set of Posts from one Profile that the User supplies, with the Profile's URL as the Source URL. Realizes UJ-1, UJ-2, UJ-3.
 
 #### FR-1: Add Posts by paste and screenshot [F]
 A User can add one or more Posts to a Review, each as pasted text, one or more screenshots, or both; for a video Post, a pasted transcript.
-- A Review accepts at least 10 Posts. [ASSUMPTION: 10 is enough for the demo profile set]
+- A Review accepts at least 10 Posts.
 - Each Post can be submitted with text only, screenshots only, or both.
 - Screenshot text is read by the model; no separate OCR step is required of the User.
 
 #### FR-2: Attach a Source URL [F]
-A User can attach a Source URL to a Post or to the whole Review (a profile URL).
+A User can attach a Source URL to a Post or to the whole Review (a Profile's URL).
 - The Source URL is shown on the Evaluation and in the Ministry Outreach Plan.
 - Attaching a Source URL never triggers a fetch, except through FR-3.
 - The UI states plainly that the tool cannot read posts from a link, and asks for paste or screenshots.
@@ -119,7 +122,7 @@ When the Source URL is a TikTok video, the Web App can pre-fill the Post's capti
 
 ### 4.2 Rubric Evaluation
 
-**Description:** Each Post is scored directly against the current Rubric Version. Scores react to how the Post is likely to land with non-believers, not to its stance or politics: a political post scores low on Kingdom over Party when it fuses faith with party, and a post that offends only because of the gospel's own claims is not penalised for that. A post that is fine is reported as fine. Realizes UJ-1, UJ-2.
+**Description:** Each Post is scored directly against the current Rubric Version. Scores react to how the Post is likely to land with non-believers, not to its stance or politics: a political post scores low on Kingdom over Party when it fuses faith with party, whichever side it leans. The tool names where any offence comes from but does not decide whether a claim's offence is "the offence of the gospel"; that judgement belongs to the User and their group. A post that is fine is reported as fine. Realizes UJ-1, UJ-2.
 
 **Rubric v1** (`witness-rubric@1`, merged from Bennett's lenses, the research Criteria, and the "Paul in Athens" marks in *Culture and Ministry Design*):
 
@@ -129,7 +132,7 @@ When the Source URL is a TikTok video, the Web App can pre-fill the Post's capti
 | 2 | Cultural Awareness | shows it knows the audience's world, earning a hearing |
 | 3 | Gentleness & Respect | is kind and respectful toward everyone, including those who disagree; does not condemn or disrespect its audience |
 | 4 | Welcome over Judgment | treats outsiders as welcome neighbours and keeps moral correction aimed at insiders |
-| 5 | Kingdom over Party | keeps the faith distinct from party, candidate, and nation (N/A if no political content) |
+| 5 | Kingdom over Party | keeps the faith distinct from party, candidate, and nation; applies equally to left- and right-coded posts (N/A if no political content) |
 | 6 | Humility & Integrity | comes across as honest and unpretentious, with no gap between claim and conduct |
 | 7 | Love Made Visible | shows love in action toward real people, not only in words |
 | 8 | Invitation & Dialogue | leaves a door open and invites questions, without pressure |
@@ -140,10 +143,12 @@ When the Source URL is a TikTok video, the Web App can pre-fill the Post's capti
 The system scores every Criterion of the current Rubric Version for each Post, 1–5 or N/A, each with Evidence.
 - Every non-N/A Rubric Score quotes the Post text (or describes the screenshot region) that earned it.
 - Each Rubric Score has a one-sentence reason in plain language.
-- Criterion 10 is N/A on every Others' Review.
+- Criterion 10 is N/A on every Others' Review. Any other Criterion is N/A only when the Post contains nothing it can assess, and the Evaluation states why.
+- Every Rubric Score of 3 or below names its Offence Source. Offence from tone or jargon lowers the score; offence from the claim itself is reported but does not lower it.
+- Rubric Scores are compared only within the same Rubric Version; the tool never converts scores between versions.
 
 #### FR-5: Say plainly when a Post is fine [F]
-When no Criterion scores below 3 [ASSUMPTION: threshold], the Evaluation says the Post is likely to land well and does not list manufactured problems.
+When no Criterion scores below 3, the Evaluation says the Post is likely to land well and lists no concerns; Criteria scored 3 are shown with their Evidence but are not framed as problems.
 
 #### FR-6: Flag possible soundness concerns [F]
 The system can attach a Soundness Flag when a Post's main message may not be theologically sound.
@@ -162,13 +167,13 @@ Every Evaluation records and displays the Rubric Version and Persona Version tha
 
 | Persona | Who they are |
 |---|---|
-| Seeker | Never churched, spiritually curious, lost in insider language |
+| Seeker | Gen Z (a peer of Emily's school friends), never churched, spiritually curious, lost in insider language |
 | Drifter | Grew up around church, now indifferent; the largest group of US "nones" |
 | Neighbor of Another Faith | Practises another religion; respects faith, bristles at disparagement or pressure |
 | Exvangelical | Knows the faith well, was hurt by church, still admires Jesus |
 | Skeptic | Atheist, critical but fair-minded |
 | Progressive | Non-believer holding progressive convictions (e.g. pro-LGBT, pro-choice) |
-| Emboldened Believer | A Christian who may read the post as licence to be abrasive or rude — e.g. a post urging believers to "speak the truth" that itself does so harmfully [ASSUMPTION: name] |
+| Emboldened Believer | A Christian who may read the post as licence to be abrasive or rude — e.g. a post urging believers to "speak the truth" that itself does so harmfully |
 
 The set's political lean is deliberately one-sided (no secular-conservative persona).
 
@@ -176,7 +181,8 @@ The set's political lean is deliberately one-sided (no secular-conservative pers
 For each Post, the system produces one Persona Reaction for each Persona in the current Persona Version.
 - Each reaction names a Felt Response and gives 1–3 reasons in the Persona's voice, pointing at specific parts of the Post.
 - Positive Felt Responses (convicted, encouraged, uplifted, moved to openness) are possible and shown when warranted.
-- The Emboldened Believer's reaction describes how the post might shape a Christian's behaviour toward others, not how it lands with a non-believer. [ASSUMPTION]
+- The Emboldened Believer's reaction describes how the post might shape a Christian's behaviour toward others, not how it lands with a non-believer.
+- Personas speak from their own experience; they never diagnose the poster's or other outsiders' hidden motives, and reactions never use labels such as "idolatry" or "syncretism".
 
 #### FR-9: Label every reaction as simulated [F]
 Every Persona Reaction is visibly labelled as a simulated perspective, never presented as a real person's opinion.
@@ -190,27 +196,26 @@ On an Own-Content Review, the Personas most relevant to the Creator's top-ranked
 **Description:** For each Post that has room to improve, the tool offers one alternative wording that would come across more gently while keeping the main message. Realizes UJ-1, UJ-2.
 
 #### FR-11: Offer a Gentler Rewrite [F]
-The system produces a Gentler Rewrite for each Post where any Criterion scores below 4 [ASSUMPTION: threshold].
+The system produces a Gentler Rewrite automatically for each Post where any Criterion scores below 3. For a Post judged to land well (FR-5) whose lowest score is 3, the Evaluation offers a "Suggest a gentler version" action that produces one on request. A Post whose scores are all 4 or above gets no rewrite.
 - The rewrite keeps the Post's main message and convictions; it changes manner, clarity, and framing.
 - The rewrite is marked as a suggestion and shown next to the original.
-- A Post judged to land well (FR-5) gets no rewrite, or an optional one on request.
 
 **Out of Scope:** rewriting a Post's theology; producing new posts from scratch.
 
 ### 4.5 Discussion Questions
 
 #### FR-12: Generate Discussion Questions [F]
-The system produces 3–5 Discussion Questions for each Post, suitable for a teenage small group led by an adult. Realizes UJ-1.
-- The set always includes a "What would you have done differently?" question and a "What does the Bible say?" question tied to the Post's theme.
+The system produces 4–6 Discussion Questions for each Post, suitable for a teenage small group led by an adult. Realizes UJ-1.
+- The set always includes four standing questions, adapted to the Post: "What would you have done differently?", "What does the Bible say about this?", "How might Jesus have responded to this post?", and "How might Jesus have posted this?".
 - Questions are open, not leading toward a single answer.
 
 ### 4.6 Ministry Outreach Plan
 
 #### FR-13: Generate a Ministry Outreach Plan [F]
 An Introducer can request a Ministry Outreach Plan for a Review. Realizes UJ-3.
-- The plan has a draft message the Introducer can copy and send themselves, and 3–5 Talking Points, each tied to a specific Post and Criterion.
-- The draft opens with genuine affirmation of something real in the content, raises at most the top 2–3 concerns, and proposes concrete changes. [ASSUMPTION: structure, after the Jethro-and-Moses tone model in *Culture and Ministry Design*]
-- The draft contains no mockery, no theological verdict, and no claim that the personas are real people.
+- The plan has an Outreach Message the Introducer can copy and send themselves, and 3–5 Talking Points.
+- The Outreach Message opens with genuine affirmation of something real in the content, raises at most the top 2–3 concerns, and proposes concrete changes (after the Jethro-and-Moses tone model in *Culture and Ministry Design*).
+- The Outreach Message contains no mockery, no theological verdict, and no claim that the personas are real people.
 - The tool never sends, posts, or contacts anyone.
 
 ### 4.7 Profile Summary [W2]
@@ -223,16 +228,16 @@ For a Review whose Posts come from one profile, the system produces a Profile Su
 - the strongest and weakest Posts;
 - the top 2–3 changes likely to help most.
 
-### 4.8 Creator Foundation and Own-Content Review [W2]
+### 4.8 Creator Foundation and Own-Content Review
 
 **Description:** Creators and ministries can review their own content. Before the first Own-Content Review they set up a Creator Foundation. Realizes UJ-2.
 
 #### FR-15: Set up a Creator Foundation [W2]
 A Creator can record how they want to come across and rank their Target Audiences.
-- The Creator can edit the Foundation later; each Review records the Foundation as it was at the time. [ASSUMPTION]
+- The Creator can edit the Foundation later; each Review records the Foundation as it was at the time.
 
 #### FR-16: Run an Own-Content Review and Draft Checkpoint [W2]
-A Creator can review their own published Posts or a draft, receiving the full Evaluation including Criterion 10.
+A Creator can review their own published Posts or an Unpublished Post, receiving the full Evaluation including Criterion 10.
 
 #### FR-17: Show the "lands anywhere" reminder [F]
 Every User sees a standing reminder that a post can land on anyone's page, so witness matters whatever the intended audience.
@@ -240,12 +245,18 @@ Every User sees a standing reminder that a post can land on anyone's page, so wi
 ### 4.9 Accounts and Saved Reviews [W2]
 
 #### FR-18: Private accounts [W2]
-Leaders, Creators, and Introducers can sign in to their own private account.
+Leaders, Creators, and Introducers can sign in to their own private account. Running a Review on the Web App requires sign-in.
 - A User's Reviews are visible only to that User.
 - No teen needs an account: in UJ-1 the Leader operates the tool.
 
 #### FR-19: Saved Reviews [W2]
 A signed-in User can save a Review and reopen it later, unchanged, with its recorded versions.
+
+#### FR-23: Usage caps [W2]
+The Web App enforces explicit caps on Claude API usage, because every Review is paid for from Bennett's API account.
+- A per-account cap limits Reviews per day; a User who reaches it is told when they can run another.
+- A global monthly spend cap stops new Reviews when reached and shows a plain message.
+- Cap values are set in `bmad-architecture` once the model and cost per Review are known, and recorded in `ARCHITECTURE.md`.
 
 ### 4.10 Versioned Personas and Rubric
 
@@ -254,9 +265,9 @@ Rubric Versions and Persona Versions are never edited in place once any Evaluati
 
 #### FR-21: Maintainer publishes new versions [W2]
 The Maintainer can publish a new Rubric Version or Persona Version; new Reviews use the latest version, and saved Reviews keep theirs. Realizes UJ-4.
-- Publishing may be a file or database change by Bennett rather than an in-app editor. [ASSUMPTION]
+- Publishing may be a file or database change by Bennett rather than an in-app editor.
 
-### 4.11 Demo Roadmap Tab [F only]
+### 4.11 Demo Roadmap Tab
 
 #### FR-22: Roadmap tab in the Demo Artifact [F]
 The Demo Artifact has a separate tab listing what is planned but not yet built, for reference in the recorded video.
@@ -279,11 +290,11 @@ The Demo Artifact has a separate tab listing what is planned but not yet built, 
 
 Delivered as a **recorded screen video of the Demo Artifact with Bennett's voice-over**; the Artifact itself has a live link shared with IFI colleagues. The video shows: Posts from a profile going in, how they are evaluated, the outputs, and the Roadmap tab.
 
-In: FR-1, FR-2, FR-4 to FR-9, FR-11 to FR-13, FR-17, FR-20, FR-22.
+In: FR-1, FR-2, FR-4 to FR-9, FR-11 to FR-13, FR-17, FR-20, FR-22. **No cut line:** Bennett has decided every Friday requirement must ship; none is optional.
 
 ### 6.2 Week of 2026-10-26 — Web App
 
-Live public link on Vercel. Everything in 6.1 except FR-22, plus FR-3 (conditional), FR-10, FR-14 to FR-16, FR-18, FR-19, FR-21, and Criterion 10.
+Live public link on Vercel. Everything in 6.1 except FR-22, plus FR-3 (conditional), FR-10, FR-14 to FR-16, FR-18, FR-19, FR-21, FR-23, and Criterion 10. Every week-2 requirement must ship except FR-3, which is conditional.
 
 ### 6.3 Out of Scope for MVP
 
@@ -301,15 +312,16 @@ Live public link on Vercel. Everything in 6.1 except FR-22, plus FR-3 (condition
 Post content enters only by user supply or Permitted Retrieval. No logged-in scraping, no bot-detection evasion, no fake accounts.
 
 ### 7.2 Privacy
-- Public Posts by individuals are treated like ministry Posts: public, and therefore open to charitable critique.
-- The tool does not store or display the names, handles, or comments of followers or commenters, even when they appear in screenshots. [ASSUMPTION: Evaluations ignore comment sections in screenshots]
-- The published Demo Artifact ships with no real people's posts preloaded. Example posts are entered during the recording; any built-in sample is fictional. [ASSUMPTION — required by Claude Artifact publishing policy on content targeting private individuals]
+- Public Posts by individuals are treated like ministry Posts: public, and therefore open to charitable critique. Posters are not asked to opt in.
+- This PRD widens `RULES.md`'s data rule ("Evaluate the ministry's own posts") to others' public Posts plus a Creator's own Posts; `RULES.md` is updated when this PRD is promoted.
+- The tool does not store or display the names, handles, or comments of followers or commenters, even when they appear in screenshots; Evaluations ignore comment sections.
+- The published Demo Artifact ships with no real people's posts preloaded. Example posts are entered during the recording; any built-in sample is fictional. (Claude Artifact publishing policy bars content that targets private individuals.)
 
 ### 7.3 Honest simulation
 Persona Reactions are labelled simulated everywhere they appear (FR-9) and are kept apart from any real interview data.
 
 ### 7.4 Tone
-All feedback is charitable and specific: it points to a concrete line and a concrete change. No mockery of the poster. No theological verdicts.
+All feedback — Evaluations as well as Outreach Messages — is charitable and specific: it affirms what is genuinely good before raising concerns, critiques the Post rather than the person, and points to a concrete line and a concrete change. No mockery of the poster. No theological verdicts.
 
 ### 7.5 Untrusted input
 Post text and screenshots are untrusted input to the model: delimited from instructions, and unable to change the Rubric, the Personas, or the output format.
@@ -319,10 +331,10 @@ The Bonhoeffer line Bennett cited ("Your life as a Christian should make non-bel
 
 ## 8. Cross-Cutting NFRs
 
-- **Latency:** a single-Post Evaluation returns within 60 seconds [ASSUMPTION]; a 10-Post Review shows Evaluations as they complete rather than all at the end.
+- **Latency:** a single-Post Evaluation returns within 60 seconds; a 10-Post Review shows Evaluations as they complete rather than all at the end.
 - **Secrets:** the Claude API key and Supabase service-role key stay server-side (Web App); the Demo Artifact holds no keys.
 - **Data protection:** every Supabase table has row-level security so Users see only their own Reviews.
-- **Readability on a shared screen:** Evaluations are legible on a projector or TV for a small group (UJ-1).
+- **Readability on a shared screen:** Evaluations are legible on a projector or TV for a small group (UJ-1); the measurable bound is set in `bmad-ux` (OQ-6).
 
 ## 9. Success Metrics
 
@@ -331,7 +343,7 @@ The Bonhoeffer line Bennett cited ("Your life as a Christian should make non-bel
 - **SM-2: Objective, evidence-based scoring.** Re-running the same Post with the same versions gives each Rubric Score within ±1 point, and 100% of non-N/A Rubric Scores cite Evidence. Validates FR-4, FR-7.
 
 **Secondary (week 2 onward)**
-- **SM-3: Real use.** Leaders, creators, or ministries Bennett knows run real Reviews on the Web App [ASSUMPTION: at least 3 people].
+- **SM-3: Real use.** At least 3 leaders, creators, or ministries Bennett knows run real Reviews on the Web App.
 - **SM-4: Personas ring true.** In interviews, real non-believers recognise their Persona's reactions as plausible. Validates FR-8 and drives new Persona Versions.
 
 **Counter-metrics (do not optimise)**
@@ -343,8 +355,8 @@ The Bonhoeffer line Bennett cited ("Your life as a Christian should make non-bel
 
 | When | Milestone |
 |---|---|
-| Wed 2026-10-21 | PRD approved; `bmad-architecture` and `bmad-ux` run (time-boxed for Phase 1). |
-| Thu 2026-10-22 | Demo Artifact built. |
+| Wed 2026-10-21 | PRD approved; `bmad-architecture` and `bmad-ux` run in parallel sessions (time-boxed for Phase 1). |
+| Thu 2026-10-22 | Demo Artifact built. Risk: one build day for 14 Friday requirements with no cut line. |
 | Fri 2026-10-23, before recording | **Nail down the tool's flow end to end**, then record the video with voice-over. |
 | Week of 2026-10-26 | Web App live on Vercel; `ARCHITECTURE.md` and `SCHEMA.md` final before code starts. |
 
@@ -353,19 +365,10 @@ The Bonhoeffer line Bennett cited ("Your life as a Christian should make non-bel
 1. **OQ-1. Prevalence weighting.** Should the Profile Summary weight Persona patterns by how common each group is? Owner: Bennett. Revisit when FR-14 is built.
 2. **OQ-2. Soundness standard.** What standard defines "theologically sound", and should a rewrite ever correct doctrine? Owner: Bennett. Revisit after the Web App ships.
 3. **OQ-3. Interview Plans.** Questions for non-believers, creators, and ministries, and which Criteria or Personas each answer would revise. Owner: Bennett, in a separate Claude session. Revisit before SM-4 interviews.
-4. **OQ-4. Product name.** "Witness Review" is a working title. Owner: Bennett.
+4. **OQ-4. Product name.** "Witness Review" is a working title. Candidates offered: Known & Read, Open Table, Toward Outsiders, Seasoned, Fair Witness, Outside Eyes. Owner: Bennett.
+5. **OQ-5. Storage and spend (to `bmad-architecture`).** How saved Reviews keep screenshots without persisting commenters' names or handles (§7.2); FR-23 cap values; how the Demo Artifact's in-page Claude calls are counted and limited. Owner: architecture session. Revisit before Web App code starts.
+6. **OQ-6. Persona order and shared-screen legibility (to `bmad-ux`).** The rule mapping each Target Audience to a Persona order (FR-10), and a measurable legibility bound for projector use (§8). Owner: UX session.
 
 ## 12. Assumptions Index
 
-- §4.1 FR-1 — A Review holds at least 10 Posts.
-- §4.2 FR-5 — "Fine" means no Criterion below 3.
-- §4.3 — Persona name "Emboldened Believer", and it is in the Friday Persona set.
-- §4.3 FR-8 — The Emboldened Believer reacts about Christian behaviour, not non-believer reception.
-- §4.4 FR-11 — Rewrite offered when any Criterion is below 4.
-- §4.6 FR-13 — Outreach draft structure: affirm, top 2–3 concerns, concrete changes.
-- §4.8 FR-15 — Reviews record the Creator Foundation as it was at the time.
-- §4.10 FR-21 — Publishing versions may be a file or database change, not an in-app editor.
-- §7.2 — Comment sections in screenshots are ignored.
-- §7.2 — Demo Artifact ships with no real posts preloaded.
-- §8 — Single-Post Evaluation within 60 seconds.
-- §9 SM-3 — "Real use" means at least 3 people.
+All twelve drafting assumptions (Review size ≥ 10 Posts; "fine" threshold < 3; rewrite threshold < 4; Emboldened Believer name, Friday inclusion and behavioural framing; outreach draft structure; Foundation snapshot per Review; version publishing by file or database change; comment sections ignored; no real posts preloaded in the Demo Artifact; 60-second Evaluation; SM-3 ≥ 3 people) were confirmed by Bennett on 2026-10-21. None outstanding.

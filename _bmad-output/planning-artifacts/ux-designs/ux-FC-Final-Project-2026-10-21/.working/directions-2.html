@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Witness Review Quiet</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400;1,8..60,600&display=swap">
+<!--
+  TYPE: two families, three sizes, nothing else.
+    Source Serif 4 (opsz axis)  display 56px (hook only) · body 20px (everything read)
+    IBM Plex Mono               label 13px, uppercase, tracked
+  Hierarchy: italic, accent colour, weight 400 / 600, space.
+
+  LIGHT tokens (on bone #F7F4EE)
+    --bg    #F7F4EE  bone ground
+    --ink   #221C1A  text ............................ 15.32:1
+    --ink2  #5E5551  labels only ......................  6.61:1
+    --acc   #6E1E22  wine accent ...................... 10.22:1 (scores are group-read: passes 7:1)
+    --rule  #DCD4CA  hairlines, decorative ............  1.34:1
+    pill: bone text on wine ........................... 10.22:1
+
+  DARK tokens (on warm ink #1E1917)
+    --bg    #1E1917  ground
+    --ink   #F2EDE4  bone text ........................ 14.93:1
+    --ink2  #B4A99F  labels only ......................  7.56:1
+    --acc   #E3A1A3  rose accent ......................  8.20:1 (passes 7:1, safe for group-read text)
+    --rule  #3B332F  hairlines, decorative ............  1.41:1
+    pill: #1E1917 text on rose ........................  8.20:1
+-->
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#E6E5E3}
+  body{color:#1F1F1F;font-family:'Source Serif 4',Georgia,'Times New Roman',serif;font-size:20px;line-height:1.5;min-width:1400px;padding:48px 60px 72px}
+  .mono{font-family:'IBM Plex Mono',Menlo,'Courier New',monospace;font-size:13px;line-height:20px;letter-spacing:.14em;text-transform:uppercase;font-weight:400}
+
+  /* comparison page chrome */
+  .intro{max-width:1000px}
+  .cap{margin:40px 0 10px;color:#4F4F4F}
+  .frame{width:1282px;border:1px solid #B5B3AF;background:#FFF}
+  .bar{height:36px;display:flex;align-items:center;gap:8px;padding:0 14px;background:#EFEEEC;border-bottom:1px solid #CFCDC9}
+  .bar i{width:10px;height:10px;border-radius:50%;border:1px solid #A7A5A1;display:block}
+  .bar .url{margin-left:18px;font-family:'IBM Plex Mono',Menlo,'Courier New',monospace;font-size:13px;line-height:20px;color:#55524E;background:#F8F8F7;border:1px solid #DDDBD8;border-radius:6px;padding:2px 14px;min-width:380px}
+  .tokens{margin-top:48px;border-collapse:collapse}
+  .tokens th,.tokens td{text-align:left;padding:7px 28px 7px 0;border-bottom:1px solid #C9C7C3;vertical-align:middle}
+  .tokens th{color:#4F4F4F}
+  .sw{display:inline-block;width:13px;height:13px;border:1px solid rgba(0,0,0,.3);vertical-align:-2px;margin-right:10px}
+
+  /* ---------- the product ---------- */
+  .screen{--bg:#F7F4EE;--ink:#221C1A;--ink2:#5E5551;--acc:#6E1E22;--rule:#DCD4CA;
+    width:1280px;height:800px;overflow:hidden;position:relative;background:var(--bg);color:var(--ink);
+    font-family:'Source Serif 4',Georgia,'Times New Roman',serif;font-size:20px;line-height:1.5;font-weight:400}
+  .screen.dark{--bg:#1E1917;--ink:#F2EDE4;--ink2:#B4A99F;--acc:#E3A1A3;--rule:#3B332F}
+
+  .top{height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 64px}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:600}
+  .brand svg{width:28px;height:20px;color:var(--acc)}
+  nav{display:flex;align-items:baseline;gap:32px}
+  nav span{color:var(--ink2)}
+  nav .on{color:var(--ink);text-decoration:underline;text-decoration-color:var(--acc);text-decoration-thickness:1px;text-underline-offset:8px}
+  nav .mono{color:var(--ink2)}
+
+  .pill{display:inline-block;background:var(--acc);color:var(--bg);border-radius:999px;font-size:20px;line-height:1;font-weight:600;padding:16px 36px 17px}
+
+  /* opening */
+  .stage{position:absolute;top:76px;left:0;right:0;bottom:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .seal{width:88px;height:62px;color:var(--acc)}
+  h1{font-size:56px;line-height:1.12;font-weight:400;font-variation-settings:'opsz' 60;letter-spacing:-.01em;max-width:780px;text-wrap:balance;margin-top:36px}
+  h1 em{color:var(--acc)}
+  .lede{max-width:500px;margin-top:22px;text-wrap:balance}
+  .stage .pill{margin-top:36px}
+  .foot{position:absolute;left:0;right:0;bottom:32px;text-align:center;color:var(--ink2)}
+
+  /* scores */
+  .col{width:720px;margin:0 auto;padding-top:12px}
+  .meta{color:var(--ink2)}
+  .rail{color:var(--ink2);margin-top:6px}
+  .rail b{font-weight:400;color:var(--acc)}
+  .post{font-style:italic;margin-top:18px}
+  .lands{margin-top:4px}
+  .lands b{font-weight:400;color:var(--acc)}
+  .list{margin-top:16px;border-bottom:1px solid var(--rule)}
+  .row{display:grid;grid-template-columns:52px 1fr 16px;align-items:baseline;padding:3px 0 4px;border-top:1px solid var(--rule)}
+  .sc{color:var(--acc);font-weight:600;font-variant-numeric:tabular-nums lining-nums}
+  .sc.na{color:var(--ink2);font-weight:400}
+  .nm{display:flex;align-items:baseline;gap:16px}
+  .nm .mono{color:var(--ink2)}
+  .chev{width:12px;height:8px;color:var(--ink2);align-self:center}
+  .row.open{padding-bottom:10px}
+  .row.open .nm span:first-child{font-weight:600}
+  .row.open .chev{transform:rotate(180deg)}
+  .detail{grid-column:2/3}
+  .detail .ev{font-style:italic}
+  .s2foot{position:absolute;left:0;right:0;bottom:0;height:84px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 64px}
+  .s2foot .stack{text-align:center;color:var(--ink2)}
+  .s2foot .pill{justify-self:end;grid-column:3}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="env" viewBox="0 0 40 28">
+    <rect x="1" y="1" width="38" height="26" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.25" vector-effect="non-scaling-stroke"/>
+    <path d="M1.6 1.8 L20 15.5 L38.4 1.8" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+  </symbol>
+  <symbol id="chev" viewBox="0 0 12 8">
+    <path d="M1 1.5 L6 6.5 L11 1.5" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+</svg>
+
+<p class="intro">Witness Review, round 2: Quiet Room stripped down to two typefaces, three sizes, one accent and one pill per screen. The token list is below the screens.</p>
+
+<!-- ================= SCREEN 1 ================= -->
+<div class="mono cap">1 · Opening</div>
+<div class="frame">
+  <div class="bar"><i></i><i></i><i></i><span class="url">claude.ai/artifact/witness-review</span></div>
+  <div class="screen" id="s1">
+    <div class="top">
+      <div class="brand"><svg><use href="#env"/></svg>Witness Review</div>
+      <nav><span class="on">Review</span><span>Roadmap</span><span class="mono">Dark</span></nav>
+    </div>
+    <!--COUNT s1-->
+    <div class="stage">
+      <svg class="seal" viewBox="0 0 40 28"><use href="#env"/></svg>
+      <h1>How does your post <em>read</em> from outside the church?</h1>
+      <p class="lede">See how a post might land with seven people outside the faith, and how to say it more gently.</p>
+      <span class="pill">Start a Review</span>
+    </div>
+    <div class="foot mono">Any post can land on anyone’s page</div>
+    <!--/COUNT s1-->
+  </div>
+</div>
+
+<!-- ================= SCREEN 2 ================= -->
+<div class="mono cap">2 · Post 03 of 10, Scores</div>
+<div class="frame">
+  <div class="bar"><i></i><i></i><i></i><span class="url">claude.ai/artifact/witness-review</span></div>
+  <div class="screen" id="s2">
+    <div class="top">
+      <div class="brand"><svg><use href="#env"/></svg>Witness Review</div>
+      <nav><span class="on">Review</span><span>Roadmap</span><span class="mono">Dark</span></nav>
+    </div>
+    <!--COUNT s2-->
+    <div class="col">
+      <div class="mono meta">Post 03 / 10 · Harbor Light Fellowship</div>
+      <div class="mono rail"><b>Scores</b> · Reactions · Rewrite · Questions</div>
+      <p class="post">“If you’re not washed in the blood, you’re still dead in your sins. The world won’t tell you this, but we will. Repent today. #truth”</p>
+      <p class="lands"><b>Lands well:</b> it says plainly what it believes.</p>
+      <div class="list">
+        <div class="row open"><span class="sc">2</span><span class="nm"><span>Outsider Clarity</span><span class="mono">Jargon</span></span><svg class="chev"><use href="#chev"/></svg>
+          <div class="detail"><div class="ev">“washed in the blood”, “dead in your sins”</div><div>Someone with no church background may not know these phrases.</div></div></div>
+        <div class="row"><span class="sc">2</span><span class="nm"><span>Cultural Awareness</span><span class="mono">Tone</span></span><svg class="chev"><use href="#chev"/></svg></div>
+        <div class="row"><span class="sc">2</span><span class="nm"><span>Gentleness &amp; Respect</span><span class="mono">Tone</span></span><svg class="chev"><use href="#chev"/></svg></div>
+        <div class="row"><span class="sc">2</span><span class="nm"><span>Welcome over Judgment</span><span class="mono">Tone</span></span><svg class="chev"><use href="#chev"/></svg></div>
+        <div class="row"><span class="sc na">N/A</span><span class="nm"><span>Kingdom over Party</span></span><svg class="chev"><use href="#chev"/></svg></div>
+        <div class="row"><span class="sc">3</span><span class="nm"><span>Humility &amp; Integrity</span><span class="mono">Tone</span></span><svg class="chev"><use href="#chev"/></svg></div>
+        <div class="row"><span class="sc">2</span><span class="nm"><span>Love Made Visible</span><span class="mono">Tone</span></span><svg class="chev"><use href="#chev"/></svg></div>
+        <div class="row"><span class="sc">2</span><span class="nm"><span>Invitation &amp; Dialogue</span><span class="mono">Tone</span></span><svg class="chev"><use href="#chev"/></svg></div>
+        <div class="row"><span class="sc">5</span><span class="nm"><span>Clear Conviction</span></span><svg class="chev"><use href="#chev"/></svg></div>
+        <div class="row"><span class="sc na">N/A</span><span class="nm"><span>Self-Presentation Alignment</span></span><svg class="chev"><use href="#chev"/></svg></div>
+      </div>
+    </div>
+    <div class="s2foot">
+      <div class="stack"><div class="mono">Any post can land on anyone’s page</div><div class="mono">witness-rubric@1 · persona-set@1 · prompts@1 · Claude Opus 5.5</div></div>
+      <span class="pill">Next: Reactions</span>
+    </div>
+    <!--/COUNT s2-->
+  </div>
+</div>
+
+<!-- ================= SCREEN 3 ================= -->
+<div class="mono cap">3 · Opening, dark</div>
+<div class="frame">
+  <div class="bar"><i></i><i></i><i></i><span class="url">claude.ai/artifact/witness-review</span></div>
+  <div class="screen dark" id="s3">
+    <div class="top">
+      <div class="brand"><svg><use href="#env"/></svg>Witness Review</div>
+      <nav><span class="on">Review</span><span>Roadmap</span><span class="mono">Light</span></nav>
+    </div>
+    <!--COUNT s3-->
+    <div class="stage">
+      <svg class="seal" viewBox="0 0 40 28"><use href="#env"/></svg>
+      <h1>How does your post <em>read</em> from outside the church?</h1>
+      <p class="lede">See how a post might land with seven people outside the faith, and how to say it more gently.</p>
+      <span class="pill">Start a Review</span>
+    </div>
+    <div class="foot mono">Any post can land on anyone’s page</div>
+    <!--/COUNT s3-->
+  </div>
+</div>
+
+<table class="tokens mono">
+  <thead><tr><th>Token</th><th>Light</th><th>On bone</th><th>Dark</th><th>On ground</th><th>Use</th></tr></thead>
+  <tbody>
+    <tr><td>bg</td><td><span class="sw" style="background:#F7F4EE"></span>#F7F4EE</td><td></td><td><span class="sw" style="background:#1E1917"></span>#1E1917</td><td></td><td>Ground</td></tr>
+    <tr><td>ink</td><td><span class="sw" style="background:#221C1A"></span>#221C1A</td><td>15.32:1</td><td><span class="sw" style="background:#F2EDE4"></span>#F2EDE4</td><td>14.93:1</td><td>All read text</td></tr>
+    <tr><td>ink-2</td><td><span class="sw" style="background:#5E5551"></span>#5E5551</td><td>6.61:1</td><td><span class="sw" style="background:#B4A99F"></span>#B4A99F</td><td>7.56:1</td><td>Labels only</td></tr>
+    <tr><td>accent</td><td><span class="sw" style="background:#6E1E22"></span>#6E1E22</td><td>10.22:1</td><td><span class="sw" style="background:#E3A1A3"></span>#E3A1A3</td><td>8.20:1</td><td>Scores, emphasis, pill</td></tr>
+    <tr><td>rule</td><td><span class="sw" style="background:#DCD4CA"></span>#DCD4CA</td><td>1.34:1</td><td><span class="sw" style="background:#3B332F"></span>#3B332F</td><td>1.41:1</td><td>Hairlines</td></tr>
+    <tr><td>type</td><td colspan="5">Source Serif 4 at 56 (hook) and 20 (all reading text) · IBM Plex Mono at 13 (labels)</td></tr>
+  </tbody>
+</table>
+
+</body>
+</html>

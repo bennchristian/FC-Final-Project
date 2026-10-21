@@ -33,7 +33,8 @@ discussion questions, and an outreach plan for raising concerns with a poster. S
 - **Next:** `bmad-architecture`, with `bmad-ux` running alongside in its own session (Bennett
   chose to run them in parallel). Architecture owns PRD OQ-5, UX owns OQ-6. Run
   `bmad-project-context` only after real code exists.
-- The interview plan (PRD OQ-3) is a separate Claude session, not part of the product.
+- Interview plans (PRD OQ-3) are done and approved: [`docs/interview-plans.md`](docs/interview-plans.md).
+  They are research, not part of the product.
 - BMAD writes into dated folders under `_bmad-output/`. Promote the final document to the repo
   root; do not repoint BMAD's output paths.
 - `_bmad/config.toml` and `_bmad/config.user.toml` are managed by the installer. Overrides go

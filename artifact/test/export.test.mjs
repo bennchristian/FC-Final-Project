@@ -22,7 +22,7 @@ const review = {
 
 test('Markdown export carries every part of the Review and labels Personas simulated', () => {
   const md = reviewToMarkdown(review, content, labels, { exportedAt: '2026-10-21T12:00:00Z', includeJson: false });
-  for (const part of ['# Witness Review', 'Versions: witness-rubric@1', '## Post 1', '> line one\n> line two', 'Screenshots: 1 (not included',
+  for (const part of ['# Witness Review', `Versions: ${labels.rubric}`, '## Post 1', '> line one\n> line two', 'Screenshots: 1 (not included',
     '### Rubric Scores', '| 1. Outsider Clarity | 2 / 5 | Jargon |', '- Why: Insider phrasing', '### Persona Reactions (simulated)',
     '### Gentler Rewrite (suggestion)', '### Discussion Questions', '*Not evaluated (failed).*', '## Ministry Outreach Plan', 'Concern · Post 1']) {
     assert.ok(md.includes(part), part);

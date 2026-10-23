@@ -1,6 +1,6 @@
 {
   "about": "SCHEMA.md §4.1–§4.5 and §4.7: valid and invalid model outputs per call. Each case starts from a deep copy of bases[step], applies `set` ([path, value] pairs) and then `delete` (paths; an array index is spliced out), then validates. Assess runs the full chain for an Others' Review: shape, overrides, cross-field rules.",
-  "rubric": "witness-rubric@1",
+  "rubric": "witness-rubric@2",
   "personas": "persona-set@1",
   "outreach_done_positions": [1, 2],
   "bases": {

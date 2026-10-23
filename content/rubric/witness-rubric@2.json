@@ -1,0 +1,354 @@
+{
+  "id": "witness-rubric@2",
+  "name": "witness-rubric",
+  "number": 2,
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "na": true
+  },
+  "thresholds": {
+    "lands_well_min": 3,
+    "auto_rewrite_below": 3,
+    "offer_rewrite_at": 3
+  },
+  "criteria": [
+    {
+      "key": "outsider_clarity",
+      "number": 1,
+      "name": "Outsider Clarity",
+      "scores_whether": "the Post can be understood by someone with no church background, with no unexplained jargon or bare verse references, and reads as if it is for them too.",
+      "guidance": {
+        "1": "Mostly insider language: unexplained terms (e.g. 'quiet time', 'backslid', 'covered by the blood', 'in this season'), bare references like 'Rom 8:28', or it assumes the reader was at Sunday's service. An outsider could not say what it means.",
+        "2": "The main point is guessable, but several unexplained terms or references would lose an outsider, or it speaks only to 'church family'.",
+        "3": "Mostly plain; one or two insider terms or references go unexplained, but the main point still comes through.",
+        "4": "Plain words throughout; any verse or term is given with enough context to make sense on its own.",
+        "5": "Fully clear to someone with no church background; the Post explains what it needs to and speaks to 'you' as anyone, not only to insiders."
+      },
+      "applies_to": "all",
+      "sources": [
+        {
+          "source": "Colossians 4:5–6",
+          "principle": "Walk wisely toward outsiders; let your speech be gracious and seasoned with salt, so that you know how to answer each person. Speech is fitted to the hearer."
+        },
+        {
+          "source": "1 Corinthians 14:9, 23–24",
+          "principle": "Paul asks how anyone will know what is said if the words are not intelligible, and pictures an outsider walking in."
+        },
+        {
+          "source": "Keller, Center Church (2012), Part 3",
+          "principle": "Under-contextualising: speaking only in the speaker’s own culture leaves hearers confused."
+        },
+        {
+          "source": "\"Christianese\" research (Emory thesis; Liberty University corpus study)",
+          "principle": "Evangelical jargon works as an in-group boundary and is ambiguous to outsiders."
+        },
+        {
+          "source": "Barna, Gen Z and evangelism (2021)",
+          "principle": "Having the Bible quoted at them was the least appealing form of witness for non-Christian teens (17%)."
+        }
+      ]
+    },
+    {
+      "key": "cultural_awareness",
+      "number": 2,
+      "name": "Cultural Awareness",
+      "scores_whether": "the Post shows it knows the audience's world (their questions, references, pressures and longings) in a way that earns a hearing, as Paul did in Athens.",
+      "guidance": {
+        "1": "Shows no awareness of the reader's world, or misreads or caricatures it (e.g. treating 'the culture' as a monolith or an enemy).",
+        "2": "Speaks only from inside church culture; nothing connects to the reader's everyday life or questions.",
+        "3": "Some point of connection with ordinary life, but generic or surface-level.",
+        "4": "Clearly engages a real question, experience or reference from the reader's world.",
+        "5": "Meets the reader where they are with a specific, fairly described touchpoint from their world, and builds on what they already value."
+      },
+      "applies_to": "all",
+      "sources": [
+        {
+          "source": "Acts 17:16–34",
+          "principle": "In Athens, Paul starts from the city’s own altar and its own poets before he speaks of Christ."
+        },
+        {
+          "source": "Culture and Ministry Design, \"Paul in Athens\" (p. 28, adapted from Flemming)",
+          "principle": "Mark 1: awareness of the audience’s culture earns a hearing."
+        },
+        {
+          "source": "Acts 13, 14 and 17 (Culture and Ministry Design, pp. 32–33)",
+          "principle": "Paul speaks differently to a synagogue, to Gentiles in Lystra and to philosophers in Athens."
+        },
+        {
+          "source": "Keller, Center Church (2012), Part 3",
+          "principle": "Active contextualisation: enter the culture, affirm what it rightly values, then challenge it."
+        }
+      ]
+    },
+    {
+      "key": "gentleness_respect",
+      "number": 3,
+      "name": "Gentleness & Respect",
+      "scores_whether": "the Post is kind and respectful toward everyone, including people who disagree or believe differently, and does not condemn or disrespect its audience (1 Peter 3:15-16).",
+      "guidance": {
+        "1": "Contempt, mockery, insults, sarcasm or outrage bait aimed at people or groups; caricatures atheists, other faiths or opponents.",
+        "2": "An 'us versus them' framing, a scolding or fearful tone, or shouting (e.g. all caps) that most readers outside the faith would find harsh.",
+        "3": "Respectful overall, with a line or phrase whose tone could sting or come across as dismissive.",
+        "4": "Warm and respectful; disagreement, if any, is stated without contempt.",
+        "5": "Notably gentle and patient; describes other views fairly and treats the reader with evident dignity."
+      },
+      "applies_to": "all",
+      "sources": [
+        {
+          "source": "1 Peter 3:15–16",
+          "principle": "Give a reason for your hope \"with gentleness and respect\"."
+        },
+        {
+          "source": "Galatians 5:22–23",
+          "principle": "The fruit of the Spirit includes kindness, patience, gentleness and self-control."
+        },
+        {
+          "source": "1 Corinthians 13:4–5",
+          "principle": "Love is patient and kind; it is not rude."
+        },
+        {
+          "source": "Culture and Ministry Design, \"Paul in Athens\" (p. 28, adapted from Flemming)",
+          "principle": "Mark 3: does not condemn or disrespect the audience."
+        },
+        {
+          "source": "Christian Witness in a Multi-Religious World (WCC, WEA and Pontifical Council for Interreligious Dialogue, 2011)",
+          "principle": "Witness with humility; reject disparagement and false witness about other religions."
+        }
+      ]
+    },
+    {
+      "key": "welcome_over_judgment",
+      "number": 4,
+      "name": "Welcome over Judgment",
+      "scores_whether": "the Post treats outsiders as welcome neighbours, including any group of people it talks about (for example immigrants, LGBT people or people of other faiths), and keeps moral correction aimed at insiders, including the poster (Matthew 9:9-13; 1 Corinthians 5:12-13).",
+      "guidance": {
+        "1": "Condemns 'the world', 'the culture' or a named group; moralises at non-Christians or treats them as the problem or the enemy; argues for keeping a group of people out or at a distance, or pictures acting against them.",
+        "2": "Implies outsiders are lesser or must change before they are welcome, or points moral critique outward rather than inward.",
+        "3": "Neutral: no condemnation of outsiders, but no clear welcome either.",
+        "4": "Treats outsiders as neighbours; any moral challenge is aimed at insiders or the poster.",
+        "5": "Actively welcoming: shows Christians alongside outsiders, offers grace before demands, and practises self-examination ('we', 'I')."
+      },
+      "applies_to": "all",
+      "sources": [
+        {
+          "source": "Matthew 9:9–13",
+          "principle": "Jesus eats with tax collectors and sinners: \"I desire mercy, not sacrifice.\""
+        },
+        {
+          "source": "1 Corinthians 5:12–13",
+          "principle": "It is not ours to judge those outside; the church judges its own."
+        },
+        {
+          "source": "Bonhoeffer, Discipleship (on Matthew 7)",
+          "principle": "Disciples may not judge others; judging blinds us to our own sin and to the grace others are owed."
+        },
+        {
+          "source": "Kinnaman & Lyons, unChristian (2007)",
+          "principle": "87% of young outsiders described present-day Christianity as judgmental."
+        }
+      ]
+    },
+    {
+      "key": "kingdom_over_party",
+      "number": 5,
+      "name": "Kingdom over Party",
+      "scores_whether": "the Post keeps the faith distinct from party, candidate and nation. This applies equally to left- and right-coded content. It is N/A when the Post has no political content.",
+      "guidance": {
+        "1": "Fuses being Christian with a party, candidate or nation; partisan slogans, hashtags or memes; mocks political opponents.",
+        "2": "Clearly partisan framing presented as the Christian position, even without naming a party or candidate.",
+        "3": "Touches a public issue with some partisan colouring, but does not equate faith with a side.",
+        "4": "Engages a public issue through care for the people affected, with nonpartisan framing.",
+        "5": "Engages a public issue with humility on contested policy and visible care for people on every side (e.g. praying for leaders of every party)."
+      },
+      "applies_to": "all",
+      "sources": [
+        {
+          "source": "John 18:36",
+          "principle": "Jesus: \"My kingdom is not of this world.\""
+        },
+        {
+          "source": "Kinnaman & Lyons, unChristian (2007)",
+          "principle": "75% of young outsiders said Christianity is too involved in politics."
+        },
+        {
+          "source": "Pew Research Center (May 2026)",
+          "principle": "66% say houses of worship should keep out of political matters, and 79% say they should not endorse candidates."
+        },
+        {
+          "source": "Hout & Fischer, Sociological Science (2014)",
+          "principle": "Some Americans dropped religious affiliation in reaction to religion’s alignment with partisan politics."
+        }
+      ]
+    },
+    {
+      "key": "humility_integrity",
+      "number": 6,
+      "name": "Humility & Integrity",
+      "scores_whether": "the Post comes across as honest, unpretentious and free of pride or self-righteousness, with no gap between what it claims and how it acts (1 Corinthians 13:4).",
+      "guidance": {
+        "1": "Boasts about numbers, crowds, growth or status; self-promotion presented as ministry; overclaims or is defensive; or is self-righteous: rules on whether others are real or faithful Christians, sets the poster above people who disagree, or mocks others while claiming to honour God.",
+        "2": "A polished, perfect image or celebrity gloss that invites the charge of hypocrisy, or a know-better tone that talks down to people who see things differently.",
+        "3": "Neither boastful nor especially humble.",
+        "4": "Honest and unpretentious; gives credit to others; claims are proportionate.",
+        "5": "Openly admits weakness, doubt or failure, and its manner matches the values it states."
+      },
+      "applies_to": "all",
+      "sources": [
+        {
+          "source": "1 Corinthians 13:4",
+          "principle": "Love does not boast and is not proud."
+        },
+        {
+          "source": "Barna, Spiritually Open (2023)",
+          "principle": "Hypocrisy is the top reason people give for not embracing Christian teaching; only 19% of non-Christians view celebrity pastors positively."
+        },
+        {
+          "source": "Thiessen, The Ethics of Evangelism (2011)",
+          "principle": "Truthfulness, humility and honest motives are criteria for ethical persuasion."
+        }
+      ]
+    },
+    {
+      "key": "love_made_visible",
+      "number": 7,
+      "name": "Love Made Visible",
+      "scores_whether": "the Post shows love in action toward real people, including people outside the church, and not only in words.",
+      "guidance": {
+        "1": "People appear only as props for the ministry's image; love is contradicted by the Post's own manner; or the Post argues against care for people, for example by calling compassion a fault or by naming a command to love and then hedging it until it asks nothing.",
+        "2": "Love is only stated in the abstract, or the Post is entirely internal programming, asks and events.",
+        "3": "Some reference to care for people, but general or inward-facing.",
+        "4": "A concrete instance of service, generosity or presence toward real people.",
+        "5": "A concrete story of love in action that includes neighbours who are not members, with no strings attached."
+      },
+      "applies_to": "all",
+      "sources": [
+        {
+          "source": "1 John 3:18",
+          "principle": "Let us not love with words or speech but with actions and in truth."
+        },
+        {
+          "source": "Newbigin, The Gospel in a Pluralist Society (1989), p. 227",
+          "principle": "A congregation that believes the gospel and lives by it is the only \"hermeneutic of the gospel\"."
+        },
+        {
+          "source": "Bonhoeffer, Letters and Papers from Prison, \"Outline for a Book\" (1944)",
+          "principle": "\"The church is church only when it exists for others.\""
+        },
+        {
+          "source": "Barna, Gen Z and evangelism (2021)",
+          "principle": "Non-Christian teens prefer witness through how Christians live (55%)."
+        }
+      ]
+    },
+    {
+      "key": "invitation_dialogue",
+      "number": 8,
+      "name": "Invitation & Dialogue",
+      "scores_whether": "the Post leaves a door open and invites questions, without pressure, while respecting the reader's freedom to say no.",
+      "guidance": {
+        "1": "Guilt, fear or manipulative urgency aimed at strangers (e.g. hell threats, 'share or you're ashamed of Jesus'); conversion treated as a transaction.",
+        "2": "No door at all (written only for insiders), or a heavy-handed call to decide now.",
+        "3": "A door is implied but not offered, or the invitation is generic.",
+        "4": "A gentle, specific, low-stakes invitation or a genuine question to the reader.",
+        "5": "Warmly invites questions or conversation, makes room for doubt, and clearly respects the reader's freedom."
+      },
+      "applies_to": "all",
+      "sources": [
+        {
+          "source": "1 Peter 3:15",
+          "principle": "Always be ready to give an answer to anyone who asks."
+        },
+        {
+          "source": "Culture and Ministry Design, \"Paul in Athens\" (p. 28, adapted from Flemming)",
+          "principle": "Mark 4: holds relational dialogue and invites questions. In Acts 17:32–34 some ask to hear more."
+        },
+        {
+          "source": "Barna, Reviving Evangelism (2019)",
+          "principle": "Non-Christians most want someone who listens without judgment (62%) and does not force a conclusion (50%)."
+        },
+        {
+          "source": "Kinnaman & Lyons (Barna), Good Faith (2016)",
+          "principle": "83% of atheists and agnostics consider trying to convert others extremist."
+        },
+        {
+          "source": "Thiessen (2011); Christian Witness in a Multi-Religious World (2011)",
+          "principle": "No coercion or inducement; give people time for their own discernment."
+        }
+      ]
+    },
+    {
+      "key": "clear_conviction",
+      "number": 9,
+      "name": "Clear Conviction",
+      "scores_whether": "the Post states plainly what it believes and gives a clear answer. This scores clarity, not correctness: a conviction the reader may reject can still score 5.",
+      "guidance": {
+        "1": "No discernible conviction, or so hedged and vague that the reader cannot tell what is being claimed.",
+        "2": "A conviction is hinted at but muddled or contradictory.",
+        "3": "The conviction can be made out, but it is indirect or buried.",
+        "4": "States clearly what it believes.",
+        "5": "States its conviction plainly and confidently, and gives a clear answer a reader could engage with."
+      },
+      "applies_to": "all",
+      "sources": [
+        {
+          "source": "Culture and Ministry Design, \"Paul in Athens\" (p. 28, adapted from Flemming)",
+          "principle": "Marks 2 and 5: does not compromise truth claims (the only acceptable offence is the offence of the gospel) and gives a clear, definite answer."
+        },
+        {
+          "source": "Acts 17:30–31",
+          "principle": "Paul ends his Athens speech with a plain claim and a clear call."
+        },
+        {
+          "source": "Colossians 4:6",
+          "principle": "\"Seasoned with salt\": gracious speech still has substance."
+        },
+        {
+          "source": "Keller, Center Church (2012), Part 3",
+          "principle": "Over-contextualising, never challenging the hearer, is also a failure."
+        }
+      ]
+    },
+    {
+      "key": "self_presentation_alignment",
+      "number": 10,
+      "name": "Self-Presentation Alignment",
+      "scores_whether": "the Post matches how the Creator says they want to come across, as stated in their Creator Foundation.",
+      "guidance": {
+        "1": "Contradicts how the Creator says they want to come across.",
+        "2": "Mostly at odds with the Creator's stated self-presentation.",
+        "3": "Partly matches; some elements pull against it.",
+        "4": "Matches the stated self-presentation.",
+        "5": "A clear, strong expression of how the Creator wants to come across."
+      },
+      "applies_to": "own_content",
+      "na_reason_others": "Applies only when Creators review their own posts.",
+      "sources": [
+        {
+          "source": "Witness Review design (PRD, UJ-2)",
+          "principle": "Creators state how they want to come across in their Creator Foundation; this Criterion checks a Post against it."
+        }
+      ]
+    }
+  ],
+  "offence_sources": [
+    {
+      "key": "claim",
+      "name": "Claim",
+      "meaning": "Offence at what the Post believes or claims, such as that Jesus is the only way to God. The Bible calls this kind of offence a stumbling block (1 Corinthians 1:23); Culture and Ministry Design (p. 28) calls it \"the offence of the gospel\".",
+      "effect": "Reported, but never lowers a score. Whether a given offence is the offence of the gospel is for you and your group to talk through."
+    },
+    {
+      "key": "tone",
+      "name": "Tone",
+      "meaning": "Offence at the manner: contempt, sarcasm, pressure, fear tactics, shouting, an \"us versus them\" framing, or a posture of keeping people out or at a distance. Declining to take part in something because of a belief is a claim; treating the people involved as unwelcome is tone.",
+      "effect": "Lowers the score. It is avoidable offence caused by the messenger, not the message."
+    },
+    {
+      "key": "jargon",
+      "name": "Jargon",
+      "meaning": "Offence or confusion caused by insider language: unexplained church terms, bare verse references, or assuming the reader was there on Sunday.",
+      "effect": "Lowers the score. It shuts outsiders out before they can hear the point."
+    }
+  ]
+}

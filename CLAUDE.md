@@ -38,7 +38,7 @@ discussion questions, and an outreach plan for raising concerns with a poster. S
   and `prompts@1` (with `guardrails.md`). Also write `config/models.json`, the `conformance/`
   vectors and `artifact/`. Lock the @1 ids in `content/published.lock.json` when publishing.
   Run `bmad-project-context` only after real code exists.
-- **Artifact URL:** https://claude.ai/artifact/Mkc4qYCLCFXqMLq8Yf1Kdq (first published 2026-10-21, contract 0.2.88, shared with the organisation; capabilities `sample` + `downloads`). A republish reloads open copies, which wipes any Review not yet copied or saved. Every republish passes this URL (AD-12). `witness-rubric@1`, `persona-set@1` and `prompts@1` are locked: any content change is a new `@2`.
+- **Artifact URL:** https://claude.ai/artifact/Mkc4qYCLCFXqMLq8Yf1Kdq (first published 2026-10-21, contract 0.2.88, shared with the organisation; capabilities `sample` + `downloads`). A republish reloads open copies, which wipes any Review not yet copied or saved. Every republish passes this URL (AD-12). `witness-rubric@1`, `persona-set@1` and `prompts@1` are locked: any content change is a new `@2`. **Drafts (2026-10-22):** `witness-rubric@2` and `prompts@2` answer the feedback on the first test run: Personas must not suggest edits and should react in more depth, and scores ran too high. Both are unlocked until Bennett OKs `node artifact/build.mjs --lock` and the republish.
 - **Check command:** Thursday: `node --test artifact/test/ && node artifact/build.mjs`. Week 2: see
   `ARCHITECTURE.md` § Consistency Conventions.
 - **Web App rules:** Reviews ship switched off. Agents never make a live Claude call, never set

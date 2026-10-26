@@ -46,6 +46,8 @@ p, ul, ol { margin-block: 0.6em; }
 ul, ol { padding-left: 1.3em; }
 li + li { margin-top: 0.3em; }
 q { font-style: italic; }
+blockquote { margin: 0.8em 0; padding-left: 1em; border-left: 1px solid var(--heading); }
+blockquote p:first-child { font: 400 1.6rem/1.2 var(--serif); }
 
 h1, h2, h3, h4 { font-family: var(--serif); font-weight: 400; color: var(--heading); line-height: 1.05; letter-spacing: -0.015em; text-wrap: balance; margin: 0; }
 h1 { font-size: clamp(3rem, 9vw, 4.5rem); line-height: 0.95; }

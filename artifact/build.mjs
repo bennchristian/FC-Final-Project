@@ -125,6 +125,27 @@ ${INTRO_HTML}
     <p id="availability" class="error" aria-live="polite"></p>
     <p class="muted">Versions: <span id="versions"></span></p>
 
+    <h2>Why “Living Letter”</h2>
+    <blockquote>
+      <p>“You yourselves are our letter… known and read by all… written not with ink but with the Spirit of the living God, not on tablets of stone but on tablets of human hearts.”</p>
+      <p class="muted">2 Corinthians 3:2–3</p>
+    </blockquote>
+    <p>Some teachers had come to Corinth carrying letters of recommendation to prove they could be trusted. Paul brought none. He pointed to the church itself: <em>you</em> are our letter. The changed lives of the Corinthians were his credentials, and anyone could read them.</p>
+    <p>Paul also says who wrote the letter. It is “a letter from Christ,” written by the Spirit on human hearts, as the prophets promised for the new covenant (Jeremiah 31:33, Ezekiel 36:26). Paul only delivered it.</p>
+    <p>Three things follow:</p>
+    <ul>
+      <li><strong>People read us before they read the Bible.</strong> For many people outside the church, Christians are the only gospel they will ever read. Today a large part of that letter is what we post.</li>
+      <li><strong>The letter should sound like its Author.</strong> If Christ is writing through us, a Post should carry his truth along with his gentleness, patience and welcome. A harsh Post misrepresents him as well as the person who wrote it.</li>
+      <li><strong>Our part is to be faithful and readable.</strong> The Spirit does the writing. Living Letter helps us see how that letter reads to people who don’t yet know its Author.</li>
+    </ul>
+
+    <h2>Who this is for</h2>
+    <ul>
+      <li><strong>Christian content creators.</strong> Review your own Posts before or after you publish them. Living Letter gives you an honest, outside evaluation: how each Post scores against Scripture-based Criteria of good witness, how people outside the faith might react, and a gentler version when there is room to grow. Over time you learn your own patterns, what makes your message clear and kind, and how to represent Jesus better in everything you post.</li>
+      <li><strong>You, when a Post gives you pause.</strong> You’ve come across a Christian Post that seems off, or one that others are arguing about, and you can’t tell whether it’s faithful, unkind or just badly put. Living Letter helps you slow down and look at it through the eyes of someone outside the faith before you react, share it or reply.</li>
+      <li><strong>Leaders of youth and young adults.</strong> Use real or fictional Posts as a teaching tool. Walk your group through what helps and what hurts a witness online, using the scores, the Persona Reactions and the Discussion Questions. Help them learn to represent Christ on purpose, because every Post is part of the letter.</li>
+    </ul>
+
     <h2>1. Set up the Review</h2>
     <label for="model">Model</label>
     <select id="model"></select>

@@ -53,6 +53,7 @@ const script = [
   toScript('pipeline.js'),
   toScript('export.js'),
   toScript('ui.js'),
+  toScript('theme.js'),
   toScript('intro.js'),
   // After intro.js and ui.js, so the intro markup and start()'s copy exist when edits apply.
   toScript('copy-edits.js'),
@@ -63,9 +64,11 @@ const script = [
 const INTRO_CSS = readFileSync(join(SRC, 'intro.css'), 'utf8');
 const INTRO_HTML = readFileSync(join(SRC, 'intro.html'), 'utf8');
 if (/<\/style/i.test(INTRO_CSS)) fail(['intro.css: contains "</style"']);
+const PAGE_CSS = readFileSync(join(SRC, 'page.css'), 'utf8');
+if (/<\/style/i.test(PAGE_CSS)) fail(['page.css: contains "</style"']);
 const EDITOR_CSS = readFileSync(join(SRC, 'editor.css'), 'utf8');
 if (/<\/style/i.test(EDITOR_CSS)) fail(['editor.css: contains "</style"']);
-const FONTS = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Open+Sans:ital,wght@0,400;0,500;1,400&display=swap">';
+const FONTS = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Open+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">';
 
 const ROADMAP = [
   ['Web App with private accounts', 'Sign in to a private account and save Reviews to reopen later, unchanged, with their recorded versions.'],
@@ -81,62 +84,32 @@ const html = `<title>Living Letter</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 ${FONTS}
 <style>
-/* Plain document layout: one readable column, default type. Visual design is deferred. */
-:root { --bg: #ffffff; --fg: #1d1f21; --muted: #5d6166; --line: #d4d7db; --soft: #f3f4f6; --accent: #1f5fa8; --bad: #a3271f; --good: #2d6a3a; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #16181b; --fg: #e6e7e9; --muted: #a2a7ad; --line: #3a3e44; --soft: #22252a; --accent: #7fb0ee; --bad: #f08c84; --good: #8fcf9c; color-scheme: dark; } }
-:root[data-theme="dark"] { --bg: #16181b; --fg: #e6e7e9; --muted: #a2a7ad; --line: #3a3e44; --soft: #22252a; --accent: #7fb0ee; --bad: #f08c84; --good: #8fcf9c; color-scheme: dark; }
-body { background: var(--bg); color: var(--fg); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
-main { max-width: 60rem; margin: 0 auto; padding-block: 16px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-a { color: var(--accent); overflow-wrap: anywhere; }
-h1, h2, h3 { text-wrap: balance; }
-textarea, input[type="url"], select { width: 100%; box-sizing: border-box; font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); padding: 6px; }
-button { font: inherit; padding: 6px 12px; }
-button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-label { display: block; font-weight: 600; margin-top: 12px; }
-.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
-.muted { color: var(--muted); }
-.error { color: var(--bad); }
-.notice { background: var(--soft); padding: 8px 12px; border-left: 3px solid var(--line); }
-.tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
-.tabs button[aria-selected="true"] { font-weight: 700; }
-.post { border-top: 1px solid var(--line); padding-top: 8px; margin-top: 24px; }
-.pre { white-space: pre-wrap; overflow-wrap: anywhere; }
-.chip { display: inline-block; background: var(--soft); border: 1px solid var(--line); padding: 0 6px; margin-right: 4px; }
-.simulated { font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); border: 1px solid var(--line); padding: 0 4px; }
-.table-wrap { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; font-size: 0.95em; }
-th, td { border: 1px solid var(--line); padding: 4px 6px; text-align: left; vertical-align: top; }
-td.num { white-space: nowrap; font-variant-numeric: tabular-nums; }
-tr.concern td { background: var(--soft); }
-tr.concern td.num { color: var(--bad); font-weight: 700; }
-.summary.good { color: var(--good); font-weight: 600; }
-.flag { border: 1px solid var(--line); padding: 8px 12px; margin: 8px 0; }
-.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 12px; }
-.pair > div { min-width: 0; background: var(--soft); padding: 0 12px; }
-.label { font-weight: 600; margin-bottom: 0; }
-.reactions > li { margin-bottom: 8px; }
-.criterion { border-left: 3px solid var(--line); padding-left: 12px; margin: 16px 0; }
-.criterion.concern { border-left-color: var(--bad); }
-.criterion h4, .criterion h5 { margin: 0 0 4px; font-size: 1em; }
-.criterion p { margin: 4px 0; }
-table.overview { width: auto; min-width: 16rem; }
-.guidance li.current { font-weight: 600; }
-.sources { font-size: 0.95em; }
-.card { background: var(--soft); padding: 4px 12px; }
-details { margin: 6px 0; }
-summary { cursor: pointer; color: var(--accent); }
+${PAGE_CSS}
 ${INTRO_CSS}
 ${EDITOR_CSS}</style>
 ${INTRO_HTML}
 <main>
+  <div class="back-row"><button type="button" id="go-back" class="go-back"><span aria-hidden="true">←</span> Go back</button><button type="button" id="theme-toggle" class="theme-toggle" aria-pressed="false">Dark mode</button></div>
+  <header class="masthead">
+    <div class="brand" role="img" aria-label="Living Letter">
+      <svg viewBox="0 0 340 214" aria-hidden="true">
+        <text x="6" y="104">Living</text>
+        <text x="6" y="200">Letter</text>
+        <path d="M152 22 H332 V206 H232 M332 22 L252 68" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"/>
+      </svg>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button type="button" role="tab" id="tab-button-review" aria-controls="tab-review">Review</button>
+      <button type="button" role="tab" id="tab-button-how" aria-controls="tab-how">How it works</button>
+      <button type="button" role="tab" id="tab-button-roadmap" aria-controls="tab-roadmap">Roadmap</button>
+    </nav>
+  </header>
+  <div class="title-block">
   <h1>Living Letter</h1>
+  <p class="tagline">Learning to witness well in a world where our lives are the only gospel people know.</p>
   <p>Paste in public social-media Posts and see how they might land with people who do not share the Christian faith: rubric scores with evidence, simulated Persona reactions, a gentler rewrite, and discussion questions.</p>
   <p class="notice" id="lands-anywhere"></p>
-  <nav class="tabs" role="tablist">
-    <button type="button" role="tab" id="tab-button-review" aria-controls="tab-review">Review</button>
-    <button type="button" role="tab" id="tab-button-how" aria-controls="tab-how">How it works</button>
-    <button type="button" role="tab" id="tab-button-roadmap" aria-controls="tab-roadmap">Roadmap</button>
-  </nav>
+  </div>
 
   <section id="tab-review" role="tabpanel" aria-labelledby="tab-button-review">
     <h2>Overview</h2>

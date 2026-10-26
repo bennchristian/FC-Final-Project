@@ -2,6 +2,7 @@
 // Opening: the closed envelope fades in, the flap swings up, the letter rises while the view settles on slide 2.
 // Start here: the letter slides back in, the flap closes, the envelope flies up off the screen and the page underneath shows.
 // "Review" and "How it works" do the same exit, then open that tab. Escape skips straight to the exit.
+// "Go back" on the page shows the intro again and replays the opening. The Review stays in page memory.
 (function () {
   'use strict';
   const root = document.getElementById('ll-intro');
@@ -139,7 +140,8 @@
     state = 'done';
     running.forEach((a) => { try { a.cancel(); } catch (e) { /* ignore */ } });
     running = [];
-    root.remove();
+    // Hidden, not removed, so Go back can show it again.
+    root.hidden = true;
     document.documentElement.style.removeProperty('overflow');
     if (page) page.inert = false;
     const tab = document.getElementById(target === 'how' ? 'tab-button-how' : 'tab-button-review');
@@ -156,11 +158,26 @@
     if (event.key === 'Escape') exit('review');
   }
 
-  fit();
-  window.addEventListener('resize', fit);
-  document.addEventListener('keydown', onKey);
-  document.documentElement.style.overflow = 'hidden';
-  if (page) page.inert = true;
+  function cover() {
+    fit();
+    window.addEventListener('resize', fit);
+    document.addEventListener('keydown', onKey);
+    document.documentElement.style.overflow = 'hidden';
+    if (page) page.inert = true;
+  }
+
+  // Go back: show the intro again from the closed envelope. Nothing on the page is cleared.
+  function reopen() {
+    if (state !== 'done') return;
+    state = 'closed';
+    root.hidden = false;
+    cover();
+    open();
+  }
+
+  cover();
+  const goBack = document.getElementById('go-back');
+  if (goBack) goBack.addEventListener('click', reopen);
 
   start.addEventListener('click', () => exit('review'));
   root.querySelectorAll('[data-go]').forEach((button) => {

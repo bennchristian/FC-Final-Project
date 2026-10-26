@@ -53,3 +53,11 @@ test('the fictional examples name no real handles', () => {
   const examples = ui.slice(ui.indexOf('const FICTIONAL_EXAMPLES'), ui.indexOf('];', ui.indexOf('const FICTIONAL_EXAMPLES')));
   assert.doesNotMatch(examples, /@\w/);
 });
+
+test('the intro hides instead of removing itself, so Go back can reopen it', () => {
+  const intro = readFileSync(join(SRC, 'intro.js'), 'utf8');
+  assert.doesNotMatch(intro, /root\.remove\(\)/);
+  assert.match(intro, /getElementById\('go-back'\)/);
+  const build = readFileSync(join(ROOT, 'artifact', 'build.mjs'), 'utf8');
+  assert.match(build, /id="go-back"/);
+});

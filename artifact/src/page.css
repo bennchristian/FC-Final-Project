@@ -1,0 +1,172 @@
+/* Living Letter page styles, from the design partner's brand guide
+   (_bmad-output/planning-artifacts/ux-designs/ux-FC-Final-Project-2026-10-21/imports/brand-living-letter-1-guide.png).
+   Layout: one letter-width column; a masthead (logo left, tabs right) like the intro's top bar; hairlines, not boxes.
+   Light = the guide's cream panel (red titles, ink text). Dark = the guide's ink panel (cream titles, mist text).
+   Token names --bg --fg --muted --line --soft --accent --bad --good are shared with editor.css; keep them. */
+:root {
+  --bg: #FFFBF5;        /* cream */
+  --fg: #210C09;        /* ink */
+  --heading: #8A201C;   /* red: titles and the logo */
+  --accent: #8A201C;    /* red: links, buttons, focus */
+  --on-accent: #FFFBF5;
+  --muted: #5D6378;     /* slate */
+  --tagline: #210C09;
+  --line: #D7DCE2;      /* mist hairline */
+  --soft: #EFEEED;      /* letter paper */
+  --band: #DCE2E8;      /* mist band */
+  --field: #FFFFFF;
+  --bad: #8A201C;
+  --good: #210C09;
+  --serif: "Instrument Serif", "Times New Roman", Times, serif;
+  --sans: "Open Sans", "Segoe UI", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #210C09; --fg: #FFFBF5; --heading: #FFFBF5; --accent: #EDA59E; --on-accent: #210C09;
+    --muted: #C8D1D9; --tagline: #C8D1D9; --line: #4A3833; --soft: #2F1B17; --band: #3A2723; --field: #2A1612;
+    --bad: #F2A097; --good: #FFFBF5; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #210C09; --fg: #FFFBF5; --heading: #FFFBF5; --accent: #EDA59E; --on-accent: #210C09;
+  --muted: #C8D1D9; --tagline: #C8D1D9; --line: #4A3833; --soft: #2F1B17; --band: #3A2723; --field: #2A1612;
+  --bad: #F2A097; --good: #FFFBF5; color-scheme: dark;
+}
+
+/* ---------- Base ---------- */
+body { background: var(--bg); color: var(--fg); font: 400 1.25rem/1.55 var(--sans); letter-spacing: -0.01em; }
+main {
+  max-width: 48rem; margin: 0 auto;
+  padding-block: 24px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+strong, b { font-weight: 600; }
+a { color: var(--accent); overflow-wrap: anywhere; text-decoration-thickness: 1px; text-underline-offset: 0.15em; }
+p, ul, ol { margin-block: 0.6em; }
+ul, ol { padding-left: 1.3em; }
+li + li { margin-top: 0.3em; }
+q { font-style: italic; }
+
+h1, h2, h3, h4 { font-family: var(--serif); font-weight: 400; color: var(--heading); line-height: 1.05; letter-spacing: -0.015em; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(3rem, 9vw, 4.5rem); line-height: 0.95; }
+h2 { font-size: clamp(2.25rem, 6vw, 2.9rem); margin-top: 2.4rem; }
+h3 { font-size: 2rem; margin-top: 1.6rem; }
+h4 { font-size: 1.7rem; margin-top: 1.8rem; color: var(--fg); }
+h5 { font: 600 1.05rem/1.3 var(--sans); margin: 0; letter-spacing: -0.01em; }
+h2 + p, h3 + p, h4 + p { margin-top: 0.4em; }
+
+/* ---------- Masthead and title block ---------- */
+.masthead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+.brand { width: 112px; color: var(--heading); }
+.brand svg { display: block; width: 100%; height: auto; overflow: visible; }
+.brand text { font-family: var(--serif); font-size: 128px; letter-spacing: -3px; fill: currentColor; }
+.tabs { display: flex; flex-wrap: wrap; align-items: center; }
+.tabs button {
+  font: 400 1.75rem/1 var(--serif); letter-spacing: -0.01em; color: var(--heading);
+  background: none; border: 0; border-radius: 0; padding: 0.1em 0.45em; cursor: pointer;
+}
+.tabs button + button { border-left: 1px solid var(--heading); }
+.tabs button:last-child { padding-right: 0; }
+.tabs button[aria-selected="true"] { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
+.tabs button:hover:not(:disabled) { background: none; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
+
+.title-block { padding-block: 40px 8px; }
+.title-block h1 { margin-bottom: 18px; }
+.tagline { font: 500 1.75rem/1.08 var(--sans); letter-spacing: -0.04em; color: var(--tagline); max-width: 30ch; margin: 0 0 18px; }
+.notice { background: var(--band); padding: 0.75em 1em; margin-block: 1.2em; }
+
+/* ---------- Forms and buttons ---------- */
+label { display: block; font: 600 0.8rem/1.3 var(--sans); text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-top: 1.4em; margin-bottom: 0.4em; }
+textarea, input[type="url"], select, input[type="file"] {
+  width: 100%; box-sizing: border-box; font: inherit; font-size: 1.1rem; color: var(--fg);
+  background: var(--field); border: 1px solid var(--line); border-radius: 4px; padding: 0.55em 0.7em;
+}
+input[type="file"] { padding: 0.45em; }
+textarea { line-height: 1.45; }
+button {
+  font: 600 1rem/1.2 var(--sans); letter-spacing: 0; color: var(--accent);
+  background: transparent; border: 1px solid var(--accent); border-radius: 999px;
+  padding: 0.6em 1.3em; cursor: pointer;
+}
+button:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+#add-post, #evaluate-all { background: var(--accent); color: var(--on-accent); }
+#add-post:hover:not(:disabled), #evaluate-all:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 88%, var(--fg)); }
+#open-how { border: 0; border-radius: 0; padding: 0; font: inherit; text-align: left; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.15em; }
+#open-how:hover { background: none; }
+button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 1rem; }
+.muted { color: var(--muted); font-size: 1rem; }
+.error { color: var(--bad); }
+
+/* ---------- Posts and Evaluations ---------- */
+.post { background: var(--soft); padding: 28px clamp(18px, 4vw, 40px) 32px; margin-top: 32px; }
+.post > h3 { margin-top: 0; }
+.post > h3 .muted { font-family: var(--sans); font-size: 1rem; letter-spacing: 0; }
+.pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.post > .pre { background: var(--field); padding: 0.8em 1em; font-size: 1.1rem; }
+.chip { display: inline-block; font-size: 0.95rem; border: 1px solid var(--line); border-radius: 999px; padding: 0 0.7em; margin: 0 4px 4px 0; background: var(--field); }
+.simulated {
+  display: inline-block; vertical-align: 0.15em; font: 600 0.68rem/1.4 var(--sans); text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--muted); border: 1px solid var(--muted); border-radius: 999px; padding: 0 0.6em;
+}
+.evaluation { margin-top: 1.4rem; border-top: 1px solid var(--line); padding-top: 0.8rem; }
+.summary { margin-block: 1rem; }
+.summary.good { background: var(--band); padding: 0.75em 1em; font-weight: 600; color: var(--good); }
+.flag { border: 1px solid var(--accent); padding: 0.8em 1em; margin: 1rem 0; }
+.flag strong { color: var(--accent); }
+.label { font: 600 0.8rem/1.3 var(--sans); text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 0.2em; }
+p > .label { margin-right: 0.3em; }
+
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 1.05rem; }
+th, td { border-bottom: 1px solid var(--line); padding: 0.45em 0.6em 0.45em 0; text-align: left; vertical-align: top; }
+th { font: 600 0.8rem/1.3 var(--sans); text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
+table.overview { width: auto; min-width: min(100%, 24rem); }
+td.num { white-space: nowrap; font-variant-numeric: tabular-nums; text-align: right; padding-right: 0; }
+tr.concern td { background: var(--band); }
+tr.concern td:first-child { padding-left: 0.6em; }
+tr.concern td.num { color: var(--bad); font-weight: 600; padding-right: 0.6em; }
+
+.criterion { border-top: 1px solid var(--line); padding-top: 1rem; margin: 1.2rem 0; }
+.criterion h4, .criterion h5 { margin: 0 0 0.3em; }
+.criterion.concern h5 { color: var(--bad); }
+.criterion p { margin: 0.35em 0; }
+.guidance li.current { font-weight: 600; }
+.sources { font-size: 1rem; }
+details { margin: 0.6em 0; }
+summary { cursor: pointer; color: var(--accent); font-size: 1rem; }
+details[open] > summary { margin-bottom: 0.4em; }
+
+.reactions { list-style: none; padding-left: 0; }
+.reactions > li { border-top: 1px solid var(--line); padding-top: 0.8rem; margin-top: 0.8rem; }
+.reactions > li > ul { margin-top: 0.4em; }
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 14px; }
+.pair > div { min-width: 0; background: var(--field); padding: 0.6em 1em 0.8em; }
+.pair > div + div { background: var(--band); }
+.card { background: var(--field); padding: 0.4em 1em; }
+
+#outreach { margin-top: 3rem; border-top: 1px solid var(--line); }
+#outreach-message { font-family: var(--sans); }
+
+@media (max-width: 520px) {
+  body { font-size: 1.125rem; }
+  .brand { width: 92px; }
+  .tabs button { font-size: 1.4rem; padding-inline: 0.35em; }
+  .tagline { font-size: 1.4rem; }
+}
+
+/* ---------- Go back to the intro ---------- */
+.back-row { margin-bottom: 12px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+/* Navigation, so it uses the tab style from the brand guide: Instrument Serif in the heading red, underline on hover. */
+.go-back { font: 400 1.35rem/1 var(--serif); letter-spacing: -0.01em; color: var(--heading); background: none; border: 0; border-radius: 0; padding: 0.1em 0; cursor: pointer; }
+.go-back:hover:not(:disabled) { background: none; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
+
+/* ---------- Light / dark switch (theme.js): starts from the viewer's theme, not stored ---------- */
+.theme-toggle {
+  font: 600 0.75rem/1.2 var(--sans); text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--muted); border-color: var(--muted); padding: 0.45em 1em;
+}
+.theme-toggle:hover:not(:disabled) { background: color-mix(in srgb, var(--muted) 12%, transparent); }
+.theme-toggle[aria-pressed="true"],
+.theme-toggle[aria-pressed="true"]:hover:not(:disabled) { background: var(--fg); color: var(--bg); border-color: var(--fg); }

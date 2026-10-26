@@ -26,6 +26,8 @@
   -webkit-font-smoothing: antialiased;
 }
 
+#ll-intro[hidden] { display: none; }
+
 /* ---------- Top chrome: pinned to the viewport corners, sized with the stage ---------- */
 #ll-intro .ll-top { position: absolute; z-index: 10; opacity: 0; color: var(--ll-red); }
 #ll-intro .ll-brand { left: calc(50px * var(--s) + env(safe-area-inset-left, 0px)); top: calc(46px * var(--s) + env(safe-area-inset-top, 0px)); width: calc(146px * var(--s)); }

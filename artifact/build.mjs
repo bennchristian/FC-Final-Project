@@ -52,6 +52,7 @@ const script = [
   toScript('reel.js'),
   toScript('pipeline.js'),
   toScript('export.js'),
+  toScript('past.js'),
   toScript('ui.js'),
   toScript('theme.js'),
   toScript('intro.js'),
@@ -91,39 +92,71 @@ ${INTRO_HTML}
 <main>
   <div class="back-row"><button type="button" id="go-back" class="go-back"><span aria-hidden="true">←</span> Go back</button><button type="button" id="theme-toggle" class="theme-toggle" aria-pressed="false">Dark mode</button></div>
   <header class="masthead">
-    <div class="brand" role="img" aria-label="Living Letter">
+    <button type="button" class="brand" id="nav-home" data-nav="home" aria-label="Living Letter: home">
       <svg viewBox="0 0 340 214" aria-hidden="true">
         <text x="6" y="104">Living</text>
         <text x="6" y="200">Letter</text>
         <path d="M152 22 H332 V206 H232 M332 22 L252 68" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"/>
       </svg>
-    </div>
-    <nav class="tabs" role="tablist">
-      <button type="button" role="tab" id="tab-button-review" aria-controls="tab-review">Review</button>
-      <button type="button" role="tab" id="tab-button-how" aria-controls="tab-how">How it works</button>
-      <button type="button" role="tab" id="tab-button-roadmap" aria-controls="tab-roadmap">Roadmap</button>
+    </button>
+    <nav class="tabs" aria-label="Living Letter">
+      <button type="button" id="nav-review" data-nav="review">Review</button>
+      <button type="button" id="nav-how" data-nav="how">How it works</button>
     </nav>
   </header>
-  <div class="title-block">
-  <h1>Living Letter</h1>
-  <p class="tagline">Learning to witness well in a world where our lives are the only gospel people know.</p>
-  <p>Paste in public social-media Posts and see how they might land with people who do not share the Christian faith: rubric scores with evidence, simulated Persona reactions, a gentler rewrite, and discussion questions.</p>
-  <p class="notice" id="lands-anywhere"></p>
-  </div>
 
-  <section id="tab-review" role="tabpanel" aria-labelledby="tab-button-review">
+  <section id="view-home" class="view" hidden>
+    <div class="title-block">
+      <h1>Living Letter</h1>
+      <p class="tagline">Learning to witness well in a world where our lives are the only gospel people know.</p>
+    </div>
+
+    <h2>What is Living Letter</h2>
+    <p>Living Letter is a review system made for believers to sharpen their witness online.</p>
+    <p>Paste in public social-media Posts and see how they might land with people who do not share the Christian faith: rubric scores with evidence, simulated Persona reactions, a gentler rewrite, and discussion questions.</p>
+
+    <h2>Why Living Letter</h2>
+    <p>Social media ministry is growing fast. Before the pandemic, about 1 in 5 US Protestant churches livestreamed their services; by April 2020, 97% offered worship online in some form.<sup><a href="#source-1">1</a></sup> In 2018, 28% of US Christians said they use social media to share their faith, and 58% of non-Christians said someone had shared their faith with them on Facebook.<sup><a href="#source-2">2</a></sup></p>
+    <p>But the results sometimes backfire and harm how people see Christians and the faith. One in six US adults (17%) has unfollowed, blocked or muted someone because of the religious content they posted.<sup><a href="#source-3">3</a></sup> Among young adults outside the church, 87% called Christians judgmental and 85% called them hypocritical.<sup><a href="#source-4">4</a></sup></p>
+    <p>In our endeavour to sharpen one another and our witness, we’ve created this tool so we can learn to represent Jesus better.</p>
+    <ol class="footnotes">
+      <li id="source-1">Lifeway Research, <a href="https://research.lifeway.com/2020/05/01/few-protestant-churches-met-in-person-for-worship-services-in-april/" target="_blank" rel="noopener noreferrer">survey of 470 Protestant pastors</a>, April 2020.</li>
+      <li id="source-2">Barna Group, <em>Spiritual Conversations in the Digital Age</em> (2018), reported in <a href="https://www.christianitytoday.com/news/2018/june/go-tell-it-iphone-technology-spiritual-conversation-barna.html" target="_blank" rel="noopener noreferrer">Christianity Today</a>.</li>
+      <li id="source-3">Pew Research Center, <a href="https://www.pewresearch.org/short-reads/2023/06/21/one-in-six-americans-have-taken-steps-to-see-less-of-someone-on-social-media-due-to-religious-content/" target="_blank" rel="noopener noreferrer">survey of 11,377 US adults</a>, November 2022.</li>
+      <li id="source-4">Barna Group for Kinnaman and Lyons, <em>unChristian</em> (2007): non-Christians aged 16 to 29, reported in <a href="https://content.time.com/time/nation/article/0,8599,1667639,00.html" target="_blank" rel="noopener noreferrer">TIME</a>.</li>
+    </ol>
+
+    <h2>Who is it for</h2>
+    <ul>
+      <li><strong>Budding Christian content creators</strong> who want to review their drafts before posting.</li>
+      <li><strong>Anyone who finds a contentious post online</strong> and is unsure how to evaluate it.</li>
+      <li><strong>Leaders of youth and young adults</strong> who want a teaching tool: how we should and should not present ourselves online, and why we should be intentional about how we represent Christ.</li>
+    </ul>
+
     <h2>Overview</h2>
-    <p>Add up to 10 public Posts from one church, ministry or Christian creator. For each Post, Living Letter gives you:</p>
+    <p>Add up to 10 public Posts from one church, ministry or Christian creator. You upload a Post, and Living Letter gives you:</p>
     <ul>
       <li><strong>Rubric Scores.</strong> Ten Criteria of good witness, each scored 1 to 5 with a quote from the Post as Evidence and a short explanation. The Criteria come from Scripture, from Paul’s speech in Athens, and from research on how people outside the faith see Christians.</li>
       <li><strong>Persona Reactions.</strong> How seven simulated people might feel reading the Post: six outside the faith, and one Christian who might copy its tone.</li>
       <li><strong>A Gentler Rewrite.</strong> When the Post has room to improve: the same message and convictions, said more clearly and kindly.</li>
       <li><strong>Discussion Questions.</strong> For a small group, including “How might Jesus have posted this?”</li>
     </ul>
-    <p>For the whole Review you can also draft a <strong>Ministry Outreach Plan</strong>: a kind message you could send the poster yourself, with Talking Points.</p>
-    <p><button type="button" id="open-how">Read how scoring works, what each Criterion and Persona means, and where they come from</button></p>
+
+    <h2>Why “Living Letter”</h2>
+    <blockquote class="scripture">
+      <p>You are our letter, written in our hearts, known and read by all men; being revealed that you are a letter of Christ, served by us, written not with ink, but with the Spirit of the living God; not in tablets of stone, but in tablets that are hearts of flesh.</p>
+      <cite>2 Corinthians 3:2–3 (World English Bible)</cite>
+    </blockquote>
+    <p>Paul told the church in Corinth that they were a letter from Christ, read by everyone around them. Today much of that letter is read online, one Post at a time.</p>
+
+    <p class="cta"><button type="button" id="start-reviewing" data-nav="review">Start reviewing</button></p>
+  </section>
+
+  <section id="view-review" class="view" hidden>
+    <h1 class="view-title">Review</h1>
+    <p class="notice" id="lands-anywhere"></p>
     <p id="availability" class="error" aria-live="polite"></p>
-    <p class="muted">Versions: <span id="versions"></span></p>
+    <p><button type="button" class="link-button" data-nav="past">See your past Reviews</button></p>
 
     <h2>1. Set up the Review</h2>
     <label for="model">Model</label>
@@ -132,21 +165,24 @@ ${INTRO_HTML}
     <label for="review-url">Profile link (optional)</label>
     <input type="url" id="review-url" placeholder="https://www.instagram.com/profile-name/" maxlength="2048">
     <p id="review-url-errors" class="error"></p>
-    <p class="notice" id="link-notice"></p>
 
     <h2>2. Add Posts</h2>
+    <p class="notice" id="link-notice"></p>
     <form id="post-form">
-      <label for="post-text">Post text or caption</label>
-      <textarea id="post-text" rows="5" maxlength="4000"></textarea>
+      <label for="post-url">Link to the Post (for a video)</label>
+      <input type="url" id="post-url" maxlength="2048" placeholder="https://www.instagram.com/reel/…">
       <div id="images-field" hidden>
-        <label for="post-images">Screenshots</label>
+        <label for="post-images">Screenshots (for a static Post)</label>
         <input type="file" id="post-images" multiple>
         <p class="muted" id="images-hint"></p>
       </div>
-      <label for="post-transcript">Video transcript (for a video Post)</label>
-      <textarea id="post-transcript" rows="3" maxlength="20000"></textarea>
-      <label for="post-url">Link to this Post (optional)</label>
-      <input type="url" id="post-url" maxlength="2048">
+      <label for="post-text">Caption</label>
+      <textarea id="post-text" rows="5" maxlength="4000"></textarea>
+      <details id="transcript-field">
+        <summary>Video not on Instagram? Paste its spoken words</summary>
+        <label for="post-transcript">Video transcript</label>
+        <textarea id="post-transcript" rows="3" maxlength="20000"></textarea>
+      </details>
       <p id="intake-status" class="muted" aria-live="polite"></p>
       <p id="intake-errors" class="error" aria-live="polite"></p>
       <div class="row">
@@ -155,41 +191,56 @@ ${INTRO_HTML}
         <span id="post-count" class="muted"></span>
       </div>
     </form>
+    <div id="post-list"></div>
 
-    <h2>3. Evaluate</h2>
+    <h2>3. Send for review</h2>
     <div class="row">
-      <button type="button" id="evaluate-all">Evaluate Posts</button>
+      <button type="button" id="evaluate-all">Send for review</button>
       <button type="button" id="clear-review">Clear Review</button>
+    </div>
+    <p class="muted">Posts are reviewed one at a time. Persona Reactions are simulated perspectives, not real people’s opinions. <span id="save-note"></span></p>
+  </section>
+
+  <section id="view-results" class="view" hidden>
+    <h1 class="view-title">Results</h1>
+    <div id="overall"></div>
+    <div id="posts"></div>
+
+    <h2>Next steps</h2>
+    <div class="row next-steps">
       <button type="button" id="copy-review">Copy Review</button>
       <button type="button" id="save-review" hidden>Save Review as file</button>
+      <button type="button" data-nav="past">View past Reviews</button>
+      <button type="button" id="next-post">Next post</button>
     </div>
-    <p class="muted">Posts are evaluated one at a time. Persona Reactions are simulated perspectives, not real people’s opinions. <strong>This page saves nothing: closing or reloading it clears the Review.</strong> Use Copy Review or Save Review as file to keep your results.</p>
     <p id="export-status" class="muted" aria-live="polite"></p>
     <textarea id="export-fallback" rows="8" readonly hidden aria-label="Review as text"></textarea>
-    <div id="posts"></div>
     <div id="outreach-slot"></div>
   </section>
 
-  <section id="tab-how" role="tabpanel" aria-labelledby="tab-button-how" hidden>
-    <h2>How it works</h2>
-    <h3>What happens to each Post</h3>
+  <section id="view-past" class="view" hidden>
+    <h1 class="view-title">Past Reviews</h1>
+    <p>Each Review you send is saved here for you alone. Nobody else can see it, not even this page’s owner. Screenshots are never saved, only their file names.</p>
+    <p id="past-state" class="muted" aria-live="polite"></p>
+    <div id="past-list"></div>
+  </section>
+
+  <section id="view-how" class="view" hidden>
+    <h1 class="view-title">How it works</h1>
+    <h2>How the mechanism works</h2>
     <ol>
       <li><strong>Scoring and reactions, separately.</strong> Claude reads the Post (text, screenshots, or a video transcript) twice, in two separate requests. One scores it against the rubric. The other voices the Personas. Neither sees the other’s answer, so a Persona’s reaction can never change a score.</li>
       <li><strong>Code applies the thresholds.</strong> Whether a Post is likely to land well, and whether it gets a rewrite, is worked out by code from the scores, not by the model.</li>
       <li><strong>Questions and rewrite.</strong> A third request writes Discussion Questions from the Post, its scores and the reactions. When a rewrite is needed, a fourth writes it. The rewrite never changes the Post’s beliefs.</li>
       <li><strong>Checks.</strong> Every answer is checked against a fixed format before it is shown. Comment sections are ignored, and any @handle other than the poster’s is removed.</li>
-      <li><strong>Nothing is kept.</strong> Posts and screenshots stay in this page only. Screenshots are never shown again or stored. Links are shown but never opened, except an Instagram reel link, which is used only to transcribe the reel’s spoken words.</li>
+      <li><strong>What is kept.</strong> Each Review you send is saved to your own Past Reviews, which only you can see. Screenshots are never shown again or stored. Links are shown but never opened, except an Instagram reel link, which is used only to transcribe the reel’s spoken words.</li>
     </ol>
     <p>Every result shows the versions that produced it: the rubric, the Persona set, the prompts and the model. When the rubric or Personas are revised, they get a new version number, so old and new scores are never mixed.</p>
 
-    <h3>How a Post is scored</h3>
+    <h2>How a Post is scored</h2>
     <div id="how-scoring"></div>
 
-    <h3>Offence sources</h3>
-    <p>When a Post might offend, the score names where the offence comes from. This keeps apart offence at the message and offence caused by the messenger.</p>
-    <div id="how-offence"></div>
-
-    <h3>Where the rubric and Personas come from</h3>
+    <h2>Where the rubric and Personas come from</h2>
     <ul>
       <li><strong>Scripture.</strong> The fruit of the Spirit (Galatians 5:22–23); love in 1 Corinthians 13; Jesus eating with tax collectors and sinners (Matthew 9:9–13); “not ours to judge those outside” (1 Corinthians 5:12–13); “gentleness and respect” (1 Peter 3:15–16); speech “seasoned with salt” toward outsiders (Colossians 4:5–6).</li>
       <li><strong>Paul in Athens (Acts 17).</strong> Five marks from <em>Culture and Ministry Design</em> (p. 28, adapted from Flemming): know the audience’s culture; do not compromise truth claims, where the only acceptable offence is the offence of the gospel; do not condemn; invite dialogue and questions; give a clear answer. The comparison of Paul’s audiences in Acts 13, 14 and 17 also shaped the Personas.</li>
@@ -200,21 +251,30 @@ ${INTRO_HTML}
     </ul>
     <p class="notice">No published, tested rubric for Christian social-media witness exists, so this one is a new synthesis. Language models can flatten or stereotype groups of people, so every Persona Reaction is labelled simulated: treat it as a hypothesis to test with real people, not as data. The rubric and Personas will be revised after interviews with real people outside the faith.</p>
 
-    <h3>The ten Criteria</h3>
+    <h2>Sources of offence</h2>
+    <p>When a Post might offend, the score names where the offence comes from. This keeps apart offence at the message and offence caused by the messenger.</p>
+    <div id="how-offence"></div>
+
+    <h2>The ten Criteria</h2>
     <div id="how-criteria"></div>
 
-    <h3>The Personas</h3>
+    <h2>The Personas</h2>
     <p>Each Persona is a simulated person with a believable background and reasons for their views, not a caricature. The political lean of the set is deliberately one-sided: there is no secular-conservative Persona.</p>
     <div id="how-personas"></div>
   </section>
 
-  <section id="tab-roadmap" role="tabpanel" aria-labelledby="tab-button-roadmap" hidden>
-    <h2>Roadmap</h2>
+  <section id="view-roadmap" class="view" hidden>
+    <h1 class="view-title">Roadmap</h1>
     <p>Planned but not yet built in this demo:</p>
     <ul>
 ${ROADMAP.map(([name, text]) => `      <li><strong>${name}.</strong> ${text}</li>`).join('\n')}
     </ul>
   </section>
+
+  <footer class="page-foot">
+    <button type="button" class="link-button" data-nav="roadmap">Roadmap</button>
+    <span class="muted">Versions: <span id="versions"></span></span>
+  </footer>
 </main>
 <script>
 (function () {

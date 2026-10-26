@@ -19,8 +19,9 @@ import { STYLE_KEYS, FONT_CHOICES, COPY_EDITS_VERSION, normalizeText, matchCopyE
   // Claude still scores with the locked rubric and Persona text (Bennett, 2026-10-26).
   // The Review results are re-rendered by ui.js, so their boxes are found again after each render.
   const LIVE = '#posts, #outreach-slot';
-  // Status and error lines, the versions label and the editor itself are never editable.
-  const EXCLUDED = '#availability, #images-hint, #post-count, #versions, [aria-live], .error, #ce-bar, #ce-handle';
+  // Status and error lines, the versions label, the lists ui.js re-renders outside the results
+  // (the send page's Posts, the overall summary, Past Reviews) and the editor itself are never editable.
+  const EXCLUDED = '#availability, #images-hint, #post-count, #versions, #post-list, #overall, #past-list, #past-state, [aria-live], .error, #ce-bar, #ce-handle';
   const SKIPPED_TAGS = new Set(['SCRIPT', 'STYLE', 'TEMPLATE', 'SVG', 'SELECT', 'OPTION', 'TEXTAREA', 'INPUT']);
 
   function hasOwnText(node) {
@@ -584,7 +585,7 @@ import { STYLE_KEYS, FONT_CHOICES, COPY_EDITS_VERSION, normalizeText, matchCopyE
   }, true);
 
   // While editing, nothing on the page reacts to clicks (buttons, labels, summaries, links),
-  // except the tabs, so every tab's copy can be reached.
+  // except the page navigation ([data-nav]; not Start reviewing, whose label is copy), so every page's copy can be reached.
   window.addEventListener('pointerdown', (event) => {
     if (!editing || inEditorUi(event.target)) return;
     const b = boxFor(event.target);
@@ -593,7 +594,7 @@ import { STYLE_KEYS, FONT_CHOICES, COPY_EDITS_VERSION, normalizeText, matchCopyE
   }, true);
   window.addEventListener('click', (event) => {
     if (!editing || inEditorUi(event.target)) return;
-    if (event.target.closest('[role="tab"]')) return;
+    if (event.target.closest('[data-nav]:not(#start-reviewing)')) return;
     event.preventDefault();
     event.stopPropagation();
   }, true);

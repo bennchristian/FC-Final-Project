@@ -1,7 +1,7 @@
 // Living Letter first-screen intro (design: _bmad-output/planning-artifacts/ux-designs/ux-FC-Final-Project-2026-10-21/).
 // Opening: the closed envelope fades in, the flap swings up, the letter rises while the view settles on slide 2.
-// Start here: the letter slides back in, the flap closes, the envelope flies up off the screen and the page underneath shows.
-// "Review" and "How it works" do the same exit, then open that tab. Escape skips straight to the exit.
+// Start here: the letter slides back in, the flap closes, the envelope flies up off the screen and the Home page shows.
+// "Review" and "How it works" do the same exit, then open that page. Escape skips straight to the exit, onto Home.
 // "Go back" on the page shows the intro again and replays the opening. The Review stays in page memory.
 (function () {
   'use strict';
@@ -144,10 +144,10 @@
     root.hidden = true;
     document.documentElement.style.removeProperty('overflow');
     if (page) page.inert = false;
-    const tab = document.getElementById(target === 'how' ? 'tab-button-how' : 'tab-button-review');
-    if (tab) {
-      tab.click();
-      tab.focus({ preventScroll: true });
+    const nav = document.getElementById(`nav-${target}`);
+    if (nav) {
+      nav.click();
+      nav.focus({ preventScroll: true });
     }
     window.removeEventListener('resize', fit);
     document.removeEventListener('keydown', onKey);
@@ -155,7 +155,7 @@
 
   // ---------- Wiring ----------
   function onKey(event) {
-    if (event.key === 'Escape') exit('review');
+    if (event.key === 'Escape') exit('home');
   }
 
   function cover() {
@@ -179,7 +179,7 @@
   const goBack = document.getElementById('go-back');
   if (goBack) goBack.addEventListener('click', reopen);
 
-  start.addEventListener('click', () => exit('review'));
+  start.addEventListener('click', () => exit('home'));
   root.querySelectorAll('[data-go]').forEach((button) => {
     button.addEventListener('click', () => exit(button.getAttribute('data-go')));
   });

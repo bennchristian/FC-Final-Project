@@ -279,6 +279,9 @@ The Maintainer can publish a new Rubric Version or Persona Version; new Reviews 
 #### FR-22: Roadmap tab in the Demo Artifact [F]
 The Demo Artifact has a separate tab listing what is planned but not yet built, for reference in the recorded video.
 - The Web App does not include this tab.
+- Since 2026-10-26 it is a Roadmap page reached from a link in the page footer.
+
+**Demo page flow and Past Reviews (added 2026-10-26 by Bennett).** After the intro, the Demo Artifact opens on a Home page (what Living Letter is, why, with cited statistics, who it is for, an overview of the outputs, and why it is called Living Letter), then a Review send page, a Results page and a How it works page. The Results page ends with Copy Review, Save Review as file, View past Reviews and Next post; the Ministry Outreach Plan stays as an optional section below them. Each Review a viewer sends is saved to their own Past Reviews, which only that viewer can see. They can reopen or delete it. Screenshots are never saved (`ARCHITECTURE.md` AD-12).
 
 **Owner copy editor (owner-only authoring aid, added 2026-10-26 by Bennett).** Not a User feature. Shift+E shows a hidden bar that lets Bennett rewrite, move and restyle the text of the intro letter and every tab, then save it as `copy-edits.json`. The file is folded into the next build, so every viewer sees the new copy after a republish. Edits to the rubric and Persona text in How it works change only what the page shows; Claude still scores with the locked versions. In the Review results, label edits apply to every Post and are saved; Claude's text and pasted Posts can be retyped on screen but are never saved. Status lines and the versions label are never editable (`ARCHITECTURE.md` AD-12).
 
@@ -324,6 +327,7 @@ Post content enters only by user supply or Permitted Retrieval. No logged-in scr
 - Public Posts by individuals are treated like ministry Posts: public, and therefore open to charitable critique. Posters are not asked to opt in.
 - This PRD widens `RULES.md`'s data rule ("Evaluate the ministry's own posts") to others' public Posts plus a Creator's own Posts; `RULES.md` is updated when this PRD is promoted.
 - The tool does not store or display the names, handles, or comments of followers or commenters, even when they appear in screenshots; Evaluations ignore comment sections.
+- The Demo Artifact keeps a viewer's sent Reviews (Post text, transcripts, links and results, never screenshots) in that viewer's private Past Reviews, readable by nobody else, Bennett included, until the viewer deletes them (added 2026-10-26 by Bennett).
 - The published Demo Artifact ships with no real people's posts preloaded. Example posts are entered during the recording; any built-in sample is fictional. (Claude Artifact publishing policy bars content that targets private individuals.)
 
 ### 7.3 Honest simulation

@@ -5,7 +5,7 @@ Promoted 2026-10-21 from `bmad-architecture` run `_bmad-output/planning-artifact
 **Status: designed, not yet migrated (2026-10-21).**
 - **Authority:** this file is the contract. Every migration that changes a table updates this file in the same change (RULES.md). Implementers never change it on their own (AGENTS.md).
 - **First migration:** `supabase/migrations/<timestamp>_init.sql`, applied to the `dev` project first (AD-15).
-- **Demo Artifact:** it has no database (AD-12). Only §3 (content shapes) and §4 (output contracts and validation rules) bind it.
+- **Demo Artifact:** it has no Supabase database (AD-12). Only §3 (content shapes) and §4 (output contracts and validation rules) bind it, plus the Past Reviews store in §6 (the Artifact platform’s `db`, not Postgres).
 
 Terms follow the PRD Glossary. AD-n references are to `ARCHITECTURE.md`.
 
@@ -373,7 +373,11 @@ Users never insert, update or delete through the Data API. Review deletion is a 
 - **Supabase Auth (prod):** email provider on; "Allow new users to sign up" off. Bennett creates users with Auto Confirm (AD-11). New projects use asymmetric JWT signing keys, so `getClaims()` verifies locally.
 - **Screenshots:** they exist only in the browser and in the evaluate request body. They are never stored and never rendered as images (AD-5).
 - **Demo Artifact:**
-  - Reviews live in page memory; `localStorage` holds only the theme preference.
+  - Reviews live in page memory while the page is open. Each sent Review is also saved to Past Reviews (2026-10-26, Bennett) in the viewer’s private `db` subtree, which nobody else can read, the Artifact’s owner included (`artifact/src/past.js`):
+    - `data/users/<viewer id>/<review id>`: `savedAt`, `reviewSourceUrl`, `modelId`, `labels` (the three content ids), `postCount`, `tally`, and the finished `outreach` or null.
+    - `data/users/<viewer id>/<review id>/posts/<position>`: `position`, `pasted_text`, `video_transcript`, `source_url`, `image_names`, `status`, `evaluation` (only when `done`) and `error`. Screenshots are never stored, only their file names (AD-5).
+    - A Review whose `labels` differ from the page’s versions is listed but cannot be reopened (FR-20). Delete removes the Review and its Posts.
+  - No browser storage is used.
   - The platform's `sample` answer cache lasts 5 minutes per viewer and browser. It is bypassed with `cache: false` on Try again.
 
 ## 7. Migrations

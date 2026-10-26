@@ -34,7 +34,7 @@ Parity between the two shells is enforced by running the same conformance vector
 | Shared data | inlined at build | `content/` → version tables; `config/`, `conformance/` imported | nothing |
 | Core (pure) | `artifact/src/core.js` | `src/domain/` | shared data shapes |
 | Shell: model access | `sample` capability | `src/server/claude/` (port + live/fake adapters) | core |
-| Shell: persistence | none (page memory) | `src/server/db/` (Supabase) | core |
+| Shell: persistence | page memory, plus Past Reviews in the viewer’s private `db` subtree (`artifact/src/past.js`) | `src/server/db/` (Supabase) | core |
 | Shell: orchestration | `artifact/src/pipeline.js` | `src/server/gate/`, `src/server/pipeline/` | core, model access, persistence |
 | UI | `artifact/src/ui.js` | `src/app/` (pages, `api/` Route Handlers, Server Actions), `src/components/`, `src/proxy.ts` | core; `src/app` also calls orchestration |
 
@@ -192,7 +192,7 @@ flowchart LR
     - Before persisting or rendering, each shell runs `redactHandles` over every model-output string. Each `@handle` other than the poster's (parsed from the Source URL, when present) becomes `@[name removed]`.
     - Bare names are an accepted residual risk.
   - **Screenshots are transient:**
-    - The Artifact holds them in page memory.
+    - The Artifact holds them in page memory. Past Reviews keep only their file names.
     - The Web App receives them in the evaluate request and discards them after step 1.
     - They are never written to Postgres, Supabase Storage, Vercel Blob or logs. A Post keeps only `image_count`.
   - **Screenshots are never rendered as images** after selection. Intake shows file-name chips. "The original" beside a Gentler Rewrite is `pasted_text`, or else `post_transcript`.
@@ -342,7 +342,7 @@ flowchart LR
   - **Sessions:** session cookies are refreshed in `src/proxy.ts`, Next 16's replacement for middleware, through `@supabase/ssr` `createServerClient` + `getClaims()`. Sign-out clears them.
   - **Before first use:** Bennett confirms on the prod project that a dashboard-created user can sign in while sign-ups are off.
 
-### AD-12 — The Demo Artifact is one self-contained page that keeps nothing [ADOPTED]
+### AD-12 — The Demo Artifact is one self-contained page that keeps only the viewer’s own Past Reviews [ADOPTED]
 
 - **Binds:** FR-1, FR-2, FR-17, FR-20, FR-22, PRD §7.2, Demo Artifact
 - **Prevents:** keys, network calls, persisted third-party content, preloaded real posts, or a broken shared link in the published Artifact.
@@ -351,14 +351,15 @@ flowchart LR
   - **Publish:**
     - Through the Artifact tool. The first publish pinned contract `0.2.88`; on 2026-10-26 it moved to the latest contract for `mcp`.
     - Its URL is recorded in `CLAUDE.md` §2, and every later publish passes that `url`.
-  - **Capabilities:** exactly `{sample: {images: true}, downloads: true, mcp: {servers: [{server: "Supadata", tools: ["supadata_transcript", "supadata_check_transcript_status"]}]}}`. `downloads` was added 2026-10-21 by Bennett so a viewer can keep a Review; `mcp` was added 2026-10-26 by Bennett for reel transcripts (AD-13).
-  - **Persistence:** Reviews, Posts and screenshots live in page memory only. `localStorage` holds only per-viewer UI preferences, such as the theme, inside try/catch.
-  - **Export:** the viewer may copy the Review as Markdown, or save it as a `.md` file through `downloads.save` after confirming. The saved file adds a raw JSON appendix. Screenshots are never included. The page itself still keeps nothing.
-  - **Owner copy editor (owner-only authoring aid, 2026-10-26, Bennett):** Shift+E (ignored while typing) shows a hidden bar (`artifact/src/editor.js`). In edit mode, any element with its own text in the intro and `main` can be rewritten, moved and restyled; page clicks are suppressed except the tabs, and every `<details>` is held open. "Save edits" hands over `copy-edits.json` through the existing `downloads` (clipboard fallback); no storage, no network, no new capability. Bennett commits it as `artifact/copy-edits.json`; `build.mjs` checks it (`artifact/src/copy-edits.js`) and inlines it as `COPY_EDITS`, and the page applies it on load with edit HTML sanitized to an inline-formatting allowlist. Edits match a box by its original text plus occurrence; an edit whose text changed is reported as no longer matching and kept in the next export. How it works edits to `content/` text are a display-only overlay (Bennett, 2026-10-26): Claude still scores with the locked versions, an accepted exception to AD-16's "the page always matches the scoring text". The Review results (`#posts`, `#outreach-slot`) are re-scanned after every render: label edits are saved as `live` edits keyed by text alone and applied to every Post; text `ui.js` marks `.said` (Claude's output or what the viewer pasted) can be retyped on screen but is never saved. Never editable: status and error lines, the versions label.
+  - **Capabilities:** exactly `{sample: {images: true}, downloads: true, mcp: {servers: [{server: "Supadata", tools: ["supadata_transcript", "supadata_check_transcript_status"]}]}, db: {}, user: {}}`. `downloads` was added 2026-10-21 by Bennett so a viewer can keep a Review; `mcp` was added 2026-10-26 by Bennett for reel transcripts (AD-13); `db` and `user` were added 2026-10-26 by Bennett for Past Reviews.
+  - **Persistence:** Reviews, Posts and screenshots live in page memory while the page is open. Each sent Review is also saved to Past Reviews (2026-10-26, Bennett): the viewer’s private `db` subtree `data/users/<id>/`, readable by nobody else, the owner included (shapes in `SCHEMA.md` §6). Saves happen after a send, a Try again, a rewrite or an Outreach Plan, one write at a time. Screenshots are never stored, only their names. With no `db` or no signed-in viewer the page says so and keeps nothing. No browser storage.
+  - **Export:** the viewer may copy the Review as Markdown, or save it as a `.md` file through `downloads.save` after confirming. The saved file adds a raw JSON appendix. Screenshots are never included.
+  - **Owner copy editor (owner-only authoring aid, 2026-10-26, Bennett):** Shift+E (ignored while typing) shows a hidden bar (`artifact/src/editor.js`). In edit mode, any element with its own text in the intro and `main` can be rewritten, moved and restyled; page clicks are suppressed except page navigation (`[data-nav]`, not Start reviewing), and every `<details>` is held open. "Save edits" hands over `copy-edits.json` through the existing `downloads` (clipboard fallback); the editor itself stores nothing and makes no network call. Bennett commits it as `artifact/copy-edits.json`; `build.mjs` checks it (`artifact/src/copy-edits.js`) and inlines it as `COPY_EDITS`, and the page applies it on load with edit HTML sanitized to an inline-formatting allowlist. Edits match a box by its original text plus occurrence; an edit whose text changed is reported as no longer matching and kept in the next export. How it works edits to `content/` text are a display-only overlay (Bennett, 2026-10-26): Claude still scores with the locked versions, an accepted exception to AD-16's "the page always matches the scoring text". The Review results (`#posts`, `#outreach-slot`) are re-scanned after every render: label edits are saved as `live` edits keyed by text alone and applied to every Post; text `ui.js` marks `.said` (Claude's output or what the viewer pasted) can be retyped on screen but is never saved. Never editable: status and error lines, the versions label.
   - **Network:**
     - Page script makes no fetch or XHR.
     - The only external loads are Google Fonts stylesheets and pinned CDN scripts that the `artifact-design` contract allows.
     - No Source URL is ever fetched by the page. The one exception is AD-13's reel transcript, which goes through the viewer's Supadata connector.
+  - **Page flow (2026-10-26, Bennett):** the intro envelope, then Home (what, why with cited stats, who it is for, overview, why “Living Letter”, Start reviewing). Review is the send page (1. set up, 2. add Posts by video link or screenshots plus caption, 3. send). Sending opens Results: an overall summary worked out by code, then per Post its summary, rubric overview and each score, Persona Reactions, rewrite and Discussion Questions; Next steps (Copy Review, Save Review as file, View past Reviews, Next post); then the optional Outreach Plan. Past Reviews, How it works and a footer Roadmap link complete the views. Next post returns to Add Posts with the same Review.
   - **Scope:** FR-1, FR-2, FR-4–FR-9, FR-11–FR-13, FR-17, FR-20 and FR-22. The Artifact runs Others' Reviews only, so own-content Criteria show N/A.
   - **Limits:** `limits()` is read at load. `rate_limited`, `not_granted` and `upstream_error` map to per-Post errors with a manual Try again.
   - **Use:** calls happen only on an explicit viewer action, on the viewer's own Claude usage. Built-in examples are fictional.

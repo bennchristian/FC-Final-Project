@@ -1,5 +1,6 @@
 // Mechanical checks for the Demo Artifact's "must hold" rules (AD-5, AD-12, AD-14):
-// no network calls, nothing persisted, screenshots never rendered, text-only rendering.
+// no network calls, no browser storage (Past Reviews live only in the viewer's private db subtree),
+// screenshots never rendered, text-only rendering.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -60,4 +61,21 @@ test('the intro hides instead of removing itself, so Go back can reopen it', () 
   assert.match(intro, /getElementById\('go-back'\)/);
   const build = readFileSync(join(ROOT, 'artifact', 'build.mjs'), 'utf8');
   assert.match(build, /id="go-back"/);
+});
+
+test('Past Reviews write only under the viewer’s private subtree', () => {
+  const ui = sources.find(([f]) => f === 'ui.js')[1];
+  const collections = [...ui.matchAll(/\.collection\(([^)]*\)?)\)/g)].map((m) => m[1]);
+  assert.ok(collections.length > 0);
+  for (const arg of collections) assert.match(arg, /^(pastReviewsPath\(state\.viewerId|'posts')/, arg);
+  assert.doesNotMatch(ui, /\bdb\.doc\(/);
+  const past = sources.find(([f]) => f === 'past.js')[1];
+  assert.match(past, /return `data\/users\/\$\{viewerId\}`;/);
+});
+
+test('every page view has a nav target and the intro lands on Home', () => {
+  const build = readFileSync(join(ROOT, 'artifact', 'build.mjs'), 'utf8');
+  for (const view of ['home', 'review', 'results', 'past', 'how', 'roadmap']) assert.match(build, new RegExp(`id="view-${view}"`), view);
+  const intro = readFileSync(join(SRC, 'intro.js'), 'utf8');
+  assert.match(intro, /start\.addEventListener\('click', \(\) => exit\('home'\)\)/);
 });

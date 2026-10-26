@@ -7,12 +7,20 @@ import { INTAKE_LIMITS, checkPostIntake, checkSourceUrl, canAddPost, provenanceL
 import { transcribeReel } from './reel.js';
 import { evaluatePost, requestRewrite, createOutreach } from './pipeline.js';
 import { reviewToMarkdown } from './export.js';
+import { PAST_REVIEWS_SHOWN, pastReviewsPath, reviewTally, pastReviewRecord, pastPostRecord, restorePost, sameVersions } from './past.js';
 
 // ---------- Fixed UI copy (AD-14). Constants, never model output. Wording owned by bmad-ux. ----------
 
 const COPY = {
   simulated: 'Simulated perspective',
-  linkNotice: 'Paste the post text, add screenshots, or paste a video transcript. For an Instagram reel, its link is enough: the spoken words are read for you. Any other link is only shown alongside the results.',
+  linkNotice: 'For a video, paste its link: an Instagram reel’s spoken words are read for you. For a static Post, add screenshots. Add the caption either way. Any other link is only shown alongside the results.',
+  savedHere: 'Each Review you send is saved to your Past Reviews, which only you can see. Screenshots are never saved.',
+  savedNowhere: 'This page cannot save Reviews here: closing or reloading it clears the Review. Use Copy Review or Save Review as file to keep your results.',
+  savedToPast: 'Saved to your Past Reviews.',
+  pastSaveFailed: 'This Review could not be saved to your Past Reviews. Use Copy Review or Save Review as file to keep it.',
+  pastFull: 'Past Reviews are full. Delete an old Review to save new ones.',
+  pastUnavailable: 'Past Reviews are not available in this view. Use Copy Review or Save Review as file to keep a Review.',
+  pastOtherVersions: 'Scored with other rubric or Persona versions, so it cannot be reopened here.',
   readingReel: 'Reading the reel…',
   soundnessNote: 'A prompt for discussion with a leader, not a ruling.',
   suggestion: 'Suggestion',
@@ -30,6 +38,7 @@ const ERROR_COPY = {
   upstream_error: 'Claude could not be reached. Try again.',
   cancelled: 'Stopped.',
   conflict: 'That has already been done.',
+  screenshots_not_saved: 'This Post’s screenshots were not saved with it. Remove it and add it again to send it.',
 };
 
 // Shown only when a reel link is the Post's sole content and could not be read.
@@ -74,6 +83,17 @@ const state = {
   outreach: null,
   busy: false,
   nextId: 1,
+  view: 'home',
+  // Past Reviews (past.js): the viewer's private db subtree, when this view has one.
+  db: null,
+  viewerId: null,
+  dbChecked: false,
+  reviewId: null,
+  savedPostCount: 0,
+  saveError: '',
+  past: null,
+  pastError: '',
+  confirmDelete: null,
 };
 
 const rubric = CONTENT.rubric;
@@ -227,8 +247,20 @@ function onClearReview() {
   state.posts = [];
   state.outreach = null;
   state.reviewSourceUrl = '';
+  state.reviewId = null;
+  state.savedPostCount = 0;
+  state.saveError = '';
   $('review-url').value = '';
   render();
+}
+
+function hasSent() {
+  return state.posts.some((p) => p.status !== 'pending');
+}
+
+// A Post reopened from Past Reviews has screenshot names only, so it cannot be sent again.
+function canSend(post) {
+  return post.images.every((img) => img.blob);
 }
 
 function onReviewUrl() {
@@ -242,6 +274,12 @@ function onReviewUrl() {
 // ---------- Running ----------
 
 async function runPost(post, cache) {
+  if (!canSend(post)) {
+    post.status = 'failed';
+    post.error = 'screenshots_not_saved';
+    render();
+    return;
+  }
   post.status = 'evaluating';
   post.error = null;
   post.evaluation = null;
@@ -269,10 +307,11 @@ async function onEvaluateAll() {
   if (state.busy || !state.sample) return;
   state.busy = true;
   state.outreach = null;
-  render();
+  showView('results');
   for (const post of state.posts) {
     if (post.status === 'pending') await runPost(post, true);
   }
+  await saveReview();
   state.busy = false;
   render();
 }
@@ -282,6 +321,7 @@ async function onTryAgain(post) {
   state.busy = true;
   state.outreach = null;
   await runPost(post, false);
+  await saveReview();
   state.busy = false;
   render();
 }
@@ -296,6 +336,7 @@ async function onSuggestRewrite(post) {
     post.evaluation.gentler_rewrite = output;
     post.evaluation.models.rewrite = model;
     post.rewriteStatus = 'idle';
+    await saveReview();
   } catch (e) {
     post.rewriteStatus = (e && e.code) || 'upstream_error';
   }
@@ -317,11 +358,103 @@ async function onOutreach(cache) {
   try {
     const { output, model } = await createOutreach(ctx(), donePosts(), { reviewSourceUrl: state.reviewSourceUrl, cache });
     state.outreach = { status: 'done', output, model };
+    await saveReview();
   } catch (e) {
     state.outreach = { status: 'failed', error: (e && e.code) || 'upstream_error' };
   }
   state.busy = false;
   render();
+}
+
+// ---------- Past Reviews (the viewer's private db subtree; past.js has the shapes) ----------
+
+function pastCollection() {
+  return state.db.collection(pastReviewsPath(state.viewerId));
+}
+
+// Called inside a busy section, so writes to one document never overlap.
+async function saveReview() {
+  if (!state.db || !state.viewerId || !hasSent()) return;
+  const ref = state.reviewId ? pastCollection().doc(state.reviewId) : pastCollection().doc();
+  try {
+    await ref.set(pastReviewRecord(state, LABELS, new Date().toISOString()));
+    state.reviewId = ref.id;
+    for (const [i, post] of state.posts.entries()) {
+      await ref.collection('posts').doc(String(i + 1)).set(pastPostRecord(post, i + 1));
+    }
+    for (let n = state.posts.length + 1; n <= state.savedPostCount; n++) {
+      await ref.collection('posts').doc(String(n)).delete();
+    }
+    state.savedPostCount = state.posts.length;
+    state.saveError = '';
+  } catch (e) {
+    state.saveError = e && e.code === 'quota_exceeded' ? COPY.pastFull : COPY.pastSaveFailed;
+  }
+}
+
+async function loadPast() {
+  if (!state.db || !state.viewerId) return;
+  state.past = { status: 'loading', items: [] };
+  render();
+  try {
+    const snap = await pastCollection().orderBy('savedAt', 'desc').limit(PAST_REVIEWS_SHOWN).get();
+    state.past = { status: 'done', items: snap.docs.map((d) => ({ id: d.id, ...d.data() })) };
+  } catch {
+    state.past = { status: 'failed', items: [] };
+  }
+  render();
+}
+
+// Reopening makes the saved Review the current one: later runs save back to it.
+async function onOpenPast(item) {
+  if (state.busy) return;
+  state.busy = true;
+  state.pastError = '';
+  render();
+  try {
+    const snap = await pastCollection().doc(item.id).collection('posts').get();
+    const records = snap.docs.map((d) => d.data()).sort((a, b) => a.position - b.position);
+    state.posts = records.map((record) => restorePost(record, state.nextId++));
+    state.reviewId = item.id;
+    state.savedPostCount = records.length;
+    state.saveError = '';
+    state.reviewSourceUrl = item.reviewSourceUrl || '';
+    $('review-url').value = state.reviewSourceUrl;
+    if (CONTENT.models.artifact_picker.some((m) => m.id === item.modelId)) state.modelId = item.modelId;
+    state.outreach = item.outreach || null;
+    state.busy = false;
+    showView('results');
+  } catch {
+    state.busy = false;
+    state.pastError = 'That Review could not be opened. Try again later.';
+    render();
+  }
+}
+
+// Two clicks: the first asks, the second deletes the Review and its Posts for good.
+async function onDeletePast(item) {
+  if (state.busy) return;
+  if (state.confirmDelete !== item.id) {
+    state.confirmDelete = item.id;
+    render();
+    return;
+  }
+  state.confirmDelete = null;
+  state.busy = true;
+  state.pastError = '';
+  const ref = pastCollection().doc(item.id);
+  try {
+    for (let n = 1; n <= item.postCount; n++) await ref.collection('posts').doc(String(n)).delete();
+    await ref.delete();
+    if (state.reviewId === item.id) {
+      state.reviewId = null;
+      state.savedPostCount = 0;
+    }
+  } catch {
+    state.pastError = 'That Review could not be deleted. Try again later.';
+  }
+  state.busy = false;
+  await loadPast();
 }
 
 // ---------- Export (the viewer copies or saves; the page keeps nothing) ----------
@@ -543,24 +676,98 @@ function renderEvaluation(post) {
   );
 }
 
-function renderPost(post, index) {
-  const statusText = { pending: 'Not yet evaluated', evaluating: 'Evaluating…', done: 'Evaluated', failed: 'Failed', refused: 'Declined' }[post.status];
-  const canRetry = (post.status === 'failed' || post.status === 'refused') && !state.busy && state.sample;
-  return el('article', { className: 'post' },
-    el('h3', {}, `Post ${index + 1}`, el('span', { className: 'muted' }, ` · ${statusText}`)),
+function renderPostContent(post) {
+  return [
     post.source_url ? el('p', {}, 'Source: ', sourceLink(post.source_url)) : null,
     post.pasted_text ? el('p', { className: 'pre said' }, post.pasted_text) : null,
     post.video_transcript ? el('details', {}, el('summary', {}, 'Video transcript'), el('p', { className: 'pre said' }, post.video_transcript)) : null,
     post.images.length ? el('p', {}, 'Screenshots: ', post.images.map((img) => el('span', { className: 'chip said' }, img.name))) : null,
+  ];
+}
+
+// Step 2 of the send page: the Posts in the Review so far.
+function renderPostInput(post, index) {
+  return el('article', { className: 'post post-input' },
+    el('h3', {}, `Post ${index + 1}`, el('span', { className: 'muted' }, post.status === 'pending' ? ' · Ready to send' : ' · Sent')),
+    renderPostContent(post),
+    !state.busy
+      ? el('div', { className: 'row' }, el('button', { type: 'button', onclick: () => { state.posts.splice(index, 1); state.outreach = null; render(); } }, 'Remove'))
+      : null,
+  );
+}
+
+// The results page: one Post and its Evaluation.
+function renderPost(post, index) {
+  const statusText = { pending: 'Not yet sent', evaluating: 'Reviewing…', done: 'Reviewed', failed: 'Failed', refused: 'Declined' }[post.status];
+  const canRetry = (post.status === 'failed' || post.status === 'refused') && !state.busy && state.sample;
+  return el('article', { className: 'post' },
+    el('h3', {}, `Post ${index + 1}`, el('span', { className: 'muted' }, ` · ${statusText}`)),
+    renderPostContent(post),
     post.error ? el('p', { className: 'error' }, errorText(post.error)) : null,
-    el('div', { className: 'row' },
-      canRetry ? el('button', { type: 'button', onclick: () => onTryAgain(post) }, 'Try again') : null,
-      post.status !== 'evaluating' && !state.busy
-        ? el('button', { type: 'button', onclick: () => { state.posts.splice(index, 1); state.outreach = null; render(); } }, 'Remove')
-        : null,
-    ),
+    canRetry ? el('div', { className: 'row' }, el('button', { type: 'button', onclick: () => onTryAgain(post) }, 'Try again')) : null,
     renderEvaluation(post),
   );
+}
+
+function plural(n, one, many) {
+  return `${n} ${n === 1 ? one : many}`;
+}
+
+// The overall summary at the top of the results, from code (past.js), never from the model.
+function renderOverall() {
+  const sent = state.posts.filter((p) => p.status !== 'pending');
+  const t = reviewTally(sent);
+  const running = sent.some((p) => p.status === 'evaluating');
+  const children = [];
+  if (t.done === 0) {
+    children.push(el('p', { className: 'summary' }, running ? 'Reviewing your Posts…' : 'No Post has been reviewed yet.'));
+  } else {
+    const headline = t.concerns > 0
+      ? (t.done === 1 ? 'This Post has concerns to look at.' : `${plural(t.concerns, 'Post has', 'Posts have')} concerns to look at.`)
+      : t.landsWell > 0 ? 'Likely to land well.' : COPY.notAssessable;
+    const parts = [`${t.landsWell} likely to land well`, `${t.concerns} with concerns`];
+    if (t.notAssessable) parts.push(`${t.notAssessable} could not be assessed`);
+    if (t.failed) parts.push(`${t.failed} not reviewed`);
+    children.push(
+      el('p', { className: `summary overall${t.concerns === 0 && t.landsWell > 0 ? ' good' : ''}` }, headline),
+      el('p', { className: 'muted' }, `${plural(t.done, 'Post', 'Posts')} reviewed${running ? ' so far' : ''}: ${parts.join(', ')}.`),
+    );
+  }
+  if (state.saveError) children.push(el('p', { className: 'error' }, state.saveError));
+  else if (state.reviewId && !running) children.push(el('p', { className: 'muted' }, COPY.savedToPast));
+  return children;
+}
+
+function renderPast() {
+  const p = state.past;
+  $('past-state').textContent = !state.dbChecked
+    ? 'Looking for your past Reviews…'
+    : !state.db
+      ? COPY.pastUnavailable
+      : !p || p.status === 'loading'
+        ? 'Loading your past Reviews…'
+        : p.status === 'failed'
+          ? 'Your past Reviews could not be loaded. Try again later.'
+          : p.items.length === 0 ? 'No saved Reviews yet. Each Review you send appears here.' : state.pastError;
+  if (!p || p.status !== 'done') return [];
+  return p.items.map((item) => {
+    const t = item.tally || {};
+    const openable = sameVersions(item.labels, LABELS);
+    const confirming = state.confirmDelete === item.id;
+    return el('article', { className: 'past-item' },
+      el('h3', {}, new Date(item.savedAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }),
+        state.reviewId === item.id ? el('span', { className: 'muted' }, ' · Open now') : null),
+      el('p', {}, `${plural(item.postCount, 'Post', 'Posts')}: ${t.landsWell || 0} likely to land well, ${t.concerns || 0} with concerns.`),
+      item.reviewSourceUrl ? el('p', {}, 'Profile: ', sourceLink(item.reviewSourceUrl)) : null,
+      el('p', { className: 'muted' }, `Versions: ${item.labels ? `${item.labels.rubric} · ${item.labels.personas} · ${item.labels.prompts}` : 'unknown'}`),
+      openable ? null : el('p', { className: 'muted' }, COPY.pastOtherVersions),
+      el('div', { className: 'row' },
+        el('button', { type: 'button', onclick: () => onOpenPast(item), disabled: state.busy || !openable }, 'Open'),
+        el('button', { type: 'button', onclick: () => onDeletePast(item), disabled: state.busy }, confirming ? 'Delete for good' : 'Delete'),
+        confirming ? el('button', { type: 'button', onclick: () => { state.confirmDelete = null; render(); } }, 'Keep it') : null,
+      ),
+    );
+  });
 }
 
 function renderOutreach() {
@@ -568,7 +775,7 @@ function renderOutreach() {
   const o = state.outreach;
   const children = [
     el('h2', {}, 'Ministry Outreach Plan'),
-    el('p', {}, 'A draft message you can send yourself, plus Talking Points tied to specific Posts. This tool never sends or posts anything.'),
+    el('p', {}, 'Optional. If you want to raise concerns with the poster: a draft message you can send yourself, plus Talking Points tied to specific Posts. This tool never sends or posts anything.'),
   ];
   if (state.reviewSourceUrl) children.push(el('p', {}, 'Profile: ', sourceLink(state.reviewSourceUrl)));
   if (!o || o.status === 'failed') {
@@ -628,9 +835,14 @@ function render() {
   $('copy-review').disabled = !anyDone;
   $('save-review').disabled = !anyDone;
   $('save-review').hidden = !state.downloads;
+  $('next-post').disabled = state.busy;
+  $('save-note').textContent = state.db ? COPY.savedHere : COPY.savedNowhere;
 
-  $('posts').replaceChildren(...state.posts.map(renderPost));
-  $('outreach-slot').replaceChildren(state.posts.length ? renderOutreach() : '');
+  $('post-list').replaceChildren(...state.posts.map(renderPostInput));
+  $('overall').replaceChildren(...renderOverall());
+  $('posts').replaceChildren(...state.posts.map((post, i) => (post.status === 'pending' ? null : renderPost(post, i))).filter(Boolean));
+  $('outreach-slot').replaceChildren(anyDone ? renderOutreach() : '');
+  $('past-list').replaceChildren(...renderPast());
 }
 
 function renderPersona(p) {
@@ -675,11 +887,34 @@ function renderHowItWorks() {
     )));
 }
 
-function showTab(name) {
-  for (const tab of ['review', 'how', 'roadmap']) {
-    $(`tab-${tab}`).hidden = tab !== name;
-    $(`tab-button-${tab}`).setAttribute('aria-selected', String(tab === name));
+// One view at a time. The masthead marks Review on the send page and the results.
+const VIEWS = ['home', 'review', 'results', 'past', 'how', 'roadmap'];
+const NAV_FOR = { review: 'review', results: 'review', how: 'how' };
+
+function showView(name) {
+  state.view = name;
+  for (const view of VIEWS) $(`view-${view}`).hidden = view !== name;
+  for (const button of document.querySelectorAll('.tabs [data-nav]')) {
+    button.setAttribute('aria-current', button.dataset.nav === NAV_FOR[name] ? 'page' : 'false');
   }
+  if (name === 'past') loadPast();
+  render();
+  window.scrollTo(0, 0);
+}
+
+// Every [data-nav] control (masthead, logo, Start reviewing, View past Reviews, Roadmap).
+// Once a Review has been sent, Review opens its results; Next post goes back to Add Posts.
+function onNav(event) {
+  const button = event.target.closest('[data-nav]');
+  if (!button) return;
+  const target = button.dataset.nav;
+  showView(target === 'review' && hasSent() ? 'results' : target);
+}
+
+function onNextPost() {
+  showView('review');
+  $('post-url').focus({ preventScroll: true });
+  $('post-form').scrollIntoView({ block: 'start' });
 }
 
 // ---------- Start ----------
@@ -699,14 +934,11 @@ function start() {
   $('copy-review').addEventListener('click', onCopyReview);
   $('save-review').addEventListener('click', onSaveReview);
   $('review-url').addEventListener('change', onReviewUrl);
-  $('tab-button-review').addEventListener('click', () => showTab('review'));
-  $('tab-button-how').addEventListener('click', () => showTab('how'));
-  $('open-how').addEventListener('click', () => showTab('how'));
-  $('tab-button-roadmap').addEventListener('click', () => showTab('roadmap'));
-  const hashTab = location.hash.slice(1);
-  showTab(['how', 'roadmap'].includes(hashTab) ? hashTab : 'review');
+  $('next-post').addEventListener('click', onNextPost);
+  document.querySelector('main').addEventListener('click', onNav);
   renderHowItWorks();
-  render();
+  const hashView = location.hash.slice(1);
+  showView(['review', 'how', 'roadmap'].includes(hashView) ? hashView : 'home');
 
   if (window.claude && window.claude.use) {
     window.claude.use('downloads').then((downloads) => {
@@ -716,6 +948,20 @@ function start() {
     window.claude.use('mcp').then((mcp) => {
       state.mcp = mcp;
     }).catch(() => {});
+    // Past Reviews need both: db for the store, user for the viewer's private subtree id.
+    Promise.all([window.claude.use('db'), window.claude.use('user')]).then(async ([db, user]) => {
+      const id = user ? await user.id() : null;
+      if (db && id) {
+        state.db = db;
+        state.viewerId = id;
+      }
+    }).catch(() => {}).finally(() => {
+      state.dbChecked = true;
+      if (state.view === 'past') loadPast();
+      else render();
+    });
+  } else {
+    state.dbChecked = true;
   }
   const use = window.claude && window.claude.use ? window.claude.use('sample') : Promise.resolve(null);
   use.then(async (sample) => {

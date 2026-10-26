@@ -57,7 +57,8 @@ h2 + p, h3 + p, h4 + p { margin-top: 0.4em; }
 
 /* ---------- Masthead and title block ---------- */
 .masthead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
-.brand { width: 112px; color: var(--heading); }
+.brand { width: 112px; color: var(--heading); background: none; border: 0; border-radius: 0; padding: 0; cursor: pointer; }
+.brand:hover:not(:disabled) { background: none; opacity: 0.85; }
 .brand svg { display: block; width: 100%; height: auto; overflow: visible; }
 .brand text { font-family: var(--serif); font-size: 128px; letter-spacing: -3px; fill: currentColor; }
 .tabs { display: flex; flex-wrap: wrap; align-items: center; }
@@ -67,7 +68,7 @@ h2 + p, h3 + p, h4 + p { margin-top: 0.4em; }
 }
 .tabs button + button { border-left: 1px solid var(--heading); }
 .tabs button:last-child { padding-right: 0; }
-.tabs button[aria-selected="true"] { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
+.tabs button[aria-current="page"] { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
 .tabs button:hover:not(:disabled) { background: none; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
 
 .title-block { padding-block: 40px 8px; }
@@ -90,10 +91,10 @@ button {
 }
 button:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 8%, transparent); }
 button:disabled { opacity: 0.45; cursor: not-allowed; }
-#add-post, #evaluate-all { background: var(--accent); color: var(--on-accent); }
-#add-post:hover:not(:disabled), #evaluate-all:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 88%, var(--fg)); }
-#open-how { border: 0; border-radius: 0; padding: 0; font: inherit; text-align: left; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.15em; }
-#open-how:hover { background: none; }
+#add-post, #evaluate-all, #start-reviewing, #next-post { background: var(--accent); color: var(--on-accent); }
+#add-post:hover:not(:disabled), #evaluate-all:hover:not(:disabled), #start-reviewing:hover:not(:disabled), #next-post:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 88%, var(--fg)); }
+.link-button { border: 0; border-radius: 0; padding: 0; font: inherit; text-align: left; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.15em; }
+.link-button:hover:not(:disabled) { background: none; }
 button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 1rem; }
 .muted { color: var(--muted); font-size: 1rem; }
@@ -170,3 +171,28 @@ details[open] > summary { margin-bottom: 0.4em; }
 .theme-toggle:hover:not(:disabled) { background: color-mix(in srgb, var(--muted) 12%, transparent); }
 .theme-toggle[aria-pressed="true"],
 .theme-toggle[aria-pressed="true"]:hover:not(:disabled) { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+/* ---------- Views: Home, Review, Results, Past Reviews, How it works, Roadmap ---------- */
+.view-title { margin-top: 40px; margin-bottom: 8px; }
+.view > h2:first-of-type { margin-top: 2rem; }
+sup { line-height: 0; font-size: 0.7em; }
+sup a { text-decoration: none; padding-inline: 0.1em; }
+.footnotes { font-size: 0.95rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 0.8rem; margin-top: 1.2rem; }
+.footnotes a { color: var(--muted); }
+.scripture { margin: 1rem 0; padding: 0.2em 0 0.2em 1.2em; border-left: 2px solid var(--heading); }
+.scripture p { font: italic 400 1.6rem/1.25 var(--serif); color: var(--fg); margin: 0 0 0.4em; }
+.scripture cite { font-style: normal; font-size: 1rem; color: var(--muted); }
+.cta { margin-top: 2.4rem; }
+#start-reviewing { font-size: 1.15rem; padding: 0.75em 1.8em; }
+#transcript-field { margin-top: 1.2em; }
+.post-input { margin-top: 20px; padding-block: 20px 24px; }
+.post-input > h3 { font-size: 1.6rem; }
+.summary.overall { font: 400 2rem/1.1 var(--serif); color: var(--heading); background: none; padding: 0; }
+.summary.overall.good { color: var(--heading); }
+.next-steps { padding-top: 0.4rem; }
+.past-item { border-top: 1px solid var(--line); padding-top: 1rem; margin-top: 1.2rem; }
+.past-item h3 { font-size: 1.6rem; margin-top: 0; }
+.past-item h3 .muted { font-family: var(--sans); letter-spacing: 0; }
+.past-item p { margin: 0.3em 0; }
+.page-foot { margin-top: 4rem; padding-top: 1rem; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baseline; justify-content: space-between; }
+.page-foot .link-button { font-size: 1rem; }

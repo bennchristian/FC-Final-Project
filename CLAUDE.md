@@ -40,6 +40,7 @@ discussion questions, and an outreach plan for raising concerns with a poster. S
   Run `bmad-project-context` only after real code exists.
 - **Artifact URL:** https://claude.ai/artifact/Mkc4qYCLCFXqMLq8Yf1Kdq (first published 2026-10-21, contract 0.2.88, shared with the organisation; capabilities `sample` + `downloads` + `mcp` for Supadata reel transcripts, added 2026-10-26, AD-13 / FR-3a). A republish reloads open copies, which wipes any Review not yet copied or saved. Every republish passes this URL (AD-12). `witness-rubric@1`, `persona-set@1` and `prompts@1` are locked: any content change is a new `@2`. **Live since 2026-10-23 (version 3):** `witness-rubric@2 · persona-set@1 · prompts@2`, which answer the feedback on the first test run (Personas suggested edits, reactions lacked depth, scores ran high). These are locked too. **Version 4 (2026-10-26)** adds reel transcripts: a Post whose link is an Instagram reel is transcribed through the viewer's Supadata connector (FR-3a, AD-13). It runs on the latest runtime contract (on 0.2.88 the page never got `mcp`).
 - **Copy editor (version 5, 2026-10-26):** also makes "Start here" clickable (the envelope layers no longer catch clicks). Click the page, then Shift+E on the Artifact opens Bennett's owner-only copy editor. It reaches every tab and the Review results; How it works edits are display-only, and Claude's text is never saved (AD-12). **Version 6 (2026-10-26)** ships that together with the brand restyle (`page.css`, masthead, Go back to the intro, Dark mode toggle in `theme.js`). Its saved `copy-edits.json` goes at `artifact/copy-edits.json`; the build inlines it, and the next republish carries the copy (PRD §4.11, AD-12).
+- **Version 7 (built 2026-10-26, not yet published):** new page flow. The envelope leads to Home (what, why with cited stats, who it is for, overview, why “Living Letter”), then Review (send) → Results → Next steps (Copy, Save as file, View past Reviews, Next post) with the Outreach Plan optional below. How it works is reordered, and Roadmap is now a footer link. **Past Reviews** save each sent Review to the viewer’s private `db` subtree (`artifact/src/past.js`, SCHEMA §6). The next publish must declare `db: {}` and `user: {}` alongside the existing capabilities (AD-12).
 - **Check command:** Thursday: `node --test artifact/test/ && node artifact/build.mjs`. Week 2: see
   `ARCHITECTURE.md` § Consistency Conventions.
 - **Web App rules:** Reviews ship switched off. Agents never make a live Claude call, never set
@@ -54,7 +55,7 @@ discussion questions, and an outreach plan for raising concerns with a poster. S
 
 ## 3. Gotchas that cost real time
 
-None yet.
+- This Mac has no `node`. Run the check command with Bun instead: `~/.bun/bin/bun test artifact/test/ && ~/.bun/bin/bun artifact/build.mjs` (all 180 tests pass under Bun 1.4.2).
 
 Only observed mistakes belong here: something that actually went wrong, not something that
 looks like it might. A repo yields endless trap-shaped facts and none of them predict real

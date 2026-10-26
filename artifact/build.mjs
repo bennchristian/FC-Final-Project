@@ -43,10 +43,18 @@ const script = [
   `const CONTENT = ${inlineJson(content)};`,
   `const LABELS = ${inlineJson(labels)};`,
   toScript('core.js'),
+  toScript('reel.js'),
   toScript('pipeline.js'),
   toScript('export.js'),
   toScript('ui.js'),
+  toScript('intro.js'),
 ].join('\n');
+
+// Living Letter first-screen intro: markup goes before <main>, styles join the page <style>.
+const INTRO_CSS = readFileSync(join(SRC, 'intro.css'), 'utf8');
+const INTRO_HTML = readFileSync(join(SRC, 'intro.html'), 'utf8');
+if (/<\/style/i.test(INTRO_CSS)) fail(['intro.css: contains "</style"']);
+const FONTS = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Open+Sans:ital,wght@0,400;0,500;1,400&display=swap">';
 
 const ROADMAP = [
   ['Web App with private accounts', 'Sign in to a private account and save Reviews to reopen later, unchanged, with their recorded versions.'],
@@ -58,8 +66,9 @@ const ROADMAP = [
   ['Usage caps', 'Daily and monthly limits on Claude usage for the hosted Web App.'],
 ];
 
-const html = `<title>Witness Review</title>
+const html = `<title>Living Letter</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+${FONTS}
 <style>
 /* Plain document layout: one readable column, default type. Visual design is deferred. */
 :root { --bg: #ffffff; --fg: #1d1f21; --muted: #5d6166; --line: #d4d7db; --soft: #f3f4f6; --accent: #1f5fa8; --bad: #a3271f; --good: #2d6a3a; }
@@ -105,9 +114,10 @@ table.overview { width: auto; min-width: 16rem; }
 .card { background: var(--soft); padding: 4px 12px; }
 details { margin: 6px 0; }
 summary { cursor: pointer; color: var(--accent); }
-</style>
+${INTRO_CSS}</style>
+${INTRO_HTML}
 <main>
-  <h1>Witness Review</h1>
+  <h1>Living Letter</h1>
   <p>Paste in public social-media Posts and see how they might land with people who do not share the Christian faith: rubric scores with evidence, simulated Persona reactions, a gentler rewrite, and discussion questions.</p>
   <p class="notice" id="lands-anywhere"></p>
   <nav class="tabs" role="tablist">
@@ -118,7 +128,7 @@ summary { cursor: pointer; color: var(--accent); }
 
   <section id="tab-review" role="tabpanel" aria-labelledby="tab-button-review">
     <h2>Overview</h2>
-    <p>Add up to 10 public Posts from one church, ministry or Christian creator. For each Post, Witness Review gives you:</p>
+    <p>Add up to 10 public Posts from one church, ministry or Christian creator. For each Post, Living Letter gives you:</p>
     <ul>
       <li><strong>Rubric Scores.</strong> Ten Criteria of good witness, each scored 1 to 5 with a quote from the Post as Evidence and a short explanation. The Criteria come from Scripture, from Paul’s speech in Athens, and from research on how people outside the faith see Christians.</li>
       <li><strong>Persona Reactions.</strong> How seven simulated people might feel reading the Post: six outside the faith, and one Christian who might copy its tone.</li>
@@ -152,6 +162,7 @@ summary { cursor: pointer; color: var(--accent); }
       <textarea id="post-transcript" rows="3" maxlength="20000"></textarea>
       <label for="post-url">Link to this Post (optional)</label>
       <input type="url" id="post-url" maxlength="2048">
+      <p id="intake-status" class="muted" aria-live="polite"></p>
       <p id="intake-errors" class="error" aria-live="polite"></p>
       <div class="row">
         <button type="submit" id="add-post">Add Post</button>
@@ -182,7 +193,7 @@ summary { cursor: pointer; color: var(--accent); }
       <li><strong>Code applies the thresholds.</strong> Whether a Post is likely to land well, and whether it gets a rewrite, is worked out by code from the scores, not by the model.</li>
       <li><strong>Questions and rewrite.</strong> A third request writes Discussion Questions from the Post, its scores and the reactions. When a rewrite is needed, a fourth writes it. The rewrite never changes the Post’s beliefs.</li>
       <li><strong>Checks.</strong> Every answer is checked against a fixed format before it is shown. Comment sections are ignored, and any @handle other than the poster’s is removed.</li>
-      <li><strong>Nothing is kept.</strong> Posts and screenshots stay in this page only. Screenshots are never shown again or stored. Links are shown but never opened or read.</li>
+      <li><strong>Nothing is kept.</strong> Posts and screenshots stay in this page only. Screenshots are never shown again or stored. Links are shown but never opened, except an Instagram reel link, which is used only to transcribe the reel’s spoken words.</li>
     </ol>
     <p>Every result shows the versions that produced it: the rubric, the Persona set, the prompts and the model. When the rubric or Personas are revised, they get a new version number, so old and new scores are never mixed.</p>
 

@@ -1,5 +1,5 @@
 ---
-name: 'Witness Review'
+name: 'Living Letter'
 type: architecture-spine
 purpose: build-substrate
 altitude: initiative
@@ -13,7 +13,7 @@ sources: [PRD.md, RULES.md, _bmad-output/planning-artifacts/prds/prd-FC-Final-Pr
 companions: [SCHEMA.md]
 ---
 
-# ARCHITECTURE: Witness Review
+# ARCHITECTURE: Living Letter
 
 Promoted 2026-10-21 from the `bmad-architecture` run [`_bmad-output/planning-artifacts/architecture/architecture-FC-Final-Project-2026-10-21/`](_bmad-output/planning-artifacts/architecture/architecture-FC-Final-Project-2026-10-21/ARCHITECTURE-SPINE.md). Decision rationale is in that folder's `.memlog.md`; the review-gate reports are in its `reviews/`. Data contracts are in [`SCHEMA.md`](SCHEMA.md). This file is the contract: change it through a new `bmad-architecture` update run (keeping AD ids stable), never by hand in an implementation brief.
 
@@ -349,27 +349,28 @@ flowchart LR
 - **Rule:**
   - **Build:** `node artifact/build.mjs` inlines the locked content ids (latest `<n>` of each name), `config/models.json` and `artifact/src/` into `artifact/dist/witness-review.html`, which is git-ignored. Load `artifact-design` before building the page, and `artifact-capabilities` before writing `sample()` code.
   - **Publish:**
-    - Through the Artifact tool. The first publish pins contract `0.2.88`.
+    - Through the Artifact tool. The first publish pinned contract `0.2.88`; on 2026-10-26 it moved to the latest contract for `mcp`.
     - Its URL is recorded in `CLAUDE.md` §2, and every later publish passes that `url`.
-  - **Capabilities:** exactly `{sample: {images: true}, downloads: true}`. `downloads` was added 2026-10-21 by Bennett so a viewer can keep a Review.
+  - **Capabilities:** exactly `{sample: {images: true}, downloads: true, mcp: {servers: [{server: "Supadata", tools: ["supadata_transcript", "supadata_check_transcript_status"]}]}}`. `downloads` was added 2026-10-21 by Bennett so a viewer can keep a Review; `mcp` was added 2026-10-26 by Bennett for reel transcripts (AD-13).
   - **Persistence:** Reviews, Posts and screenshots live in page memory only. `localStorage` holds only per-viewer UI preferences, such as the theme, inside try/catch.
   - **Export:** the viewer may copy the Review as Markdown, or save it as a `.md` file through `downloads.save` after confirming. The saved file adds a raw JSON appendix. Screenshots are never included. The page itself still keeps nothing.
   - **Network:**
     - Page script makes no fetch or XHR.
     - The only external loads are Google Fonts stylesheets and pinned CDN scripts that the `artifact-design` contract allows.
-    - No Source URL is ever fetched.
+    - No Source URL is ever fetched by the page. The one exception is AD-13's reel transcript, which goes through the viewer's Supadata connector.
   - **Scope:** FR-1, FR-2, FR-4–FR-9, FR-11–FR-13, FR-17, FR-20 and FR-22. The Artifact runs Others' Reviews only, so own-content Criteria show N/A.
   - **Limits:** `limits()` is read at load. `rate_limited`, `not_granted` and `upstream_error` map to per-Post errors with a manual Try again.
   - **Use:** calls happen only on an explicit viewer action, on the viewer's own Claude usage. Built-in examples are fictional.
 
-### AD-13 — No URL is ever read [ADOPTED]
+### AD-13 — No URL is ever read, except an Instagram reel's transcript [ADOPTED, amended 2026-10-26]
 
-- **Binds:** FR-2, FR-3
+- **Binds:** FR-2, FR-3, FR-3a
 - **Prevents:** any code path, script or model call reading a Post or profile from a URL.
 - **Rule:**
   - FR-3 is dropped. TikTok oEmbed returned no caption in the 2026-10-21 test.
-  - No surface, script or model call reads a URL.
-  - Source URLs are display-only and are never sent to a model.
+  - No surface, script or model call reads a URL, with one exception (FR-3a): in the Demo Artifact, when a Post's Source URL is a single Instagram post or reel (`isInstagramPostLink`; reels are often shared as `/p/` links) and no transcript was pasted, `artifact/src/reel.js` sends that URL to the viewer's Supadata connector (`supadata_transcript`, `text: true`; a `jobId` answer is polled at most 20 times) and uses the result as the Post's video transcript. The UI does not name Supadata. The page runs on the latest runtime contract, since `mcp` did not reach the page on 0.2.88.
+  - If the reel cannot be read, the Post is still added when it has text or screenshots; otherwise the viewer is asked to paste the transcript.
+  - Source URLs are display-only and are never sent to a model. Profile URLs are never read.
 
 ### AD-14 — PRD tone and content rules live in versioned prompt content
 

@@ -1,12 +1,12 @@
 ---
-title: "PRD: Witness Review"
+title: "PRD: Living Letter"
 status: final
 created: 2026-10-21
-updated: 2026-10-21
+updated: 2026-10-26
 ---
 
-# PRD: Witness Review
-*Working title — confirm.*
+# PRD: Living Letter
+*Name confirmed by Bennett on 2026-10-26 (OQ-4).*
 
 ## 0. Document Purpose
 
@@ -16,7 +16,7 @@ This PRD is the scope contract for Bennett's Frontier Commons final project. It 
 
 Much of what Christians post online is aimed at reaching people outside the faith but lands only with people already inside it. Some posts are deliberately combative. Many more are simply unaware: thick with church vocabulary, built on experiences that feel normal only to insiders, or fused with partisan politics. Their comment sections become echo chambers of agreement, and the people the posts were meant to reach scroll past, or are pushed further away.
 
-Witness Review shows a Christian how a public post is likely to land with people who do not share their faith. A user brings in one or more posts. The tool scores each against a versioned witness rubric drawn from Scripture (the fruit of the Spirit, 1 Corinthians 13, Jesus at table with tax collectors and sinners, Paul in Athens) and from research on how outsiders perceive Christians. Alongside the scores, a panel of simulated personas — a seeker, a drifter, a neighbour of another faith, an exvangelical, a skeptic, a progressive, and an emboldened believer — each say how the post would make them feel. The tool then offers a gentler rewrite that keeps the post's main message, discussion questions for a small group, and, when someone wants to raise concerns with the poster, a charitable draft message and talking points.
+Living Letter shows a Christian how a public post is likely to land with people who do not share their faith. A user brings in one or more posts. The tool scores each against a versioned witness rubric drawn from Scripture (the fruit of the Spirit, 1 Corinthians 13, Jesus at table with tax collectors and sinners, Paul in Athens) and from research on how outsiders perceive Christians. Alongside the scores, a panel of simulated personas — a seeker, a drifter, a neighbour of another faith, an exvangelical, a skeptic, a progressive, and an emboldened believer — each say how the post would make them feel. The tool then offers a gentler rewrite that keeps the post's main message, discussion questions for a small group, and, when someone wants to raise concerns with the poster, a charitable draft message and talking points.
 
 The first use is formation, not correction: a youth leader puts other people's posts on a shared screen so teenagers like Emily can see, before they post much themselves, how a witness can wound or welcome. The second is a mirror for creators like Esther, who check their own drafts before publishing. The rubric and personas are expected to change as real conversations with non-believers and creators test them, so every score records the versions that produced it.
 
@@ -68,7 +68,7 @@ The first use is formation, not correction: a youth leader puts other people's p
 
 - **Post** — One piece of social-media content (caption or on-screen text, images, and for video a transcript), as supplied by the User. Usually public; in a Draft Checkpoint, an **Unpublished Post**. Belongs to one Review.
 - **Profile** — One social-media account (a person's or a ministry's). A profile Review is a set of Posts from one Profile that the User supplies; the tool never retrieves a Profile itself.
-- **Source URL** — The link a Post or profile came from. Recorded and displayed; never fetched except through a Permitted Retrieval route.
+- **Source URL** — The link a Post or profile came from. Recorded and displayed; never fetched except through a Permitted Retrieval route or an Instagram reel transcript (FR-3a).
 - **Permitted Retrieval** — Reading Post content from a Source URL through a route the platform's terms allow. In MVP the only candidate is TikTok's public oEmbed endpoint [W2, conditional].
 - **Review** — One run of the tool over one or more Posts, producing one Evaluation per Post plus Review-level outputs. Records the Rubric Version and Persona Version used.
 - **Others' Review** — A Review of someone else's public Posts. **Own-Content Review** — a Review of the User's own published or draft Posts [W2].
@@ -109,8 +109,8 @@ A User can add one or more Posts to a Review, each as pasted text, one or more s
 #### FR-2: Attach a Source URL [F]
 A User can attach a Source URL to a Post or to the whole Review (a Profile's URL).
 - The Source URL is shown on the Evaluation and in the Ministry Outreach Plan.
-- Attaching a Source URL never triggers a fetch, except through FR-3.
-- The UI states plainly that the tool cannot read posts from a link, and asks for paste or screenshots.
+- Attaching a Source URL never triggers a fetch, except through FR-3 or FR-3a.
+- The UI states plainly that the tool reads only Instagram reel links, and asks for paste or screenshots otherwise.
 
 #### FR-3: Permitted Retrieval for TikTok captions [W2, conditional — dropped]
 > **Dropped 2026-10-21:** a live oEmbed test on two real public videos returned no caption (`ARCHITECTURE.md` AD-13).
@@ -119,6 +119,11 @@ When the Source URL is a TikTok video, the Web App can pre-fill the Post's capti
 - Ships only if a live test on a real public video returns the caption; otherwise dropped without replacement.
 - The User can edit or replace the pre-filled caption.
 - No other platform is read from a URL in MVP.
+
+#### FR-3a: Instagram reel transcripts [F, added 2026-10-26 by Bennett]
+When a Post's Source URL is an Instagram post or reel and no transcript was pasted, the Demo Artifact gets the reel's spoken words through the viewer's Supadata connector and uses them as the Post's video transcript (`ARCHITECTURE.md` AD-13).
+- The UI does not name the transcription service.
+- If the reel cannot be read, the User is asked to paste the transcript; a Post with text or screenshots is still added.
 
 **Out of Scope:** automatic retrieval of a whole profile; any Instagram retrieval; scraping; logged-in access.
 
@@ -277,7 +282,7 @@ The Demo Artifact has a separate tab listing what is planned but not yet built, 
 
 ## 5. Non-Goals (Explicit)
 
-- **Not a scraper.** No automatic collection of posts from Instagram, TikTok, or anywhere else beyond FR-3.
+- **Not a scraper.** No automatic collection of posts from Instagram, TikTok, or anywhere else beyond FR-3 and the single-reel transcript of FR-3a.
 - **Not a content generator.** The Gentler Rewrite revises a supplied Post; the tool does not write new posts or content calendars for ministries.
 - **Not a theological judge.** No doctrinal scoring or rulings on a ministry or person; the Soundness Flag is the limit.
 - **Not a messenger.** The tool never sends messages, comments, or DMs.
@@ -367,7 +372,7 @@ The Bonhoeffer line Bennett cited ("Your life as a Christian should make non-bel
 1. **OQ-1. Prevalence weighting.** Should the Profile Summary weight Persona patterns by how common each group is? Owner: Bennett. Revisit when FR-14 is built.
 2. **OQ-2. Soundness standard.** What standard defines "theologically sound", and should a rewrite ever correct doctrine? Owner: Bennett. Revisit after the Web App ships.
 3. **OQ-3. Interview Plans.** Questions for non-believers, creators, and ministries, and which Criteria or Personas each answer would revise. Owner: Bennett, in a separate Claude session. Revisit before SM-4 interviews.
-4. **OQ-4. Product name.** "Witness Review" is a working title. Candidates offered: Known & Read, Open Table, Toward Outsiders, Seasoned, Fair Witness, Outside Eyes. Owner: Bennett.
+4. **OQ-4. Product name.** Resolved 2026-10-26: **Living Letter** (Bennett, with his design partner's brand guide; after 2 Corinthians 3:2–3). It replaces the earlier working title.
 5. **OQ-5. Storage and spend (to `bmad-architecture`).** How saved Reviews keep screenshots without persisting commenters' names or handles (§7.2); FR-23 cap values; how the Demo Artifact's in-page Claude calls are counted and limited. Owner: architecture session. Revisit before Web App code starts.
 6. **OQ-6. Persona order and shared-screen legibility (to `bmad-ux`).** The rule mapping each Target Audience to a Persona order (FR-10), and a measurable legibility bound for projector use (§8). Owner: UX session.
 

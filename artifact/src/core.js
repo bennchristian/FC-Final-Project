@@ -313,6 +313,18 @@ export function checkSourceUrl(url) {
   return [];
 }
 
+// True for a link to one Instagram post or reel (/p/<id>, /reel/<id>, /reels/<id>, /tv/<id>,
+// also after a /<handle>/ or /share/ prefix). Reels are often shared as /p/ links.
+// Only these links are ever read, and only for a transcript (AD-13).
+export function isInstagramPostLink(url) {
+  if (!url || checkSourceUrl(url).length) return false;
+  const parsed = new URL(url);
+  if (!/^(www\.|m\.)?instagram\.com$/i.test(parsed.hostname)) return false;
+  const segments = parsed.pathname.split('/').filter(Boolean);
+  const at = segments.findIndex((s) => ['p', 'reel', 'reels', 'tv'].includes(s.toLowerCase()));
+  return at !== -1 && at <= 1 && /^[A-Za-z0-9_-]+$/.test(segments[at + 1] || '');
+}
+
 // A Post as entered: { pasted_text, video_transcript, image_count, source_url }.
 export function checkPostIntake(post, maxImages) {
   const errors = [];

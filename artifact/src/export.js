@@ -105,7 +105,7 @@ function outreachSection(outreach, content) {
 // With includeJson, a raw JSON appendix is added for later analysis.
 export function reviewToMarkdown(review, content, labels, { exportedAt, includeJson }) {
   const out = [
-    '# Witness Review',
+    '# Living Letter',
     '',
     `Exported: ${exportedAt}`,
     `Versions: ${labels.rubric} · ${labels.personas} · ${labels.prompts}`,

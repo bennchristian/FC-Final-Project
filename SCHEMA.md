@@ -1,4 +1,4 @@
-# SCHEMA: Witness Review
+# SCHEMA: Living Letter
 
 Promoted 2026-10-21 from `bmad-architecture` run `_bmad-output/planning-artifacts/architecture/architecture-FC-Final-Project-2026-10-21/SCHEMA-draft.md`.
 

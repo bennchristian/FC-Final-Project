@@ -20,11 +20,25 @@ const BANNED = [
   [/\btools\s*:/, 'no tools on any call (AD-7)'],
 ];
 
+const MARKUP = /innerHTML|outerHTML|insertAdjacentHTML|document\.write/;
+
 for (const [file, text] of sources) {
   test(`${file} avoids banned APIs`, () => {
-    for (const [pattern, why] of BANNED) assert.doesNotMatch(text, pattern, `${file}: ${why}`);
+    for (const [pattern, why] of BANNED) {
+      // The owner copy editor parses its edit HTML in one inert <template>; checked below.
+      if (file === 'editor.js' && pattern.source === MARKUP.source) continue;
+      assert.doesNotMatch(text, pattern, `${file}: ${why}`);
+    }
   });
 }
+
+test('editor.js parses markup only into an inert template, and never renders model output', () => {
+  const editor = sources.find(([f]) => f === 'editor.js')[1];
+  assert.doesNotMatch(editor, /outerHTML|insertAdjacentHTML|document\.write|DOMParser|createContextualFragment/);
+  const assignments = [...editor.matchAll(/([\w.]+)\.innerHTML\s*=(?!=)/g)].map((m) => m[1]);
+  assert.deepEqual(assignments, ['tpl'], 'the only innerHTML assignment is tpl.innerHTML in cleanTemplate');
+  assert.doesNotMatch(editor, /evaluatePost|requestRewrite|createOutreach|\.evaluation\b/);
+});
 
 test('every persona-bearing view in ui.js carries the simulated label', () => {
   const ui = sources.find(([f]) => f === 'ui.js')[1];

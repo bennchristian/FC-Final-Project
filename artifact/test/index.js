@@ -6,3 +6,4 @@ import './guard.test.mjs';
 import './pipeline.test.mjs';
 import './export.test.mjs';
 import './reel.test.mjs';
+import './copy-edits.test.mjs';

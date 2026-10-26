@@ -280,6 +280,8 @@ The Maintainer can publish a new Rubric Version or Persona Version; new Reviews 
 The Demo Artifact has a separate tab listing what is planned but not yet built, for reference in the recorded video.
 - The Web App does not include this tab.
 
+**Owner copy editor (owner-only authoring aid, added 2026-10-26 by Bennett).** Not a User feature. Shift+E shows a hidden bar that lets Bennett rewrite, move and restyle the static copy of the intro letter and main page, then save it as `copy-edits.json`. The file is folded into the next build, so every viewer sees the new copy after a republish. Review output, How-it-works content from `content/`, status lines and the versions label are never editable (`ARCHITECTURE.md` AD-12).
+
 ## 5. Non-Goals (Explicit)
 
 - **Not a scraper.** No automatic collection of posts from Instagram, TikTok, or anywhere else beyond FR-3 and the single-reel transcript of FR-3a.

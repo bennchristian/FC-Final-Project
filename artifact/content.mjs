@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync, writeFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { checkCopyEdits } from './src/copy-edits.js';
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CONTENT_DIR = join(ROOT, 'content');
@@ -158,4 +159,20 @@ export function checkContentShapes(content) {
     if (!models.prices_usd_per_mtok[m.id]) errors.push(`models: ${m.id} has no price`);
   }
   return errors;
+}
+
+// Owner copy edits (AD-12 authoring aid): the optional artifact/copy-edits.json.
+// Absent → { edits: null, errors: [] }. Present → parsed and checked by checkCopyEdits.
+export const COPY_EDITS_PATH = join(ROOT, 'artifact', 'copy-edits.json');
+
+export function loadCopyEdits(path = COPY_EDITS_PATH) {
+  if (!existsSync(path)) return { edits: null, errors: [] };
+  let json;
+  try {
+    json = JSON.parse(readFileSync(path, 'utf8'));
+  } catch (e) {
+    return { edits: null, errors: [`copy-edits.json: not valid JSON (${e.message})`] };
+  }
+  const errors = checkCopyEdits(json);
+  return { edits: errors.length ? null : json, errors };
 }

@@ -3,10 +3,13 @@
 //
 //   node artifact/build.mjs          build; fails on any lock, prompt or content error
 //   node artifact/build.mjs --lock   first lock the latest ids, then build (run before publishing)
+//
+// The optional artifact/copy-edits.json (owner copy editor, AD-12) is checked and inlined
+// as COPY_EDITS; without it COPY_EDITS is null and the page copy is unchanged.
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { ROOT, loadContent, checkLock, lockLatest, checkPrompts, checkContentShapes } from './content.mjs';
+import { ROOT, loadContent, checkLock, lockLatest, checkPrompts, checkContentShapes, loadCopyEdits } from './content.mjs';
 
 const SRC = join(ROOT, 'artifact', 'src');
 const OUT = join(ROOT, 'artifact', 'dist', 'witness-review.html');
@@ -38,22 +41,30 @@ if (lockErrors.length) fail(lockErrors);
 const { content, labels } = loadContent();
 const contentErrors = [...checkPrompts(content.prompts), ...checkContentShapes(content)];
 if (contentErrors.length) fail(contentErrors);
+const copyEdits = loadCopyEdits();
+if (copyEdits.errors.length) fail(copyEdits.errors);
 
 const script = [
   `const CONTENT = ${inlineJson(content)};`,
   `const LABELS = ${inlineJson(labels)};`,
+  `const COPY_EDITS = ${inlineJson(copyEdits.edits)};`,
   toScript('core.js'),
   toScript('reel.js'),
   toScript('pipeline.js'),
   toScript('export.js'),
   toScript('ui.js'),
   toScript('intro.js'),
+  // After intro.js and ui.js, so the intro markup and start()'s copy exist when edits apply.
+  toScript('copy-edits.js'),
+  toScript('editor.js'),
 ].join('\n');
 
 // Living Letter first-screen intro: markup goes before <main>, styles join the page <style>.
 const INTRO_CSS = readFileSync(join(SRC, 'intro.css'), 'utf8');
 const INTRO_HTML = readFileSync(join(SRC, 'intro.html'), 'utf8');
 if (/<\/style/i.test(INTRO_CSS)) fail(['intro.css: contains "</style"']);
+const EDITOR_CSS = readFileSync(join(SRC, 'editor.css'), 'utf8');
+if (/<\/style/i.test(EDITOR_CSS)) fail(['editor.css: contains "</style"']);
 const FONTS = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Open+Sans:ital,wght@0,400;0,500;1,400&display=swap">';
 
 const ROADMAP = [
@@ -114,7 +125,8 @@ table.overview { width: auto; min-width: 16rem; }
 .card { background: var(--soft); padding: 4px 12px; }
 details { margin: 6px 0; }
 summary { cursor: pointer; color: var(--accent); }
-${INTRO_CSS}</style>
+${INTRO_CSS}
+${EDITOR_CSS}</style>
 ${INTRO_HTML}
 <main>
   <h1>Living Letter</h1>
@@ -241,4 +253,6 @@ ${script}
 
 mkdirSync(join(ROOT, 'artifact', 'dist'), { recursive: true });
 writeFileSync(OUT, html);
+const editCount = copyEdits.edits ? copyEdits.edits.edits.length : 0;
 console.log(`Built ${OUT.replace(`${ROOT}/`, '')} (${(Buffer.byteLength(html) / 1024).toFixed(1)} KB) with ${labels.rubric} · ${labels.personas} · ${labels.prompts}`);
+console.log(copyEdits.edits ? `Copy edits: ${editCount} from artifact/copy-edits.json` : 'Copy edits: none (no artifact/copy-edits.json)');

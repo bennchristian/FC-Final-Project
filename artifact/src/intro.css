@@ -52,6 +52,8 @@
   opacity: 0;
 }
 #ll-intro .ll-part { position: absolute; display: block; }
+/* The envelope layers are decoration; the pocket overlaps the lower letter, so let clicks reach Start here. */
+#ll-intro .ll-back, #ll-intro .ll-flap, #ll-intro .ll-pocket { pointer-events: none; }
 #ll-intro .ll-back   { left: 225px; top: 790px; width: 1470px; height: 1200px; z-index: 1; filter: drop-shadow(0 22px 34px rgba(90, 64, 32, 0.14)); }
 #ll-intro .ll-pocket { left: 225px; top: 790px; width: 1470px; height: 1200px; z-index: 4; overflow: visible; }
 

@@ -157,17 +157,41 @@ ${INTRO_HTML}
 
     <h2>2. Add Posts</h2>
     <form id="post-form">
-      <label for="post-text">Post text or caption</label>
-      <textarea id="post-text" rows="5" maxlength="4000"></textarea>
-      <div id="images-field" hidden>
-        <label for="post-images">Screenshots</label>
-        <input type="file" id="post-images" multiple>
-        <p class="muted" id="images-hint"></p>
-      </div>
-      <label for="post-transcript">Video transcript (for a video Post)</label>
-      <textarea id="post-transcript" rows="3" maxlength="20000"></textarea>
-      <label for="post-url">Link to this Post (optional)</label>
-      <input type="url" id="post-url" maxlength="2048">
+      <p class="muted">A Post needs only one thing: a link, a transcript, screenshots or text. Choose whichever you have.</p>
+      <fieldset class="either">
+        <legend>Link or video transcript</legend>
+        <div class="choices" role="radiogroup" aria-label="Link or video transcript">
+          <label class="choice"><input type="radio" name="video-mode" value="link" checked> Link to the Post</label>
+          <label class="choice"><input type="radio" name="video-mode" value="transcript"> Paste the transcript</label>
+        </div>
+        <div id="link-field">
+          <label for="post-url" class="sr-only">Link to the Post</label>
+          <input type="url" id="post-url" maxlength="2048" placeholder="https://www.instagram.com/reel/...">
+          <p class="muted">For an Instagram reel, the link is all you need: its spoken words are read for you. Any other link is only shown with the results.</p>
+        </div>
+        <div id="transcript-field" hidden>
+          <label for="post-transcript" class="sr-only">Video transcript</label>
+          <textarea id="post-transcript" rows="4" maxlength="20000"></textarea>
+          <p class="muted">Paste what is said in the video.</p>
+        </div>
+      </fieldset>
+      <fieldset class="either">
+        <legend id="content-legend">Screenshots or text</legend>
+        <div class="choices" id="content-choices" role="radiogroup" aria-label="Screenshots or text">
+          <label class="choice"><input type="radio" name="content-mode" value="images" checked> Add screenshots</label>
+          <label class="choice"><input type="radio" name="content-mode" value="text"> Paste the text</label>
+        </div>
+        <div id="images-field">
+          <label for="post-images" class="sr-only">Screenshots</label>
+          <input type="file" id="post-images" multiple>
+          <p class="muted" id="images-hint"></p>
+        </div>
+        <div id="text-field" hidden>
+          <label for="post-text" class="sr-only">Post text or caption</label>
+          <textarea id="post-text" rows="5" maxlength="4000"></textarea>
+          <p class="muted">Paste the Post’s text or caption.</p>
+        </div>
+      </fieldset>
       <p id="intake-status" class="muted" aria-live="polite"></p>
       <p id="intake-errors" class="error" aria-live="polite"></p>
       <div class="row">

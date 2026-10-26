@@ -12,7 +12,7 @@ import { reviewToMarkdown } from './export.js';
 
 const COPY = {
   simulated: 'Simulated perspective',
-  linkNotice: 'Paste the post text, add screenshots, or paste a video transcript. For an Instagram reel, its link is enough: the spoken words are read for you. Any other link is only shown alongside the results.',
+  linkNotice: 'The profile link is only shown alongside the results. It is never opened.',
   readingReel: 'Reading the reel…',
   soundnessNote: 'A prompt for discussion with a leader, not a ruling.',
   suggestion: 'Suggestion',
@@ -180,14 +180,36 @@ async function readReel(url, hasOtherContent) {
   }
 }
 
+// Each pair on the form is one choice: only the chosen field is read.
+function formMode(name) {
+  return document.querySelector(`input[name="${name}"]:checked`).value;
+}
+
+function contentMode() {
+  return state.maxImages ? formMode('content-mode') : 'text';
+}
+
+function syncFormModes() {
+  const video = formMode('video-mode');
+  $('link-field').hidden = video !== 'link';
+  $('transcript-field').hidden = video !== 'transcript';
+  const content = contentMode();
+  $('content-choices').hidden = state.maxImages === 0;
+  $('content-legend').textContent = state.maxImages ? 'Screenshots or text' : 'Text';
+  $('images-field').hidden = content !== 'images';
+  $('text-field').hidden = content !== 'text';
+}
+
 async function onAddPost(event) {
   event.preventDefault();
   if (state.readingReel) return;
-  const files = state.maxImages ? [...$('post-images').files] : [];
+  const video = formMode('video-mode');
+  const content = contentMode();
+  const files = content === 'images' ? [...$('post-images').files] : [];
   const fields = {
-    pasted_text: $('post-text').value,
-    video_transcript: $('post-transcript').value,
-    source_url: $('post-url').value.trim(),
+    pasted_text: content === 'text' ? $('post-text').value : '',
+    video_transcript: video === 'transcript' ? $('post-transcript').value : '',
+    source_url: video === 'link' ? $('post-url').value.trim() : '',
   };
   if (!fields.video_transcript.trim() && isInstagramPostLink(fields.source_url) && canAddPost(state.posts.length)) {
     try {
@@ -212,6 +234,7 @@ async function onAddPost(event) {
   }
   addPost(fields);
   $('post-form').reset();
+  syncFormModes();
   render();
 }
 
@@ -589,16 +612,12 @@ function renderOutreach() {
         el('span', { id: 'copy-status', className: 'muted', 'aria-live': 'polite' }),
       ),
       el('h3', {}, 'Talking Points'),
-      el('ul', {}, o.output.talking_points.map((tp) => {
-        const source = state.posts[tp.post_position - 1] && state.posts[tp.post_position - 1].source_url;
-        return el('li', {},
-          el('strong', {}, `${tp.kind === 'concern' ? 'Concern' : 'Affirmation'} · Post ${tp.post_position} · ${criterionByKey[tp.criterion].name}: `),
-          said(tp.text),
-          tp.change ? el('div', {}, 'Change: ', said(tp.change)) : null,
-          tp.persona ? el('div', {}, simulatedTag(), ` (${personaByKey[tp.persona].name})`) : null,
-          source ? el('div', {}, 'Source: ', sourceLink(source)) : null,
-        );
-      })),
+      el('ul', {}, o.output.talking_points.map((tp) => el('li', {},
+        el('strong', {}, `${tp.kind === 'concern' ? 'Concern' : 'Affirmation'} · Post ${tp.post_position} · ${criterionByKey[tp.criterion].name}: `),
+        said(tp.text),
+        tp.change ? el('div', {}, 'Change: ', said(tp.change)) : null,
+        tp.persona ? el('div', {}, simulatedTag(), ` (${personaByKey[tp.persona].name})`) : null,
+      ))),
       el('button', { type: 'button', onclick: () => onOutreach(false), disabled: state.busy }, 'Write a new plan'),
     );
   }
@@ -615,7 +634,7 @@ function render() {
     : state.sample
       ? ''
       : 'Claude is not available in this view, so Reviews cannot run here. Open this page as a Claude artifact to use it.';
-  $('images-field').hidden = state.maxImages === 0;
+  syncFormModes();
   $('post-images').setAttribute('accept', state.mediaTypes.join(','));
   $('images-hint').textContent = `Up to ${state.maxImages} screenshots. They are sent to Claude only while this Post is evaluated and are never shown or kept.`;
   $('post-count').textContent = `${state.posts.length} of ${INTAKE_LIMITS.maxPosts} Posts`;
@@ -693,6 +712,7 @@ function start() {
   picker.addEventListener('change', () => { state.modelId = picker.value; });
 
   $('post-form').addEventListener('submit', onAddPost);
+  $('post-form').addEventListener('change', (e) => { if (e.target.type === 'radio') syncFormModes(); });
   $('add-examples').addEventListener('click', onAddExamples);
   $('evaluate-all').addEventListener('click', onEvaluateAll);
   $('clear-review').addEventListener('click', onClearReview);

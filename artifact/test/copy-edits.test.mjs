@@ -16,6 +16,7 @@ const valid = {
       n: 1,
       style: { fontFamily: FONT_CHOICES[2].value, fontSize: '60px', fontWeight: 'bold', fontStyle: 'italic', textDecoration: 'underline', translate: '-12.5px 40px' },
     },
+    { text: 'Rubric Scores', live: true, html: 'Scores' },
   ],
 };
 
@@ -72,6 +73,9 @@ const bad = [
   ['bad style value', { version: 1, edits: [{ text: 'a', n: 0, style: { fontFamily: 'x; background: url(y)' } }] }, /^edits\[0\]\.style\.fontFamily: invalid value/],
   ['no html or style', { version: 1, edits: [{ text: 'a', n: 0 }] }, /^edits\[0\]: needs html or style$/],
   ['duplicate box', { version: 1, edits: [{ text: 'a', n: 0, html: 'x' }, { text: 'a', n: 0, html: 'y' }] }, /^edits\[1\]: duplicates/],
+  ['live edit with n', { version: 1, edits: [{ text: 'a', n: 0, live: true, html: 'x' }] }, /^edits\[0\]\.n: not used on a live edit$/],
+  ['live not true', { version: 1, edits: [{ text: 'a', n: 0, live: false, html: 'x' }] }, /^edits\[0\]\.live: must be true when present$/],
+  ['duplicate live label', { version: 1, edits: [{ text: 'a', live: true, html: 'x' }, { text: 'a', live: true, html: 'y' }] }, /^edits\[1\]: duplicates/],
 ];
 
 for (const [name, json, pattern] of bad) {
@@ -96,6 +100,7 @@ test('each edit goes to the n-th box with its original text; unmatched edits are
     { text: 'Start here', n: 0, html: 'Begin' },
     { text: 'Review', n: 2, html: 'gone' },
     { text: 'Old wording', n: 0, html: 'gone too' },
+    { text: 'Review', live: true, html: 'a label in the results, matched by editor.js' },
   ];
   const { matches, stale } = matchCopyEdits(boxes, edits);
   assert.deepEqual(matches.map((m) => [m.box, m.edit.html]), [[3, 'Reviews'], [2, 'Begin']]);

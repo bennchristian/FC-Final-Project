@@ -113,11 +113,17 @@ function $(id) {
 // A Source URL that passed the https?:// check may render as a link (AD-4).
 function sourceLink(url) {
   if (!url || checkSourceUrl(url).length) return null;
-  return el('a', { href: url, target: '_blank', rel: 'noopener noreferrer' }, url);
+  return el('a', { href: url, className: 'said', target: '_blank', rel: 'noopener noreferrer' }, url);
 }
 
 function simulatedTag() {
   return el('span', { className: 'simulated' }, COPY.simulated);
+}
+
+// Text Claude wrote or the viewer supplied, inside the Review results. The owner copy editor
+// lets it be retyped on screen but never saves it (editor.js); everything else there is a label.
+function said(text) {
+  return el('span', { className: 'said' }, text);
 }
 
 function errorText(code) {
@@ -439,8 +445,8 @@ function renderScores(evaluation) {
     const criterion = criterionByKey[s.criterion];
     return el('div', { className: `criterion${s.score !== null && s.score < 3 ? ' concern' : ''}` },
       el('h5', {}, `${criterion.number}. ${criterion.name}: ${s.score === null ? 'N/A' : `${s.score} / 5`}`),
-      s.evidence ? el('p', {}, el('span', { className: 'label' }, 'Evidence: '), el('q', {}, s.evidence)) : null,
-      el('p', {}, el('span', { className: 'label' }, s.score === null ? 'Why N/A: ' : 'Why: '), s.explanation),
+      s.evidence ? el('p', {}, el('span', { className: 'label' }, 'Evidence: '), el('q', { className: 'said' }, s.evidence)) : null,
+      el('p', {}, el('span', { className: 'label' }, s.score === null ? 'Why N/A: ' : 'Why: '), said(s.explanation)),
       renderOffence(s.offence_sources),
       criterionDetails(criterion, s.score),
     );
@@ -462,7 +468,7 @@ function renderSummary(evaluation) {
   const concerns = evaluation.assessment.scores.filter((s) => s.score !== null && s.score < 3);
   return el('div', { className: 'summary' },
     el('p', {}, `Concerns (${concerns.length}):`),
-    el('ul', {}, concerns.map((s) => el('li', {}, `${criterionByKey[s.criterion].name}: ${s.explanation}`))),
+    el('ul', {}, concerns.map((s) => el('li', {}, `${criterionByKey[s.criterion].name}: `, said(s.explanation)))),
   );
 }
 
@@ -473,8 +479,8 @@ function renderReactions(evaluation) {
       el('li', {},
         el('strong', {}, personaByKey[r.persona].name), ' ', simulatedTag(),
         el('div', { className: 'muted' }, personaByKey[r.persona].summary),
-        el('div', {}, `Felt response: ${r.felt_response} (${r.valence})`),
-        el('ul', {}, r.reasons.map((reason) => el('li', {}, reason))),
+        el('div', {}, 'Felt response: ', said(r.felt_response), ` (${r.valence})`),
+        el('ul', {}, r.reasons.map((reason) => el('li', { className: 'said' }, reason))),
         el('details', {}, el('summary', {}, `Who is the ${personaByKey[r.persona].name}?`), renderPersona(personaByKey[r.persona])),
       ),
     )),
@@ -491,11 +497,11 @@ function renderRewrite(post, evaluation) {
     return el('section', {},
       el('h4', {}, 'Gentler Rewrite'),
       el('div', { className: 'pair' },
-        el('div', {}, el('p', { className: 'label' }, 'Original'), el('p', { className: 'pre' }, originalText(post, evaluation))),
-        el('div', {}, el('p', { className: 'label' }, COPY.suggestion), el('p', { className: 'pre' }, rw.rewrite)),
+        el('div', {}, el('p', { className: 'label' }, 'Original'), el('p', { className: 'pre said' }, originalText(post, evaluation))),
+        el('div', {}, el('p', { className: 'label' }, COPY.suggestion), el('p', { className: 'pre said' }, rw.rewrite)),
       ),
       el('p', {}, 'What changed:'),
-      el('ul', {}, rw.changes.map((c) => el('li', {}, c))),
+      el('ul', {}, rw.changes.map((c) => el('li', { className: 'said' }, c))),
     );
   }
   if (evaluation.rewrite_mode === 'offer' && post.status === 'done') {
@@ -514,7 +520,7 @@ function renderQuestions(evaluation) {
   return el('section', {},
     el('h4', {}, 'Discussion Questions'),
     el('ol', {}, evaluation.discussion_questions.questions.map((q) =>
-      el('li', {}, q.text, q.persona ? [' ', simulatedTag(), ` (${personaByKey[q.persona].name})`] : null),
+      el('li', {}, said(q.text), q.persona ? [' ', simulatedTag(), ` (${personaByKey[q.persona].name})`] : null),
     )),
   );
 }
@@ -527,7 +533,7 @@ function renderEvaluation(post) {
     el('p', { className: 'muted' }, provenanceLabel(LABELS, ev.models)),
     renderSummary(ev),
     flag ? el('div', { className: 'flag' },
-      el('strong', {}, 'Soundness Flag: '), el('q', {}, flag.line), ` ${flag.why}`,
+      el('strong', {}, 'Soundness Flag: '), el('q', { className: 'said' }, flag.line), said(` ${flag.why}`),
       el('p', { className: 'muted' }, COPY.soundnessNote)) : null,
     el('h4', {}, 'Rubric Scores'),
     renderScores(ev),
@@ -543,9 +549,9 @@ function renderPost(post, index) {
   return el('article', { className: 'post' },
     el('h3', {}, `Post ${index + 1}`, el('span', { className: 'muted' }, ` · ${statusText}`)),
     post.source_url ? el('p', {}, 'Source: ', sourceLink(post.source_url)) : null,
-    post.pasted_text ? el('p', { className: 'pre' }, post.pasted_text) : null,
-    post.video_transcript ? el('details', {}, el('summary', {}, 'Video transcript'), el('p', { className: 'pre' }, post.video_transcript)) : null,
-    post.images.length ? el('p', {}, 'Screenshots: ', post.images.map((img) => el('span', { className: 'chip' }, img.name))) : null,
+    post.pasted_text ? el('p', { className: 'pre said' }, post.pasted_text) : null,
+    post.video_transcript ? el('details', {}, el('summary', {}, 'Video transcript'), el('p', { className: 'pre said' }, post.video_transcript)) : null,
+    post.images.length ? el('p', {}, 'Screenshots: ', post.images.map((img) => el('span', { className: 'chip said' }, img.name))) : null,
     post.error ? el('p', { className: 'error' }, errorText(post.error)) : null,
     el('div', { className: 'row' },
       canRetry ? el('button', { type: 'button', onclick: () => onTryAgain(post) }, 'Try again') : null,
@@ -587,8 +593,8 @@ function renderOutreach() {
         const source = state.posts[tp.post_position - 1] && state.posts[tp.post_position - 1].source_url;
         return el('li', {},
           el('strong', {}, `${tp.kind === 'concern' ? 'Concern' : 'Affirmation'} · Post ${tp.post_position} · ${criterionByKey[tp.criterion].name}: `),
-          tp.text,
-          tp.change ? el('div', {}, `Change: ${tp.change}`) : null,
+          said(tp.text),
+          tp.change ? el('div', {}, 'Change: ', said(tp.change)) : null,
           tp.persona ? el('div', {}, simulatedTag(), ` (${personaByKey[tp.persona].name})`) : null,
           source ? el('div', {}, 'Source: ', sourceLink(source)) : null,
         );

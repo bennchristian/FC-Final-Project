@@ -71,6 +71,7 @@ Decisions (Bennett, 2026-10-26): export-and-fold-into-build, not live self-savin
 - Planner check (2026-10-26): at 1440×900 the bottom-docked bar covered "Start here", so the bar gained a "Bar to top / Bar to bottom" button (`ce-top` class).
 - Matrix audit: rows 1–4 are unit-tested. Rows 5 (hostile html) and 6 (selection vs box) need a DOM, which the Node suite does not have, so they were verified by hand in the browser pane only.
 - Shift+E only reaches the page once it has focus: click the page first.
+- Follow-up (2026-10-26, Bennett): the editor reaches every tab and the Review results. Decisions: How it works edits are a display-only overlay; Review results allow labels (saved as `live` edits, every Post) and Claude's text (`.said` in `ui.js`, on screen only, never saved). Boxes are now "outermost element with its own text"; tabs click through and `<details>` open while editing. Verified in a local preview with a fake `sample` built from `conformance/outputs.json`, including the rebuild round trip.
 - Step-04 review layers were skipped: AGENTS.md runs review only when Bennett asks. Nothing committed (commit only when asked).
 
 ## Spec Change Log

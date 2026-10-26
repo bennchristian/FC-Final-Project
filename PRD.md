@@ -280,7 +280,7 @@ The Maintainer can publish a new Rubric Version or Persona Version; new Reviews 
 The Demo Artifact has a separate tab listing what is planned but not yet built, for reference in the recorded video.
 - The Web App does not include this tab.
 
-**Owner copy editor (owner-only authoring aid, added 2026-10-26 by Bennett).** Not a User feature. Shift+E shows a hidden bar that lets Bennett rewrite, move and restyle the static copy of the intro letter and main page, then save it as `copy-edits.json`. The file is folded into the next build, so every viewer sees the new copy after a republish. Review output, How-it-works content from `content/`, status lines and the versions label are never editable (`ARCHITECTURE.md` AD-12).
+**Owner copy editor (owner-only authoring aid, added 2026-10-26 by Bennett).** Not a User feature. Shift+E shows a hidden bar that lets Bennett rewrite, move and restyle the text of the intro letter and every tab, then save it as `copy-edits.json`. The file is folded into the next build, so every viewer sees the new copy after a republish. Edits to the rubric and Persona text in How it works change only what the page shows; Claude still scores with the locked versions. In the Review results, label edits apply to every Post and are saved; Claude's text and pasted Posts can be retyped on screen but are never saved. Status lines and the versions label are never editable (`ARCHITECTURE.md` AD-12).
 
 ## 5. Non-Goals (Explicit)
 

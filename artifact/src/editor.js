@@ -1,6 +1,6 @@
 // Owner copy editor: an owner-only authoring aid (PRD §4.11, ARCHITECTURE.md AD-12).
-// Shift+E shows a floating bar. With "Edit text" on, static text boxes in the intro letter
-// and the main page can be rewritten in place, moved and restyled. "Save edits" hands the
+// Shift+E shows a floating bar. With "Edit text" on, text in the intro letter and every tab,
+// including the Review results, can be rewritten in place, moved and restyled. "Save edits" hands the
 // viewer copy-edits.json (downloads, or the clipboard). Bennett drops that file at
 // artifact/copy-edits.json; build.mjs checks and inlines it as COPY_EDITS, and this file
 // applies it on load. The page still keeps nothing: no storage, no network.
@@ -15,29 +15,48 @@ import { STYLE_KEYS, FONT_CHOICES, COPY_EDITS_VERSION, normalizeText, matchCopyE
 
   // ---------- Which boxes are editable ----------
 
-  const BOX_SELECTOR = 'h1, h2, h3, h4, p, li, label, button, summary';
-  // Rendered or content/-driven regions, status and error lines, and the versions label.
-  const EXCLUDED = [
-    '#posts', '#outreach-slot', '#availability', '#images-hint', '#post-count', '#versions',
-    '#how-scoring', '#how-offence', '#how-criteria', '#how-personas',
-    '[aria-live]', '.error', '#ce-bar', '#ce-handle',
-  ].join(', ');
+  // A box is the outermost element with text of its own. How it works is a display-only overlay:
+  // Claude still scores with the locked rubric and Persona text (Bennett, 2026-10-26).
+  // The Review results are re-rendered by ui.js, so their boxes are found again after each render.
+  const LIVE = '#posts, #outreach-slot';
+  // Status and error lines, the versions label and the editor itself are never editable.
+  const EXCLUDED = '#availability, #images-hint, #post-count, #versions, [aria-live], .error, #ce-bar, #ce-handle';
+  const SKIPPED_TAGS = new Set(['SCRIPT', 'STYLE', 'TEMPLATE', 'SVG', 'SELECT', 'OPTION', 'TEXTAREA', 'INPUT']);
+
+  function hasOwnText(node) {
+    return Array.from(node.childNodes).some((child) => child.nodeType === Node.TEXT_NODE && child.data.trim());
+  }
+
+  // The boxes under `root` in page order, leaving out `skip` subtrees.
+  function findBoxes(root, skip) {
+    const found = [];
+    (function walk(node) {
+      for (const child of node.children) {
+        if (SKIPPED_TAGS.has(child.tagName.toUpperCase()) || child.matches(EXCLUDED) || (skip && child.matches(skip))) continue;
+        if (!hasOwnText(child)) walk(child);
+        // Replacing its HTML would recreate an id ui.js looks up.
+        else if (!child.querySelector(EXCLUDED) && !child.querySelector('[id]')) found.push(child);
+      }
+    })(root);
+    return found;
+  }
+
+  function record(node, fields) {
+    const original = Array.from(node.childNodes, (child) => child.cloneNode(true));
+    return Object.assign({ node, text: normalizeText(node.textContent), original, cleanHtml: '', styles: {} }, fields);
+  }
 
   function collectBoxes() {
-    const roots = [document.getElementById('ll-intro'), document.querySelector('main')].filter(Boolean);
+    // A hidden intro (after Start here, until Go back) is skipped, as when it was removed.
+    const roots = [document.getElementById('ll-intro'), document.querySelector('main')].filter((r) => r && !r.hidden);
     const list = [];
     const counts = new Map();
     for (const root of roots) {
-      for (const node of root.querySelectorAll(BOX_SELECTOR)) {
-        if (node.querySelector(BOX_SELECTOR)) continue; // innermost only
-        if (node.closest(EXCLUDED) || node.querySelector(EXCLUDED)) continue;
-        if (node.querySelector('[id]')) continue; // replacing its HTML would recreate an id ui.js looks up
-        const text = normalizeText(node.textContent);
-        if (!text) continue;
-        const n = counts.get(text) || 0;
-        counts.set(text, n + 1);
-        const original = Array.from(node.childNodes, (child) => child.cloneNode(true));
-        list.push({ node, text, n, original, cleanHtml: '', styles: {} });
+      for (const node of findBoxes(root, LIVE)) {
+        const b = record(node, { live: false });
+        b.n = counts.get(b.text) || 0;
+        counts.set(b.text, b.n + 1);
+        list.push(b);
       }
     }
     return list;
@@ -131,21 +150,30 @@ import { STYLE_KEYS, FONT_CHOICES, COPY_EDITS_VERSION, normalizeText, matchCopyE
   const boxByNode = new Map(boxes.map((b) => [b.node, b]));
   for (const b of boxes) b.cleanHtml = sanitizeHtml(markupOf(b.node));
 
-  const saved = (typeof COPY_EDITS !== 'undefined' && COPY_EDITS && COPY_EDITS.edits) || [];
-  const { matches, stale } = matchCopyEdits(boxes.map((b) => b.text), saved);
-  for (const { box, edit } of matches) {
-    const b = boxes[box];
+  // An edit without html puts the original text back, so a label reset reaches every Post.
+  function applyEdit(b, edit) {
     if (typeof edit.html === 'string') b.node.replaceChildren(cleanTemplate(edit.html).content);
+    else restoreOriginal(b);
+    b.styles = {};
     for (const key of STYLE_KEYS) {
       if (edit.style && typeof edit.style[key] === 'string' && edit.style[key]) b.styles[key] = edit.style[key];
     }
     applyStyles(b);
   }
+
+  const saved = (typeof COPY_EDITS !== 'undefined' && COPY_EDITS && COPY_EDITS.edits) || [];
+  const { matches, stale } = matchCopyEdits(boxes.map((b) => b.text), saved);
+  for (const { box, edit } of matches) applyEdit(boxes[box], edit);
   if (stale.length) console.warn(`Copy editor: ${stale.length} saved edit(s) no longer match the page text.`);
+
+  // Saved label edits for the Review results, by original text. Results come and go, so these
+  // are never stale. Claude's text and pasted Posts (`.said`, from ui.js) are never saved.
+  const liveEdits = new Map(saved.filter((e) => e.live).map((e) => [e.text, e]));
+  let liveBoxes = [];
 
   // The edit a box needs to reproduce its current state, or null when it is unchanged.
   function editFor(b) {
-    const edit = { text: b.text, n: b.n };
+    const edit = b.live ? { text: b.text, live: true } : { text: b.text, n: b.n };
     const html = sanitizeHtml(markupOf(b.node));
     if (html !== b.cleanHtml) edit.html = html;
     const style = {};
@@ -155,7 +183,7 @@ import { STYLE_KEYS, FONT_CHOICES, COPY_EDITS_VERSION, normalizeText, matchCopyE
   }
 
   function exportJson() {
-    const edits = [...boxes.map(editFor).filter(Boolean), ...stale];
+    const edits = [...boxes.map(editFor).filter(Boolean), ...liveEdits.values(), ...stale];
     return `${JSON.stringify({ version: COPY_EDITS_VERSION, edits }, null, 2)}\n`;
   }
 
@@ -212,7 +240,7 @@ import { STYLE_KEYS, FONT_CHOICES, COPY_EDITS_VERSION, normalizeText, matchCopyE
   }
 
   function updateCount() {
-    const edited = boxes.filter((b) => editFor(b)).length;
+    const edited = boxes.filter((b) => editFor(b)).length + liveEdits.size;
     countText.replaceChildren(`${edited} ${plural(edited, 'edit', 'edits')}${dirty ? ', not saved' : ''}`);
     if (stale.length) {
       countText.append(' · ', el('span', { className: 'ce-stale' },
@@ -220,8 +248,18 @@ import { STYLE_KEYS, FONT_CHOICES, COPY_EDITS_VERSION, normalizeText, matchCopyE
     }
   }
 
+  // A Review label edit is kept by its text and copied to the same label on every other Post.
   function changed() {
+    if (active && active.said) return; // never saved
     dirty = true;
+    if (active && active.live) {
+      const edit = editFor(active);
+      if (edit) liveEdits.set(active.text, edit);
+      else liveEdits.delete(active.text);
+      for (const b of liveBoxes) {
+        if (b !== active && !b.said && b.text === active.text) applyEdit(b, edit || {});
+      }
+    }
     updateCount();
   }
 
@@ -249,9 +287,28 @@ import { STYLE_KEYS, FONT_CHOICES, COPY_EDITS_VERSION, normalizeText, matchCopyE
     editing = on;
     editToggle.setAttribute('aria-pressed', String(on));
     document.documentElement.classList.toggle('ce-editing', on);
-    for (const b of boxes) b.node.classList.toggle('ce-box', on);
-    if (!on) deactivate();
+    for (const b of [...boxes, ...liveBoxes]) b.node.classList.toggle('ce-box', on);
+    if (on) openDetails();
+    else {
+      deactivate();
+      closeDetails();
+    }
     syncControls();
+  }
+
+  // While editing, every <details> is open so its text can be reached; the editor closes the ones it opened.
+  function openDetails() {
+    for (const d of document.querySelectorAll('main details:not([open])')) {
+      d.open = true;
+      d.setAttribute('data-ce-opened', '');
+    }
+  }
+
+  function closeDetails() {
+    for (const d of document.querySelectorAll('main details[data-ce-opened]')) {
+      d.open = false;
+      d.removeAttribute('data-ce-opened');
+    }
   }
 
   function activate(b) {
@@ -262,6 +319,9 @@ import { STYLE_KEYS, FONT_CHOICES, COPY_EDITS_VERSION, normalizeText, matchCopyE
     b.node.classList.add('ce-active');
     handle.hidden = false;
     frame = requestAnimationFrame(placeHandle);
+    if (b.said) setStatus('Claude’s text or a pasted Post: you can retype it here, but it is not saved and resets when the Review updates.');
+    else if (b.live) setStatus('A Review label: your change applies to every Post and is saved.');
+    else setStatus('');
     syncControls();
   }
 
@@ -439,15 +499,13 @@ import { STYLE_KEYS, FONT_CHOICES, COPY_EDITS_VERSION, normalizeText, matchCopyE
       return;
     }
     resetAllArmed = 0;
-    for (const b of boxes) {
-      restoreOriginal(b);
-      b.styles = {};
-      applyStyles(b);
-    }
+    liveEdits.clear();
+    for (const b of [...boxes, ...liveBoxes]) applyEdit(b, {});
     savedRange = null;
     setStatus(stale.length ? 'All edits on this page were reset. Edits that no longer match are kept.' : 'All edits were reset.');
     syncControls();
-    changed();
+    dirty = true;
+    updateCount();
   });
 
   // ---------- Save and copy ----------
@@ -525,7 +583,8 @@ import { STYLE_KEYS, FONT_CHOICES, COPY_EDITS_VERSION, normalizeText, matchCopyE
     }
   }, true);
 
-  // While editing, nothing on the page reacts to clicks: buttons, labels, summaries, links.
+  // While editing, nothing on the page reacts to clicks (buttons, labels, summaries, links),
+  // except the tabs, so every tab's copy can be reached.
   window.addEventListener('pointerdown', (event) => {
     if (!editing || inEditorUi(event.target)) return;
     const b = boxFor(event.target);
@@ -534,6 +593,7 @@ import { STYLE_KEYS, FONT_CHOICES, COPY_EDITS_VERSION, normalizeText, matchCopyE
   }, true);
   window.addEventListener('click', (event) => {
     if (!editing || inEditorUi(event.target)) return;
+    if (event.target.closest('[role="tab"]')) return;
     event.preventDefault();
     event.stopPropagation();
   }, true);
@@ -571,4 +631,36 @@ import { STYLE_KEYS, FONT_CHOICES, COPY_EDITS_VERSION, normalizeText, matchCopyE
     event.preventDefault();
     event.returnValue = '';
   });
+
+  // ---------- Review results: found again, and label edits applied again, after each render ----------
+
+  function scanLive() {
+    liveBoxes = liveBoxes.filter((b) => {
+      if (b.node.isConnected) return true;
+      boxByNode.delete(b.node);
+      if (active === b) deactivate();
+      return false;
+    });
+    for (const region of document.querySelectorAll(LIVE)) {
+      for (const node of findBoxes(region)) {
+        if (boxByNode.has(node)) continue;
+        const b = record(node, { live: true, said: node.matches('.said') || Boolean(node.querySelector('.said')) });
+        b.cleanHtml = sanitizeHtml(markupOf(node));
+        if (!b.said && liveEdits.has(b.text)) applyEdit(b, liveEdits.get(b.text));
+        if (editing) node.classList.add('ce-box');
+        boxByNode.set(node, b);
+        liveBoxes.push(b);
+      }
+    }
+    if (editing) openDetails();
+  }
+
+  // Typing in the active box is not a render. Applying edits only touches known boxes, so a
+  // second pass finds nothing new and stops.
+  const observer = new MutationObserver((mutations) => {
+    if (active && mutations.every((m) => active.node.contains(m.target))) return;
+    scanLive();
+  });
+  for (const region of document.querySelectorAll(LIVE)) observer.observe(region, { childList: true, subtree: true });
+  scanLive();
 })();

@@ -2,9 +2,10 @@
 // artifact/copy-edits.json, its check, and how an edit finds its text box. Pure, so the
 // build, the tests and the page all share it. The page inlines it before editor.js.
 //
-// File shape: { "version": 1, "edits": [ { "text", "n", "html"?, "style"? } ] }
+// File shape: { "version": 1, "edits": [ { "text", "n" | "live", "html"?, "style"? } ] }
 //   text   the box's original text, normalized (normalizeText)
 //   n      0-based occurrence among boxes with that same original text, in page order
+//   live   true for a label in the Review results: applied to every box with that text, after every render
 //   html   the box's new inner HTML (sanitized again by the page before use)
 //   style  inline styles for the whole box, keys from STYLE_KEYS
 
@@ -32,7 +33,7 @@ const STYLE_VALUE_RULES = {
   translate: (v) => new RegExp(`^${PX}(?: ${PX})?$`).test(v),
 };
 
-const EDIT_KEYS = ['text', 'n', 'html', 'style'];
+const EDIT_KEYS = ['text', 'n', 'live', 'html', 'style'];
 
 // Whitespace runs (including no-break spaces) become one space; ends are trimmed.
 export function normalizeText(text) {
@@ -68,7 +69,10 @@ export function checkCopyEdits(json) {
     if (typeof edit.text !== 'string') errors.push(`${at}.text: must be a string`);
     else if (!normalizeText(edit.text)) errors.push(`${at}.text: must not be empty`);
     else if (normalizeText(edit.text) !== edit.text) errors.push(`${at}.text: must be normalized (single spaces, trimmed)`);
-    if (!Number.isInteger(edit.n) || edit.n < 0) errors.push(`${at}.n: must be a whole number, 0 or more`);
+    if (edit.live !== undefined && edit.live !== true) errors.push(`${at}.live: must be true when present`);
+    if (edit.live === true) {
+      if (edit.n !== undefined) errors.push(`${at}.n: not used on a live edit`);
+    } else if (!Number.isInteger(edit.n) || edit.n < 0) errors.push(`${at}.n: must be a whole number, 0 or more`);
     if (edit.html !== undefined && typeof edit.html !== 'string') errors.push(`${at}.html: must be a string`);
     if (edit.style !== undefined) {
       if (!isPlainObject(edit.style)) {
@@ -84,7 +88,7 @@ export function checkCopyEdits(json) {
     if (edit.html === undefined && (edit.style === undefined || (isPlainObject(edit.style) && Object.keys(edit.style).length === 0))) {
       errors.push(`${at}: needs html or style`);
     }
-    const id = `${edit.text}\u0000${edit.n}`;
+    const id = edit.live === true ? `live\u0000${edit.text}` : `${edit.text}\u0000${edit.n}`;
     if (seen.has(id)) errors.push(`${at}: duplicates an earlier edit of the same box`);
     seen.add(id);
   });
@@ -93,6 +97,7 @@ export function checkCopyEdits(json) {
 
 // Pairs edits with boxes. `boxTexts` are the boxes' original normalized texts in page order.
 // Returns { matches: [{ box, edit }], stale: [edit] }; `box` is an index into boxTexts.
+// Live edits are skipped: the Review results apply them by text (editor.js).
 export function matchCopyEdits(boxTexts, edits) {
   const indexByKey = new Map();
   const counts = new Map();
@@ -103,7 +108,7 @@ export function matchCopyEdits(boxTexts, edits) {
   });
   const matches = [];
   const stale = [];
-  for (const edit of edits || []) {
+  for (const edit of (edits || []).filter((e) => !e.live)) {
     const box = indexByKey.get(`${edit.text}\u0000${edit.n}`);
     if (box === undefined) stale.push(edit);
     else matches.push({ box, edit });

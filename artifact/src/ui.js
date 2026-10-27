@@ -5,6 +5,7 @@
 
 import { INTAKE_LIMITS, checkPostIntake, checkSourceUrl, canAddPost, provenanceLabel, isInstagramPostLink } from './core.js';
 import { transcribeReel } from './reel.js';
+import { sendLetter, resetDesk } from './desk.js';
 import { evaluatePost, requestRewrite, createOutreach } from './pipeline.js';
 import { reviewToMarkdown } from './export.js';
 import { PAST_REVIEWS_SHOWN, pastReviewsPath, reviewTally, pastReviewRecord, pastPostRecord, restorePost, sameVersions } from './past.js';
@@ -215,14 +216,29 @@ function syncFormModes() {
   $('transcript-field').hidden = video !== 'transcript';
   const content = contentMode();
   $('content-choices').hidden = state.maxImages === 0;
-  $('content-legend').textContent = state.maxImages ? 'Screenshots or text' : 'Text';
+  $('content-legend').textContent = state.maxImages ? 'Static posts' : 'Text';
   $('images-field').hidden = content !== 'images';
   $('text-field').hidden = content !== 'text';
 }
 
+// True when the form holds anything a Post could be made from.
+function formHasContent() {
+  const video = formMode('video-mode');
+  const content = contentMode();
+  return Boolean(
+    (video === 'link' ? $('post-url').value.trim() : $('post-transcript').value.trim())
+    || (content === 'images' ? $('post-images').files.length : $('post-text').value.trim()),
+  );
+}
+
 async function onAddPost(event) {
   event.preventDefault();
-  if (state.readingReel) return;
+  await addFromForm();
+}
+
+// Adds the form as a Post. False when it could not (the reason is shown under the form).
+async function addFromForm() {
+  if (state.readingReel) return false;
   const video = formMode('video-mode');
   const content = contentMode();
   const files = content === 'images' ? [...$('post-images').files] : [];
@@ -236,26 +252,27 @@ async function onAddPost(event) {
       fields.video_transcript = await readReel(fields.source_url, Boolean(fields.pasted_text.trim() || files.length));
     } catch (e) {
       $('intake-errors').textContent = reelErrorText(e && e.code);
-      return;
+      return false;
     }
   }
   const errors = checkPostIntake({ ...fields, image_count: files.length }, state.maxImages);
   if (!canAddPost(state.posts.length)) errors.push(`A Review holds at most ${INTAKE_LIMITS.maxPosts} Posts.`);
   if (errors.length) {
     $('intake-errors').textContent = errors.join(' ');
-    return;
+    return false;
   }
   $('intake-errors').textContent = '';
   try {
     fields.images = await Promise.all(files.map(async (f) => ({ name: f.name, blob: await downscale(f) })));
   } catch {
     $('intake-errors').textContent = 'A screenshot could not be read. Try a JPEG or PNG.';
-    return;
+    return false;
   }
   addPost(fields);
   $('post-form').reset();
   syncFormModes();
   render();
+  return true;
 }
 
 function onAddExamples() {
@@ -326,17 +343,39 @@ async function runPost(post, cache) {
 }
 
 // One Post in flight at a time (AD-10), on an explicit click.
+// Send for review: whatever is on the form joins the Review first, then the letter goes into
+// the envelope and the Mailbox (desk.js) while the Posts are already being reviewed.
 async function onEvaluateAll() {
   if (state.busy || !state.sample) return;
+  if (formHasContent() && !(await addFromForm())) return;
+  if (!state.posts.some((p) => p.status === 'pending')) {
+    $('intake-errors').textContent = 'Add a link, a transcript, screenshots or text first.';
+    return;
+  }
   state.busy = true;
   state.outreach = null;
+  render();
+  const flight = sendLetter();
+  const run = (async () => {
+    for (const post of state.posts) {
+      if (post.status === 'pending') await runPost(post, true);
+    }
+  })();
+  await flight;
   showView('results');
-  for (const post of state.posts) {
-    if (post.status === 'pending') await runPost(post, true);
-  }
+  resetDesk();
+  await run;
   await saveReview();
   state.busy = false;
   render();
+}
+
+// Send feedback: the Ministry Outreach Plan, drafted on this click when there is none yet.
+function onSendFeedback() {
+  if (!state.posts.some((p) => p.status === 'done')) return;
+  showView('results');
+  $('outreach-slot').scrollIntoView({ block: 'start' });
+  if (!state.outreach && !state.busy) onOutreach(true);
 }
 
 async function onTryAgain(post) {
@@ -847,10 +886,11 @@ function render() {
   $('post-count').textContent = `${state.posts.length} of ${INTAKE_LIMITS.maxPosts} Posts`;
   $('add-post').disabled = state.readingReel || !canAddPost(state.posts.length);
 
-  const pending = state.posts.some((p) => p.status === 'pending');
-  $('evaluate-all').disabled = state.busy || !state.sample || !pending;
-  $('clear-review').disabled = state.busy || state.posts.length === 0;
   const anyDone = state.posts.some((p) => p.status === 'done');
+  $('evaluate-all').disabled = state.busy || !state.sample;
+  $('clear-review').disabled = state.busy || state.posts.length === 0;
+  // aria-disabled, not disabled, so its explanation still shows on hover before there are results.
+  $('send-feedback').setAttribute('aria-disabled', String(!anyDone || state.busy));
   $('copy-review').disabled = !anyDone;
   $('save-review').disabled = !anyDone;
   $('save-review').hidden = !state.downloads;
@@ -906,22 +946,25 @@ function renderHowItWorks() {
     )));
 }
 
-// One view at a time. The masthead marks Review on the send page and the results.
-const VIEWS = ['home', 'review', 'results', 'past', 'how', 'roadmap'];
-const NAV_FOR = { review: 'review', results: 'review', how: 'how' };
+// One view at a time. The masthead marks Review on the send page and the results. Those two sit
+// on the desk beside the Mailbox; Next post shows there only on the results.
+const VIEWS = ['home', 'review', 'results', 'profile', 'how', 'roadmap'];
+const NAV_FOR = { review: 'review', results: 'review', how: 'how', profile: 'profile' };
 
 function showView(name) {
   state.view = name;
   for (const view of VIEWS) $(`view-${view}`).hidden = view !== name;
+  $('desk').hidden = name !== 'review' && name !== 'results';
+  $('next-post-item').hidden = name !== 'results';
   for (const button of document.querySelectorAll('.tabs [data-nav]')) {
     button.setAttribute('aria-current', button.dataset.nav === NAV_FOR[name] ? 'page' : 'false');
   }
-  if (name === 'past') loadPast();
+  if (name === 'profile') loadPast();
   render();
   window.scrollTo(0, 0);
 }
 
-// Every [data-nav] control (masthead, logo, Start reviewing, View past Reviews, Roadmap).
+// Every [data-nav] control (masthead, logo, profile icon, Start reviewing, View past reviews, Roadmap).
 // Once a Review has been sent, Review opens its results; Next post goes back to Add Posts.
 function onNav(event) {
   const button = event.target.closest('[data-nav]');
@@ -933,7 +976,7 @@ function onNav(event) {
 function onNextPost() {
   showView('review');
   $('post-url').focus({ preventScroll: true });
-  $('post-form').scrollIntoView({ block: 'start' });
+  $('post-form').scrollIntoView({ block: 'nearest' });
 }
 
 // ---------- Start ----------
@@ -955,6 +998,7 @@ function start() {
   $('save-review').addEventListener('click', onSaveReview);
   $('review-url').addEventListener('change', onReviewUrl);
   $('next-post').addEventListener('click', onNextPost);
+  $('send-feedback').addEventListener('click', onSendFeedback);
   document.querySelector('main').addEventListener('click', onNav);
   renderHowItWorks();
   const hashView = location.hash.slice(1);
@@ -977,7 +1021,7 @@ function start() {
       }
     }).catch(() => {}).finally(() => {
       state.dbChecked = true;
-      if (state.view === 'past') loadPast();
+      if (state.view === 'profile') loadPast();
       else render();
     });
   } else {

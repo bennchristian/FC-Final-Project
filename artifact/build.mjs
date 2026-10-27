@@ -53,6 +53,7 @@ const script = [
   toScript('pipeline.js'),
   toScript('export.js'),
   toScript('past.js'),
+  toScript('desk.js'),
   toScript('ui.js'),
   toScript('theme.js'),
   toScript('intro.js'),
@@ -102,6 +103,9 @@ ${INTRO_HTML}
     <nav class="tabs" aria-label="Living Letter">
       <button type="button" id="nav-review" data-nav="review">Review</button>
       <button type="button" id="nav-how" data-nav="how">How it works</button>
+      <button type="button" id="nav-profile" class="nav-icon" data-nav="profile" aria-label="Your profile">
+        <svg viewBox="0 0 40 44" aria-hidden="true"><circle cx="20" cy="12" r="9.5"/><path d="M2 42.5v-3.5c0-8 6.5-14 14.5-14h7c8 0 14.5 6 14.5 14v3.5z"/></svg>
+      </button>
     </nav>
   </header>
 
@@ -152,98 +156,152 @@ ${INTRO_HTML}
     <p class="cta"><button type="button" id="start-reviewing" data-nav="review">Start reviewing</button></p>
   </section>
 
+  <div class="desk" id="desk" hidden>
+  <div class="desk-main">
   <section id="view-review" class="view" hidden>
-    <h1 class="view-title">Review</h1>
-    <p class="notice" id="lands-anywhere"></p>
-    <p id="availability" class="error" aria-live="polite"></p>
-    <p><button type="button" class="link-button" data-nav="past">See your past Reviews</button></p>
+    <h1 class="desk-title">Submit a letter for review</h1>
+    <div class="stage" id="stage">
+      <div class="scene" id="scene">
+        <svg class="env-defs" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="ld-g-back" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C9B898"/><stop offset="1" stop-color="#D8C9B0"/></linearGradient>
+            <linearGradient id="ld-g-left" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#E4D9C7"/><stop offset="1" stop-color="#D3C5AD"/></linearGradient>
+            <linearGradient id="ld-g-right" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#E2D8C8"/><stop offset="1" stop-color="#D0C2AB"/></linearGradient>
+            <linearGradient id="ld-g-bottom" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#E9DFCE"/><stop offset="1" stop-color="#DACDB7"/></linearGradient>
+            <linearGradient id="ld-g-flap" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8DCC8"/><stop offset="1" stop-color="#D6C4A6"/></linearGradient>
+            <filter id="ld-f-lift" x="-10%" y="-20%" width="120%" height="140%"><feDropShadow dx="0" dy="-5" stdDeviation="9" flood-color="#5A4020" flood-opacity="0.16"/></filter>
+          </defs>
+        </svg>
+        <svg class="env-part env-back" viewBox="0 0 1470 1200" preserveAspectRatio="none" aria-hidden="true"><rect width="1470" height="1200" fill="url(#ld-g-back)"/></svg>
+        <div class="letter" id="letter" role="region" aria-label="Your letter" tabindex="0">
+          <div class="letter-body">
+            <p class="letter-lede">Paste in public social-media Posts and see how they might land with people who do not share the Christian faith: rubric scores with evidence, simulated Persona reactions, a gentler rewrite, and discussion questions.</p>
+            <p class="hint" id="lands-anywhere"></p>
+            <p id="availability" class="error" aria-live="polite"></p>
 
-    <h2>1. Set up the Review</h2>
-    <label for="model">Model</label>
-    <select id="model"></select>
-    <p class="muted">The model is fixed once the Review has Posts. Runs use your own Claude usage.</p>
-    <label for="review-url">Profile link (optional)</label>
-    <input type="url" id="review-url" placeholder="https://www.instagram.com/profile-name/" maxlength="2048">
-    <p id="review-url-errors" class="error"></p>
-    <p class="notice" id="link-notice"></p>
+            <h2>1. Set up the review</h2>
+            <div class="field field-select">
+              <label for="model">Model</label>
+              <select id="model"></select>
+            </div>
+            <p class="hint">The model is fixed once the Review has Posts. Runs use your own Claude usage.</p>
+            <div class="field">
+              <label for="review-url" class="sr-only">Profile link (optional)</label>
+              <input type="url" id="review-url" placeholder="Profile link (optional)" maxlength="2048">
+            </div>
+            <p class="hint" id="link-notice"></p>
+            <p id="review-url-errors" class="error"></p>
 
-    <h2>2. Add Posts</h2>
-    <form id="post-form">
-      <p class="muted">A Post needs only one thing: a link, a transcript, screenshots or text. Choose whichever you have.</p>
-      <fieldset class="either">
-        <legend>Link or video transcript</legend>
-        <div class="choices" role="radiogroup" aria-label="Link or video transcript">
-          <label class="choice"><input type="radio" name="video-mode" value="link" checked> Link to the Post</label>
-          <label class="choice"><input type="radio" name="video-mode" value="transcript"> Paste the transcript</label>
+            <h2>2. Add posts</h2>
+            <form id="post-form">
+              <fieldset class="either">
+                <legend>Videos</legend>
+                <div class="choices" role="radiogroup" aria-label="Videos">
+                  <label class="choice"><input type="radio" name="video-mode" value="link" checked> Link to post</label>
+                  <label class="choice"><input type="radio" name="video-mode" value="transcript"> Paste the transcript</label>
+                </div>
+                <div id="link-field" class="field">
+                  <label for="post-url" class="sr-only">Link to post</label>
+                  <input type="url" id="post-url" maxlength="2048" placeholder="Link to post">
+                  <p class="hint">Instagram reels are read from the link: their spoken words are transcribed for you. For any other video, paste its transcript. Other links are only shown with the results.</p>
+                </div>
+                <div id="transcript-field" class="field" hidden>
+                  <label for="post-transcript" class="sr-only">Video transcript</label>
+                  <textarea id="post-transcript" rows="4" maxlength="20000" placeholder="Paste what is said in the video"></textarea>
+                </div>
+              </fieldset>
+              <fieldset class="either">
+                <legend id="content-legend">Static posts</legend>
+                <div class="choices" id="content-choices" role="radiogroup" aria-label="Static posts">
+                  <label class="choice"><input type="radio" name="content-mode" value="images" checked> Screenshots</label>
+                  <label class="choice"><input type="radio" name="content-mode" value="text"> Paste the text</label>
+                </div>
+                <div id="images-field" class="field">
+                  <label for="post-images" class="sr-only">Screenshots</label>
+                  <input type="file" id="post-images" multiple>
+                  <p class="hint" id="images-hint"></p>
+                </div>
+                <div id="text-field" class="field" hidden>
+                  <label for="post-text" class="sr-only">Post text or caption</label>
+                  <textarea id="post-text" rows="5" maxlength="4000" placeholder="Paste the Post’s text or caption"></textarea>
+                </div>
+              </fieldset>
+              <p class="hint">A Post needs only one of these: a link, a transcript, screenshots or text.</p>
+              <p id="intake-status" class="muted" aria-live="polite"></p>
+              <p id="intake-errors" class="error" aria-live="polite"></p>
+              <div class="row letter-actions">
+                <button type="submit" id="add-post">Add Post</button>
+                <button type="button" id="add-examples">Add fictional example Posts</button>
+                <span id="post-count" class="muted"></span>
+              </div>
+            </form>
+            <div id="post-list"></div>
+
+            <p class="send-row"><button type="button" id="evaluate-all" class="send">Send for review</button></p>
+            <p class="send-row"><button type="button" id="clear-review" class="link-button quiet">Clear Review</button></p>
+            <p class="hint">Posts are reviewed one at a time. Persona Reactions are simulated perspectives, not real people’s opinions. <span id="save-note"></span></p>
+          </div>
         </div>
-        <div id="link-field">
-          <label for="post-url" class="sr-only">Link to the Post</label>
-          <input type="url" id="post-url" maxlength="2048" placeholder="https://www.instagram.com/reel/...">
-          <p class="muted">For an Instagram reel, the link is all you need: its spoken words are read for you. Any other link is only shown with the results.</p>
-        </div>
-        <div id="transcript-field" hidden>
-          <label for="post-transcript" class="sr-only">Video transcript</label>
-          <textarea id="post-transcript" rows="4" maxlength="20000"></textarea>
-          <p class="muted">Paste what is said in the video.</p>
-        </div>
-      </fieldset>
-      <fieldset class="either">
-        <legend id="content-legend">Screenshots or text</legend>
-        <div class="choices" id="content-choices" role="radiogroup" aria-label="Screenshots or text">
-          <label class="choice"><input type="radio" name="content-mode" value="images" checked> Add screenshots</label>
-          <label class="choice"><input type="radio" name="content-mode" value="text"> Paste the text</label>
-        </div>
-        <div id="images-field">
-          <label for="post-images" class="sr-only">Screenshots</label>
-          <input type="file" id="post-images" multiple>
-          <p class="muted" id="images-hint"></p>
-        </div>
-        <div id="text-field" hidden>
-          <label for="post-text" class="sr-only">Post text or caption</label>
-          <textarea id="post-text" rows="5" maxlength="4000"></textarea>
-          <p class="muted">Paste the Post’s text or caption.</p>
-        </div>
-      </fieldset>
-      <p id="intake-status" class="muted" aria-live="polite"></p>
-      <p id="intake-errors" class="error" aria-live="polite"></p>
-      <div class="row">
-        <button type="submit" id="add-post">Add Post</button>
-        <button type="button" id="add-examples">Add fictional example Posts</button>
-        <span id="post-count" class="muted"></span>
+        <svg class="env-part env-pocket env-open" viewBox="0 0 1470 1200" preserveAspectRatio="none" aria-hidden="true">
+          <g filter="url(#ld-f-lift)">
+            <path d="M0 300 L660 1010 L0 1200 Z" fill="url(#ld-g-left)"/>
+            <path d="M1470 280 L810 1010 L1470 1200 Z" fill="url(#ld-g-right)"/>
+            <path d="M0 1200 L735 980 L1470 1200 Z" fill="url(#ld-g-bottom)"/>
+          </g>
+        </svg>
+        <svg class="env-part env-pocket env-deep" viewBox="0 0 1470 1200" preserveAspectRatio="none" aria-hidden="true">
+          <g filter="url(#ld-f-lift)">
+            <path d="M0 0 L735 566 L0 1200 Z" fill="url(#ld-g-left)"/>
+            <path d="M1470 0 L735 566 L1470 1200 Z" fill="url(#ld-g-right)"/>
+            <path d="M0 1200 L735 540 L1470 1200 Z" fill="url(#ld-g-bottom)"/>
+          </g>
+        </svg>
+        <svg class="env-part env-flap" viewBox="0 0 1470 750" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H1470 L772 728 Q735 762 698 728 Z" fill="url(#ld-g-flap)"/></svg>
       </div>
-    </form>
-    <div id="post-list"></div>
-
-    <h2>3. Send for review</h2>
-    <div class="row">
-      <button type="button" id="evaluate-all">Send for review</button>
-      <button type="button" id="clear-review">Clear Review</button>
     </div>
-    <p class="muted">Posts are reviewed one at a time. Persona Reactions are simulated perspectives, not real people’s opinions. <span id="save-note"></span></p>
   </section>
 
   <section id="view-results" class="view" hidden>
-    <h1 class="view-title">Results</h1>
+    <h1 class="desk-title">Your letter, read</h1>
     <div id="overall"></div>
     <div id="posts"></div>
-
-    <h2>Next steps</h2>
-    <div class="row next-steps">
-      <button type="button" id="copy-review">Copy Review</button>
-      <button type="button" id="save-review" hidden>Save Review as file</button>
-      <button type="button" data-nav="past">View past Reviews</button>
-      <button type="button" id="next-post">Next post</button>
-    </div>
-    <p id="export-status" class="muted" aria-live="polite"></p>
-    <textarea id="export-fallback" rows="8" readonly hidden aria-label="Review as text"></textarea>
     <div id="outreach-slot"></div>
   </section>
+  </div>
 
-  <section id="view-past" class="view" hidden>
-    <h1 class="view-title">Past Reviews</h1>
+  <aside class="mailbox" id="mailbox" aria-label="Mailbox">
+    <h2 class="mailbox-title">Mailbox</h2>
+    <div class="mail-slot" id="mail-slot" aria-hidden="true"></div>
+    <div class="next-card">
+      <h3>Next…</h3>
+      <ul class="next-list">
+        <li id="next-post-item" hidden><button type="button" id="next-post">Next post</button></li>
+        <li><button type="button" id="save-review" hidden>Save Review as file</button></li>
+        <li><button type="button" id="copy-review">Copy review</button></li>
+        <li><button type="button" data-nav="profile">View past reviews</button></li>
+        <li class="has-tip">
+          <button type="button" id="send-feedback" aria-describedby="feedback-tip" aria-disabled="true">Send feedback</button>
+          <span class="tip" id="feedback-tip" role="tooltip">Drafts a loving message you could send the account behind these Posts, with Talking Points tied to each Post. You send it yourself: Living Letter never sends anything. Ready once a Post has been reviewed.</span>
+        </li>
+      </ul>
+      <p id="export-status" class="mail-status" aria-live="polite"></p>
+    </div>
+    <textarea id="export-fallback" rows="8" readonly hidden aria-label="Review as text"></textarea>
+  </aside>
+  </div>
+
+  <section id="view-profile" class="view" hidden>
+    <h1 class="view-title">Your profile</h1>
+    <h2>Past Reviews</h2>
     <p>Each Review you send is saved here for you alone. Nobody else can see it, not even this page’s owner. Screenshots are never saved, only their file names.</p>
     <p id="past-state" class="muted" aria-live="polite"></p>
     <div id="past-list"></div>
+    <h2>Coming to your profile</h2>
+    <p>Planned for the web app, not yet in this demo:</p>
+    <ul>
+      <li><strong>Ranked target audiences.</strong> Record who you most want to reach, in your order. Your own Reviews then show the closest Personas first.</li>
+      <li><strong>Overall feedback.</strong> A summary across all your Posts: average scores, recurring patterns, your strongest and weakest Posts, and the changes that would help most.</li>
+    </ul>
   </section>
 
   <section id="view-how" class="view" hidden>

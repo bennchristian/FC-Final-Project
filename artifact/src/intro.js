@@ -1,7 +1,8 @@
 // Living Letter first-screen intro (design: _bmad-output/planning-artifacts/ux-designs/ux-FC-Final-Project-2026-10-21/).
 // Opening: the closed envelope fades in, the flap swings up, the letter rises while the view settles on slide 2.
-// Start here: the letter slides back in, the flap closes, the envelope flies up off the screen and the Home page shows.
-// "Review" and "How it works" do the same exit, then open that page. Escape skips straight to the exit, onto Home.
+// Learn more / Begin review: the letter slides back in, the flap closes, the envelope flies up off the screen and
+// Home or the Review page shows. "Review" and "How it works" at the top do the same exit, then open that page.
+// Escape skips straight to the exit, onto Home.
 // "Go back" on the page shows the intro again and replays the opening. The Review stays in page memory.
 (function () {
   'use strict';
@@ -12,7 +13,7 @@
   const scene = root.querySelector('.ll-scene');
   const flap = root.querySelector('.ll-flap');
   const letter = root.querySelector('.ll-letter');
-  const start = root.querySelector('.ll-start');
+  const actions = root.querySelector('.ll-actions');
   const chrome = Array.from(root.querySelectorAll('.ll-top'));
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -61,7 +62,7 @@
         play(scene, [{ opacity: 0, transform: 'none' }, { opacity: 1, transform: 'none' }], { duration: reduceMotion ? 1 : 450, easing: 'ease-out' }),
         play(letter, [{ transform: 'none' }, { transform: 'none' }], { duration: 1 }),
         play(flap, [{ transform: FLAP_OPEN, zIndex: 2 }, { transform: FLAP_OPEN, zIndex: 2 }], { duration: 1 }),
-        play(start, [{ opacity: 0 }, { opacity: 1 }], { duration: reduceMotion ? 1 : 300, delay: reduceMotion ? 0 : 250 }),
+        play(actions, [{ opacity: 0 }, { opacity: 1 }], { duration: reduceMotion ? 1 : 300, delay: reduceMotion ? 0 : 250 }),
         ...chrome.map((el) => play(el, [{ opacity: 0 }, { opacity: 1 }], { duration: reduceMotion ? 1 : 450 })),
       ];
       return settle(list).then(opened);
@@ -81,8 +82,8 @@
       // Letter rises out while the view moves in to the open framing.
       play(letter, [{ transform: letterIn }, { transform: 'none' }], { delay: 1180, duration: 1050, easing: EASE_OUT }),
       play(scene, [{ transform: closed }, { transform: 'none' }], { delay: 1180, duration: 1150, easing: EASE_IN_OUT }),
-      // Start here arrives last.
-      play(start, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { delay: 2250, duration: 500, easing: 'ease-out' }),
+      // The two buttons arrive last.
+      play(actions, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { delay: 2250, duration: 500, easing: 'ease-out' }),
     ];
     return settle(list).then(opened);
   }
@@ -90,7 +91,7 @@
   function opened() {
     if (state !== 'opening') return;
     state = 'open';
-    // No auto-focus: a programmatic focus on load draws a focus ring in the recording. Tab reaches Start here.
+    // No auto-focus: a programmatic focus on load draws a focus ring in the recording. Tab reaches the buttons.
   }
 
   // ---------- Closing and exit ----------
@@ -112,7 +113,7 @@
     const flyUp = 'translateY(-1500px) ' + closed;
 
     const list = [
-      play(start, [{ opacity: 1 }, { opacity: 0 }], { duration: 160, easing: 'ease-out' }),
+      play(actions, [{ opacity: 1 }, { opacity: 0 }], { duration: 160, easing: 'ease-out' }),
       // Letter slides back into the envelope as the view pulls back.
       play(letter, [{ transform: 'none' }, { transform: letterIn }], { duration: 820, easing: EASE_IN_OUT }),
       play(scene, [{ transform: 'none', opacity: 1 }, { transform: closed, opacity: 1 }], { duration: 900, easing: EASE_IN_OUT }),
@@ -179,7 +180,6 @@
   const goBack = document.getElementById('go-back');
   if (goBack) goBack.addEventListener('click', reopen);
 
-  start.addEventListener('click', () => exit('home'));
   root.querySelectorAll('[data-go]').forEach((button) => {
     button.addEventListener('click', () => exit(button.getAttribute('data-go')));
   });

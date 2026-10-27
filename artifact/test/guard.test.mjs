@@ -75,7 +75,10 @@ test('Past Reviews write only under the viewer’s private subtree', () => {
 
 test('every page view has a nav target and the intro lands on Home', () => {
   const build = readFileSync(join(ROOT, 'artifact', 'build.mjs'), 'utf8');
-  for (const view of ['home', 'review', 'results', 'past', 'how', 'roadmap']) assert.match(build, new RegExp(`id="view-${view}"`), view);
+  for (const view of ['home', 'review', 'results', 'profile', 'how', 'roadmap']) assert.match(build, new RegExp(`id="view-${view}"`), view);
   const intro = readFileSync(join(SRC, 'intro.js'), 'utf8');
-  assert.match(intro, /start\.addEventListener\('click', \(\) => exit\('home'\)\)/);
+  const html = readFileSync(join(SRC, 'intro.html'), 'utf8');
+  assert.match(html, /data-go="home">Learn more</);
+  assert.match(html, /data-go="review">Begin review</);
+  assert.match(intro, /if \(event\.key === 'Escape'\) exit\('home'\)/);
 });

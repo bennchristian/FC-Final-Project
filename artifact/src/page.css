@@ -171,11 +171,8 @@ details[open] > summary { margin-bottom: 0.4em; }
   .tagline { font-size: 1.4rem; }
 }
 
-/* ---------- Go back to the intro ---------- */
-.back-row { margin-bottom: 12px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
-/* Navigation, so it uses the tab style from the brand guide: Instrument Serif in the heading red, underline on hover. */
-.go-back { font: 400 1.35rem/1 var(--serif); letter-spacing: -0.01em; color: var(--heading); background: none; border: 0; border-radius: 0; padding: 0.1em 0; cursor: pointer; }
-.go-back:hover:not(:disabled) { background: none; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
+/* ---------- Top row: the light / dark switch, right-aligned ---------- */
+.back-row { margin-bottom: 12px; display: flex; justify-content: flex-end; }
 
 /* ---------- Light / dark switch (theme.js): starts from the viewer's theme, not stored ---------- */
 .theme-toggle {
@@ -227,7 +224,7 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
 .home-tagline { font: italic 400 clamp(2.4rem, 5.2vw, 4rem)/1.12 var(--serif); color: var(--fg); letter-spacing: -0.03em; margin: 0; }
 .home-underline { text-decoration: underline; text-decoration-color: var(--muted); text-decoration-thickness: 1px; text-underline-offset: 0.12em; }
 .home-what { font: 500 clamp(1.35rem, 2.4vw, 1.8rem)/1.2 var(--sans); letter-spacing: -0.04em; color: var(--heading); text-wrap: balance; margin: 1.6em auto 0; }
-.home-lede { max-width: 48rem; margin: 1.8em auto 0; text-align: left; }
+.home-lede { max-width: 48rem; margin: 1.8em auto 0; text-wrap: balance; }
 .home-band { border-top: 1px solid var(--muted); padding-block: 4rem; }
 .home h2 { margin: 0; }
 .home-why { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 2.5rem 4rem; align-items: center; }

@@ -3,7 +3,6 @@
 // Learn more / Begin review: the letter slides back in, the flap closes, the envelope flies up off the screen and
 // Home or the Review page shows. "Review" and "How it works" at the top do the same exit, then open that page.
 // Escape skips straight to the exit, onto Home.
-// "Go back" on the page shows the intro again and replays the opening. The Review stays in page memory.
 (function () {
   'use strict';
   const root = document.getElementById('ll-intro');
@@ -141,7 +140,7 @@
     state = 'done';
     running.forEach((a) => { try { a.cancel(); } catch (e) { /* ignore */ } });
     running = [];
-    // Hidden, not removed, so Go back can show it again.
+    // Hidden, not removed: the copy editor skips a hidden intro.
     root.hidden = true;
     document.documentElement.style.removeProperty('overflow');
     if (page) page.inert = false;
@@ -167,18 +166,7 @@
     if (page) page.inert = true;
   }
 
-  // Go back: show the intro again from the closed envelope. Nothing on the page is cleared.
-  function reopen() {
-    if (state !== 'done') return;
-    state = 'closed';
-    root.hidden = false;
-    cover();
-    open();
-  }
-
   cover();
-  const goBack = document.getElementById('go-back');
-  if (goBack) goBack.addEventListener('click', reopen);
 
   root.querySelectorAll('[data-go]').forEach((button) => {
     button.addEventListener('click', () => exit(button.getAttribute('data-go')));

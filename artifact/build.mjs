@@ -98,7 +98,7 @@ ${INTRO_CSS}
 ${EDITOR_CSS}</style>
 ${INTRO_HTML}
 <main>
-  <div class="back-row"><button type="button" id="go-back" class="go-back"><span aria-hidden="true">←</span> Go back</button><button type="button" id="theme-toggle" class="theme-toggle" aria-pressed="false">Dark mode</button></div>
+  <div class="back-row"><button type="button" id="theme-toggle" class="theme-toggle" aria-pressed="false">Dark mode</button></div>
   <header class="masthead">
     <button type="button" class="brand" id="nav-home" data-nav="home" aria-label="Living Letter: home">
       <svg viewBox="0 0 340 214" aria-hidden="true">

@@ -48,7 +48,7 @@ import { STYLE_KEYS, FONT_CHOICES, COPY_EDITS_VERSION, normalizeText, matchCopyE
   }
 
   function collectBoxes() {
-    // A hidden intro (after Learn more or Begin review, until Go back) is skipped, as when it was removed.
+    // A hidden intro (after Learn more or Begin review) is skipped, as when it was removed.
     const roots = [document.getElementById('ll-intro'), document.querySelector('main')].filter((r) => r && !r.hidden);
     const list = [];
     const counts = new Map();

@@ -55,12 +55,12 @@ test('the fictional examples name no real handles', () => {
   assert.doesNotMatch(examples, /@\w/);
 });
 
-test('the intro hides instead of removing itself, so Go back can reopen it', () => {
+test('the intro hides instead of removing itself, and the page has no Go back', () => {
   const intro = readFileSync(join(SRC, 'intro.js'), 'utf8');
   assert.doesNotMatch(intro, /root\.remove\(\)/);
-  assert.match(intro, /getElementById\('go-back'\)/);
+  assert.doesNotMatch(intro, /go-back/);
   const build = readFileSync(join(ROOT, 'artifact', 'build.mjs'), 'utf8');
-  assert.match(build, /id="go-back"/);
+  assert.doesNotMatch(build, /id="go-back"/);
 });
 
 test('Past Reviews write only under the viewer’s private subtree', () => {

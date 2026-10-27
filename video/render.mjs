@@ -59,7 +59,17 @@ const holds = await page.evaluate(() => window.__holds);
 console.log(`Stage ready: ${duration.toFixed(2)}s (${Math.floor(duration / 60)}:${String(Math.round(duration % 60)).padStart(2, '0')})`);
 
 mkdirSync(OUT, { recursive: true });
-const stage = page.locator('#stage');
+// A plain clip of the stage: element screenshots wait for "stable" layout, which can stall mid-move.
+const CLIP = { x: 0, y: 0, width: 1920, height: 1080 };
+async function shot() {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await page.screenshot({ type: 'png', clip: CLIP, timeout: 60000 });
+    } catch (e) {
+      if (attempt >= 3) throw e;
+    }
+  }
+}
 
 if (args.stills) {
   const dir = join(OUT, 'stills');
@@ -67,7 +77,7 @@ if (args.stills) {
   for (const t of args.stills.split(',').map(Number).sort((a, b) => a - b)) {
     await page.evaluate((x) => window.renderAt(x), t);
     const file = join(dir, `t${t.toFixed(2).padStart(7, '0')}.png`);
-    writeFileSync(file, await stage.screenshot({ type: 'png' }));
+    writeFileSync(file, await shot());
     console.log(file);
   }
 } else {
@@ -83,7 +93,7 @@ if (args.stills) {
     '-c:v', 'libx264', '-preset', 'medium', '-crf', '17', '-pix_fmt', 'yuv420p', silent], async (stdin) => {
     for (let i = 0; i < total; i++) {
       await page.evaluate((x) => window.renderAt(x), from + i / fps);
-      const png = await stage.screenshot({ type: 'png' });
+      const png = await shot();
       if (!stdin.write(png)) await new Promise((r) => stdin.once('drain', r));
       if (i % (fps * 5) === 0) console.log(`frame ${i}/${total}  t=${(from + i / fps).toFixed(1)}s  ${((Date.now() - t0) / 1000).toFixed(0)}s elapsed`);
     }

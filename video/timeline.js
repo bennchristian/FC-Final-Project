@@ -3,9 +3,9 @@
 // HOLDS are the reading pauses (Bennett, 2026-10-26): the VO stops while a quote stays on screen.
 
 export const HOLDS = [
-  { at: 92.95, dur: 10 }, // 5.6: two Evidence quotes, ~5s each
-  { at: 99.4, dur: 12 }, //  5.7: the Seeker's reaction
-  { at: 109.5, dur: 10 }, // 5.9: the Emboldened Believer's reaction
+  { at: 92.95, dur: 5 }, //  5.6: two Evidence quotes, ~2.5s each plus the VO
+  { at: 99.4, dur: 6 }, //   5.7: the Seeker's bolded phrase
+  { at: 109.5, dur: 5 }, //  5.9: the Emboldened Believer's bolded phrase
 ];
 const AUDIO_END = 170.02;
 const TAIL = 3;
@@ -79,16 +79,16 @@ export async function build(api) {
       { t: 75.0, dur: 1.3, target: union(rubric, q('#posts table.overview')), pad: [170, 160, 60, 160], zmax: 1.5 },
       // 5.6 Evidence 1 (Gentleness & Respect), then Evidence 2 (Welcome over Judgment)
       { t: 92.4, dur: 1.0, target: evidenceBlock(2), pad: [200, 200, 300, 200], zmax: 1.9 },
-      { t: H(0) + 5, dur: 1.0, target: evidenceBlock(3), pad: [200, 200, 300, 200], zmax: 1.9 },
+      { t: H(0) + 2.5, dur: 0.8, target: evidenceBlock(3), pad: [200, 200, 300, 200], zmax: 1.9 },
       // 5.7 Persona Reactions, then the Seeker
       { t: V(93.8), dur: 1.3, target: union(heading('h4', 'Persona Reactions', '#posts'), felt(0)), pad: [140, 160, 140, 160], zmax: 1.6 },
       { t: V(97.2), dur: 0.9, target: union(name(0), felt(0)), pad: [260, 260, 260, 260], zmax: 2.0 },
-      { t: V(99.05), dur: 1.0, target: reason(0, 0), pad: [200, 230, 200, 230], zmax: 1.9 },
+      { t: V(99.0), dur: 0.9, target: P("he doesn't see people like me or my friends at all", reason(0, 0)), pad: [380, 300, 380, 300], zmax: 2.3 },
       // 5.8 the Drifter
       { t: V(99.7), dur: 1.1, target: union(name(1), reason(1, 1)), pad: [170, 200, 170, 200], zmax: 1.8 },
       // 5.9 the Emboldened Believer
       { t: V(105.1), dur: 1.1, target: union(name(6), felt(6)), pad: [260, 260, 260, 260], zmax: 2.0 },
-      { t: V(108.6), dur: 1.0, target: reason(6, 0), pad: [200, 230, 200, 230], zmax: 1.9 },
+      { t: V(108.6), dur: 0.9, target: P('shows me that mocking people is a fair way to make a point', reason(6, 0)), pad: [380, 300, 380, 300], zmax: 2.3 },
       // 6.1–6.2 the Gentler Rewrite
       { t: V(110.5), dur: 1.5, target: union(rewrite, q('#posts .pair')), fit: 'width', pad: [170, 220, 40, 220], zmax: 1.2 },
       { t: V(118.9), dur: 1.0, target: q('#posts .pair > div', 1), fit: 'width', pad: [170, 560, 60, 560], zmax: 1.7 },
@@ -120,14 +120,14 @@ export async function build(api) {
     // 5.6 the 1s
     ...[[2, 88.48], [3, 89.52], [5, 90.44], [6, 91.54]].map(([row, t]) => (
       { frame: 'page', t, dur: 0.45, until: 92.5, target: q('#posts table.overview tbody tr', row) })),
-    { frame: 'page', t: 93.2, dur: 1.6, until: H(0) + 5, target: P("If you're a dude, why do you want to watch two guys kissing? That's very gay. Why are you gay?", crit(2)) },
-    { frame: 'page', t: H(0) + 5.8, dur: 1.8, until: V(93.8) - 0.2, target: P("start throwing Bibles at them and start saying this is a mockery of my God's design of marriage", crit(3)) },
+    { frame: 'page', t: 92.6, dur: 1.2, until: H(0) + 2.5, target: P("If you're a dude, why do you want to watch two guys kissing? That's very gay. Why are you gay?", crit(2)) },
+    { frame: 'page', t: H(0) + 2.8, dur: 1.2, until: V(93.8) - 0.2, target: P("start throwing Bibles at them and start saying this is a mockery of my God's design of marriage", crit(3)) },
     // 5.7–5.9
     { frame: 'page', t: V(98.14), dur: 0.5, until: V(99.2), target: P('pushed away', felt(0)) },
-    { frame: 'page', t: H(1) + 4, dur: 1.8, until: V(99.7) - 0.3, bold: true, target: P("he doesn't see people like me or my friends at all", reason(0, 0)) },
+    { frame: 'page', t: V(99.25), dur: 1.2, until: V(99.7) - 0.3, bold: true, target: P("he doesn't see people like me or my friends at all", reason(0, 0)) },
     { frame: 'page', t: V(102.0), dur: 1.8, until: V(105.0), target: P('This makes church sound like a place that asks me to stop being a good friend.', reason(1, 1)) },
     { frame: 'page', t: V(107.04), dur: 0.6, until: V(108.6), target: P('licensed to mock', felt(6)) },
-    { frame: 'page', t: H(2) + 2.5, dur: 1.6, until: V(110.2), bold: true, target: P('shows me that mocking people is a fair way to make a point', reason(6, 0)) },
+    { frame: 'page', t: V(108.95), dur: 1.2, until: V(110.2), bold: true, target: P('shows me that mocking people is a fair way to make a point', reason(6, 0)) },
     // 6.2–6.5
     { frame: 'page', t: V(119.6), dur: 2.0, until: V(124.6), target: P('My answer is no, and I want to explain why as honestly as I can, whether you share my faith or not.', q('#posts .pair > div', 1)) },
     { frame: 'page', t: V(122.6), dur: 1.0, until: V(124.6), target: P("Removed the 'Why are you gay?' taunt", '#posts') },
@@ -142,10 +142,10 @@ export async function build(api) {
   ];
 
   const spotlights = [
-    { frame: 'page', t: 92.6, until: H(0) + 5, target: evidenceBlock(2) },
-    { frame: 'page', t: H(0) + 5, until: V(93.8) - 0.2, target: evidenceBlock(3) },
-    { frame: 'page', t: V(99.2), until: V(99.7) - 0.2, target: reason(0, 0) },
-    { frame: 'page', t: V(108.8), until: V(110.3), target: reason(6, 0) },
+    { frame: 'page', t: 92.5, until: H(0) + 2.5, target: evidenceBlock(2) },
+    { frame: 'page', t: H(0) + 2.5, until: V(93.8) - 0.2, target: evidenceBlock(3) },
+    { frame: 'page', t: V(99.05), until: V(99.7) - 0.2, target: reason(0, 0) },
+    { frame: 'page', t: V(108.7), until: V(110.3), target: reason(6, 0) },
   ];
 
   const serif = (size, extra = {}) => ({ fontFamily: '"Instrument Serif", serif', fontSize: `${size}px`, lineHeight: 1.05, textAlign: 'center', ...extra });
@@ -168,9 +168,9 @@ export async function build(api) {
     ...[['Scripture', 79.32, 560], ['Paul in Athens', 80.76, 960], ['Research', 81.98, 1360]].map(([text, t, x]) => (
       { t, until: 85.5, dur: 0.7, write: true, x, y: 52, w: 420, text, cls: 'band', style: serif(64, { color: red }) })),
     // 5.6 Bennett's notes on the two Evidence quotes
-    { t: 94.0, until: H(0) + 5, dur: 1.3, write: true, x: 960, y: 900, w: 1500, text: '→  using ‘gay’ as a taunt and mock gay people', cls: 'band',
+    { t: 92.75, until: H(0) + 2.5, dur: 1.0, write: true, x: 960, y: 900, w: 1500, text: '→  using ‘gay’ as a taunt and mock gay people', cls: 'band',
       style: serif(62, { fontStyle: 'italic', color: red }) },
-    { t: H(0) + 6.6, until: V(93.8) - 0.2, dur: 1.3, write: true, x: 960, y: 900, w: 1500, text: '→  extremely hostile and makes people feel unsafe', cls: 'band',
+    { t: H(0) + 3.0, until: V(93.8) - 0.2, dur: 1.0, write: true, x: 960, y: 900, w: 1500, text: '→  extremely hostile and makes people feel unsafe', cls: 'band',
       style: serif(62, { fontStyle: 'italic', color: red }) },
     // 6.1 who you are
     ...[['Creators', 690, V(115.82), V(124.7)], ['Anyone', 960, V(124.8), V(132.45)], ['Youth leaders', 1250, V(132.54), V(144.8)]].map(([text, x, a, b], i) => (

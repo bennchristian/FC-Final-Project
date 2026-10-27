@@ -11,7 +11,7 @@ any moment of the video (camera, highlights, spotlights, text, cursor) as a func
 headless Chromium through the frames and pipes them to ffmpeg.
 
 **Reading pauses.** `HOLDS` in `timeline.js` inserts silence into the VO while a quote stays on
-screen (5.6, 5.7, 5.9). That takes 2:50 of audio to about 3:25. Set `HOLDS` to `[]` for a cut that
+screen (5.6, 5.7, 5.9). That takes 2:50 of audio to about 3:09. Set `HOLDS` to `[]` for a cut that
 matches the recording.
 
 ## Inputs (not committed: `assets/` is git-ignored)

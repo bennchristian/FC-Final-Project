@@ -18,7 +18,7 @@ import { STYLE_KEYS, FONT_CHOICES, COPY_EDITS_VERSION, normalizeText, matchCopyE
   // A box is the outermost element with text of its own. How it works is a display-only overlay:
   // Claude still scores with the locked rubric and Persona text (Bennett, 2026-10-26).
   // The Review results are re-rendered by ui.js, so their boxes are found again after each render.
-  const LIVE = '#posts, #outreach-slot';
+  const LIVE = '#posts, #feedback-body';
   // Status and error lines, the versions label, the lists ui.js re-renders outside the results
   // (the send page's Posts, the overall summary, Past Reviews) and the editor itself are never editable.
   const EXCLUDED = '#availability, #images-hint, #post-count, #versions, #post-list, #overall, #past-list, #past-state, [aria-live], .error, #ce-bar, #ce-handle';

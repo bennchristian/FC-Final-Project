@@ -184,22 +184,23 @@ ${INTRO_HTML}
     <p class="cta"><button type="button" id="start-reviewing" data-nav="review">Start reviewing</button></p>
   </section>
 
+  <!-- The envelope gradients, outside the desk so the Send feedback popup can use them too. -->
+  <svg class="env-defs" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="ld-g-back" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C9B898"/><stop offset="1" stop-color="#D8C9B0"/></linearGradient>
+      <linearGradient id="ld-g-left" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#E4D9C7"/><stop offset="1" stop-color="#D3C5AD"/></linearGradient>
+      <linearGradient id="ld-g-right" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#E2D8C8"/><stop offset="1" stop-color="#D0C2AB"/></linearGradient>
+      <linearGradient id="ld-g-bottom" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#E9DFCE"/><stop offset="1" stop-color="#DACDB7"/></linearGradient>
+      <linearGradient id="ld-g-flap" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8DCC8"/><stop offset="1" stop-color="#D6C4A6"/></linearGradient>
+      <filter id="ld-f-lift" x="-10%" y="-20%" width="120%" height="140%"><feDropShadow dx="0" dy="-5" stdDeviation="9" flood-color="#5A4020" flood-opacity="0.16"/></filter>
+    </defs>
+  </svg>
   <div class="desk" id="desk" hidden>
   <div class="desk-main">
   <section id="view-review" class="view" hidden>
     <h1 class="desk-title">Submit a letter for review</h1>
     <div class="stage" id="stage">
       <div class="scene" id="scene">
-        <svg class="env-defs" aria-hidden="true" focusable="false">
-          <defs>
-            <linearGradient id="ld-g-back" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C9B898"/><stop offset="1" stop-color="#D8C9B0"/></linearGradient>
-            <linearGradient id="ld-g-left" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#E4D9C7"/><stop offset="1" stop-color="#D3C5AD"/></linearGradient>
-            <linearGradient id="ld-g-right" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#E2D8C8"/><stop offset="1" stop-color="#D0C2AB"/></linearGradient>
-            <linearGradient id="ld-g-bottom" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#E9DFCE"/><stop offset="1" stop-color="#DACDB7"/></linearGradient>
-            <linearGradient id="ld-g-flap" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8DCC8"/><stop offset="1" stop-color="#D6C4A6"/></linearGradient>
-            <filter id="ld-f-lift" x="-10%" y="-20%" width="120%" height="140%"><feDropShadow dx="0" dy="-5" stdDeviation="9" flood-color="#5A4020" flood-opacity="0.16"/></filter>
-          </defs>
-        </svg>
         <svg class="env-part env-flap-open" viewBox="0 0 1350 435" preserveAspectRatio="none" aria-hidden="true"><path d="M0 435 Q60 140 260 75 L675 5 L1090 75 Q1290 140 1350 435 Z" fill="url(#ld-g-flap)"/></svg>
         <svg class="env-part env-back" viewBox="0 0 1350 1065" preserveAspectRatio="none" aria-hidden="true"><rect width="1350" height="1065" fill="url(#ld-g-back)"/></svg>
         <div class="letter" id="letter" role="region" aria-label="Your letter" tabindex="0">
@@ -294,7 +295,6 @@ ${INTRO_HTML}
     <h1 class="desk-title">Your letter, read</h1>
     <div id="overall"></div>
     <div id="posts"></div>
-    <div id="outreach-slot"></div>
   </section>
   </div>
 
@@ -320,6 +320,27 @@ ${INTRO_HTML}
   </aside>
   </div>
   </div>
+
+  <!-- Send feedback: the Ministry Outreach Plan as a letter in an open envelope (design partner's mockup). -->
+  <dialog class="feedback" id="feedback" aria-labelledby="feedback-title">
+    <div class="feedback-stage">
+      <svg class="fb-part fb-flap" viewBox="0 0 1470 755" preserveAspectRatio="none" aria-hidden="true"><path d="M0 755 Q20 700 60 660 L690 35 Q735 -5 780 35 L1410 660 Q1450 700 1470 755 Z" fill="url(#ld-g-flap)"/></svg>
+      <svg class="fb-part fb-back" viewBox="0 0 1470 844" preserveAspectRatio="none" aria-hidden="true"><rect width="1470" height="844" fill="url(#ld-g-back)"/></svg>
+      <div class="feedback-letter">
+        <p class="feedback-top"><button type="button" class="link-button" id="feedback-close">Close</button></p>
+        <h2 class="feedback-title" id="feedback-title">A loving message you could send to the account behind the posts</h2>
+        <p class="feedback-note">You send it yourself: Living Letter never sends or posts anything.</p>
+        <div id="feedback-body"></div>
+      </div>
+      <svg class="fb-part fb-pocket" viewBox="0 0 1470 844" preserveAspectRatio="none" aria-hidden="true">
+        <g filter="url(#ld-f-lift)">
+          <path d="M0 0 L735 580 L0 844 Z" fill="url(#ld-g-left)"/>
+          <path d="M1470 0 L735 580 L1470 844 Z" fill="url(#ld-g-right)"/>
+          <path d="M0 844 L735 520 L1470 844 Z" fill="url(#ld-g-bottom)"/>
+        </g>
+      </svg>
+    </div>
+  </dialog>
 
   <section id="view-profile" class="view" hidden>
     <h1 class="view-title">Your profile</h1>

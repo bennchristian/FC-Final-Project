@@ -370,12 +370,17 @@ async function onEvaluateAll() {
   render();
 }
 
-// Send feedback: the Ministry Outreach Plan, drafted on this click when there is none yet.
+// Send feedback: the Ministry Outreach Plan in a popup letter, drafted on this click when there is none yet.
 function onSendFeedback() {
-  if (!state.posts.some((p) => p.status === 'done')) return;
-  showView('results');
-  $('outreach-slot').scrollIntoView({ block: 'start' });
+  // Matches its aria-disabled: nothing until a Post is reviewed, and not while a run is going.
+  if (state.busy || !state.posts.some((p) => p.status === 'done')) return;
+  $('feedback').showModal();
   if (!state.outreach && !state.busy) onOutreach(true);
+}
+
+// The popup closes with Close, Escape (the dialog's own) or a click outside the letter.
+function onFeedbackClick(event) {
+  if (event.target.id === 'feedback-close' || !event.target.closest('.feedback-letter')) $('feedback').close();
 }
 
 async function onTryAgain(post) {
@@ -832,42 +837,44 @@ function renderPast() {
   });
 }
 
+// The Send feedback popup's letter: the Outreach Message to copy, then the Talking Points,
+// affirmations and concerns side by side.
 function renderOutreach() {
   const done = donePosts();
   const o = state.outreach;
-  const children = [
-    el('h2', {}, 'Ministry Outreach Plan'),
-    el('p', {}, 'Optional. If you want to raise concerns with the poster: a draft message you can send yourself, plus Talking Points tied to specific Posts. This tool never sends or posts anything.'),
-  ];
-  if (state.reviewSourceUrl) children.push(el('p', {}, 'Profile: ', sourceLink(state.reviewSourceUrl)));
+  const children = [];
+  if (state.reviewSourceUrl) children.push(el('p', { className: 'muted' }, 'Profile: ', sourceLink(state.reviewSourceUrl)));
   if (!o || o.status === 'failed') {
     children.push(el('button', { type: 'button', onclick: () => onOutreach(!o), disabled: state.busy || !state.sample || done.length === 0 },
-      o ? 'Try again' : 'Create Ministry Outreach Plan'));
-    if (done.length === 0) children.push(el('p', { className: 'muted' }, 'Evaluate at least one Post first.'));
+      o ? 'Try again' : 'Write the message'));
     if (o) children.push(el('p', { className: 'error' }, errorText(o.error)));
   } else if (o.status === 'running') {
-    children.push(el('p', {}, 'Writing the plan…'));
+    children.push(el('p', { className: 'feedback-wait' }, 'Writing the message…'));
   } else {
     const message = o.output.outreach_message;
+    const point = (tp) => el('li', {},
+      `${tp.kind === 'concern' ? 'Concern' : 'Affirmation'} · Post ${tp.post_position} · ${criterionByKey[tp.criterion].name}: `,
+      said(tp.text),
+      tp.change ? el('span', {}, ' Change: ', said(tp.change)) : null,
+      tp.persona ? el('span', {}, ' ', simulatedTag(), ` (${personaByKey[tp.persona].name})`) : null,
+    );
+    const lists = ['affirmation', 'concern']
+      .map((kind) => o.output.talking_points.filter((tp) => (tp.kind === 'concern') === (kind === 'concern')))
+      .filter((points) => points.length)
+      .map((points) => el('ul', { className: `talking-points ${points[0].kind === 'concern' ? 'is-concern' : 'is-affirmation'}` }, points.map(point)));
     children.push(
-      el('p', { className: 'muted' }, `Written by ${o.model}`),
-      el('h3', {}, 'Outreach Message'),
-      el('textarea', { id: 'outreach-message', readonly: true, rows: 10 }, message),
+      el('textarea', { id: 'outreach-message', readonly: true, rows: 6, 'aria-label': 'Outreach Message' }, message),
       el('div', { className: 'row' },
-        el('button', { type: 'button', onclick: () => onCopy(message, 'outreach-message') }, 'Copy message'),
+        el('button', { type: 'button', className: 'copy-message', onclick: () => onCopy(message, 'outreach-message') }, 'Copy message'),
         el('span', { id: 'copy-status', className: 'muted', 'aria-live': 'polite' }),
       ),
-      el('h3', {}, 'Talking Points'),
-      el('ul', {}, o.output.talking_points.map((tp) => el('li', {},
-        el('strong', {}, `${tp.kind === 'concern' ? 'Concern' : 'Affirmation'} · Post ${tp.post_position} · ${criterionByKey[tp.criterion].name}: `),
-        said(tp.text),
-        tp.change ? el('div', {}, 'Change: ', said(tp.change)) : null,
-        tp.persona ? el('div', {}, simulatedTag(), ` (${personaByKey[tp.persona].name})`) : null,
-      ))),
-      el('button', { type: 'button', onclick: () => onOutreach(false), disabled: state.busy }, 'Write a new plan'),
+      el('h3', { className: 'feedback-points-title' }, 'Talking points'),
+      el('div', { className: 'talking-columns' }, lists),
+      el('p', { className: 'muted feedback-foot' }, `Written by ${o.model}. `,
+        el('button', { type: 'button', className: 'link-button', onclick: () => onOutreach(false), disabled: state.busy }, 'Write a new message')),
     );
   }
-  return el('section', { id: 'outreach' }, children);
+  return children;
 }
 
 function render() {
@@ -900,7 +907,7 @@ function render() {
   $('post-list').replaceChildren(...state.posts.map(renderPostInput));
   $('overall').replaceChildren(...renderOverall());
   $('posts').replaceChildren(...state.posts.map((post, i) => (post.status === 'pending' ? null : renderPost(post, i))).filter(Boolean));
-  $('outreach-slot').replaceChildren(anyDone ? renderOutreach() : '');
+  $('feedback-body').replaceChildren(...renderOutreach());
   $('past-list').replaceChildren(...renderPast());
 }
 
@@ -1007,6 +1014,7 @@ function start() {
   $('review-url').addEventListener('change', onReviewUrl);
   $('next-post').addEventListener('click', onNextPost);
   $('send-feedback').addEventListener('click', onSendFeedback);
+  $('feedback').addEventListener('click', onFeedbackClick);
   document.querySelector('main').addEventListener('click', onNav);
   renderHowItWorks();
   $('how-tabs').addEventListener('change', syncHowTab);

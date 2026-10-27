@@ -55,6 +55,15 @@ test('the fictional examples name no real handles', () => {
   assert.doesNotMatch(examples, /@\w/);
 });
 
+test('Send feedback opens the Outreach Plan in a popup; the results have no Outreach section', () => {
+  const build = readFileSync(join(ROOT, 'artifact', 'build.mjs'), 'utf8');
+  assert.match(build, /<dialog class="feedback" id="feedback"/);
+  assert.doesNotMatch(build, /id="outreach-slot"/);
+  const ui = sources.find(([f]) => f === 'ui.js')[1];
+  assert.match(ui, /\$\('feedback'\)\.showModal\(\)/);
+  assert.match(ui, /\$\('feedback-body'\)\.replaceChildren/);
+});
+
 test('the intro hides instead of removing itself, and the page has no Go back', () => {
   const intro = readFileSync(join(SRC, 'intro.js'), 'utf8');
   assert.doesNotMatch(intro, /root\.remove\(\)/);

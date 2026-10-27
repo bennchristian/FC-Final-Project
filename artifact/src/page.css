@@ -7,6 +7,8 @@
   --bg: #FFFBF5;        /* cream */
   --fg: #210C09;        /* ink */
   --heading: #8A201C;   /* red: titles and the logo */
+  --heading-alt: #8A201C; /* red: section headings and subtitles; blue-grey mist in dark mode, for contrast */
+  --strong: #210C09;    /* ink: emphasised lines; mist in dark mode */
   --accent: #8A201C;    /* red: links, buttons, focus */
   --on-accent: #FFFBF5;
   --muted: #5D6378;     /* slate */
@@ -25,13 +27,13 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #210C09; --fg: #FFFBF5; --heading: #FFFBF5; --accent: #EDA59E; --on-accent: #210C09;
-    --muted: #C8D1D9; --tagline: #C8D1D9; --line: #4A3833; --soft: #2F1B17; --band: #3A2723; --field: #2A1612; --card: #3A2723; --card-ink: #FFFBF5;
+    --heading-alt: #C8D1D9; --strong: #C8D1D9; --muted: #C8D1D9; --tagline: #C8D1D9; --line: #4A3833; --soft: #2F1B17; --band: #3A2723; --field: #2A1612; --card: #3A2723; --card-ink: #FFFBF5;
     --bad: #F2A097; --good: #FFFBF5; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #210C09; --fg: #FFFBF5; --heading: #FFFBF5; --accent: #EDA59E; --on-accent: #210C09;
-  --muted: #C8D1D9; --tagline: #C8D1D9; --line: #4A3833; --soft: #2F1B17; --band: #3A2723; --field: #2A1612; --card: #3A2723; --card-ink: #FFFBF5;
+  --heading-alt: #C8D1D9; --strong: #C8D1D9; --muted: #C8D1D9; --tagline: #C8D1D9; --line: #4A3833; --soft: #2F1B17; --band: #3A2723; --field: #2A1612; --card: #3A2723; --card-ink: #FFFBF5;
   --bad: #F2A097; --good: #FFFBF5; color-scheme: dark;
 }
 
@@ -54,6 +56,7 @@ h1 { font-size: clamp(3rem, 9vw, 4.5rem); line-height: 0.95; }
 h2 { font-size: clamp(2.25rem, 6vw, 2.9rem); margin-top: 2.4rem; }
 h3 { font-size: 2rem; margin-top: 1.6rem; }
 h4 { font-size: 1.7rem; margin-top: 1.8rem; color: var(--fg); }
+h2, h3 { color: var(--heading-alt); }
 h5 { font: 600 1.05rem/1.3 var(--sans); margin: 0; letter-spacing: -0.01em; }
 h2 + p, h3 + p, h4 + p { margin-top: 0.4em; }
 
@@ -198,8 +201,8 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
 #transcript-field { margin-top: 1.2em; }
 .post-input { margin-top: 20px; padding-block: 20px 24px; }
 .post-input > h3 { font-size: 1.6rem; }
-.summary.overall { font: 400 2rem/1.1 var(--serif); color: var(--heading); background: none; padding: 0; }
-.summary.overall.good { color: var(--heading); }
+.summary.overall { font: 400 2rem/1.1 var(--serif); color: var(--heading-alt); background: none; padding: 0; }
+.summary.overall.good { color: var(--heading-alt); }
 .past-item { border-top: 1px solid var(--line); padding-top: 1rem; margin-top: 1.2rem; }
 .past-item h3 { font-size: 1.6rem; margin-top: 0; }
 .past-item h3 .muted { font-family: var(--sans); letter-spacing: 0; }
@@ -223,13 +226,13 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
 .home-seal-cross { stroke: var(--heading); }
 .home-tagline { font: italic 400 clamp(2.4rem, 5.2vw, 4rem)/1.12 var(--serif); color: var(--fg); letter-spacing: -0.03em; margin: 0; }
 .home-underline { text-decoration: underline; text-decoration-color: var(--muted); text-decoration-thickness: 1px; text-underline-offset: 0.12em; }
-.home-what { font: 500 clamp(1.35rem, 2.4vw, 1.8rem)/1.2 var(--sans); letter-spacing: -0.04em; color: var(--heading); text-wrap: balance; margin: 1.6em auto 0; }
+.home-what { font: 500 clamp(1.35rem, 2.4vw, 1.8rem)/1.2 var(--sans); letter-spacing: -0.04em; color: var(--heading-alt); text-wrap: balance; margin: 1.6em auto 0; }
 .home-lede { max-width: 48rem; margin: 1.8em auto 0; text-wrap: balance; }
 .home-band { border-top: 1px solid var(--muted); padding-block: 4rem; }
 .home h2 { margin: 0; }
 .home-why { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 2.5rem 4rem; align-items: center; }
 .home-why h2 { font-size: clamp(2.6rem, 5vw, 3.6rem); letter-spacing: -0.045em; margin-bottom: 0.6em; }
-.home-resolve { font-weight: 600; margin-top: 1.2em; }
+.home-resolve { font-weight: 600; color: var(--strong); margin-top: 1.2em; }
 .home-art { display: block; max-width: 100%; height: auto; }
 .home-why-side .home-art { width: min(100%, 26rem); margin-inline: auto; }
 .home-why-side .footnotes { border-top: 0; padding-top: 0; margin-top: 1.6rem; }
@@ -247,7 +250,7 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
 .overview-cards h3 { font-size: clamp(1.8rem, 2.4vw, 2.2rem); letter-spacing: -0.045em; color: var(--card-ink); text-align: center; margin: 0 0 0.8rem; }
 .overview-cards p { font-size: 1.05rem; line-height: 1.3; margin: 0; }
 .home-name { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 2fr); gap: 2rem 3.5rem; align-items: center; }
-.home-name-title { display: grid; gap: 1.2rem; font-size: clamp(2.8rem, 5vw, 3.6rem); letter-spacing: -0.04em; }
+.home-name-title { color: var(--heading); display: grid; gap: 1.2rem; font-size: clamp(2.8rem, 5vw, 3.6rem); letter-spacing: -0.04em; }
 .home-name-title svg { width: min(100%, 17rem); overflow: visible; }
 .home-name-title text { font-family: var(--serif); font-size: 128px; letter-spacing: -3px; fill: currentColor; }
 .home-verse { margin: 0; }

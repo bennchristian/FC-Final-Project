@@ -120,11 +120,11 @@ ${INTRO_HTML}
     <p>Paste in public social-media Posts and see how they might land with people who do not share the Christian faith: rubric scores with evidence, simulated Persona reactions, a gentler rewrite, and discussion questions.</p>
 
     <h2>Why Living Letter</h2>
-    <p>Social media ministry is growing fast. Before the pandemic, about 1 in 5 US Protestant churches livestreamed their services; by April 2020, 97% offered worship online in some form.<sup><a href="#source-1">1</a></sup> In 2018, 28% of US Christians said they use social media to share their faith, and 58% of non-Christians said someone had shared their faith with them on Facebook.<sup><a href="#source-2">2</a></sup></p>
+    <p>Social media has become one of the main places faith is shared. Already in 2014, one in five Americans (20%) had shared their faith on social media in the past week, and nearly half (46%) had seen someone else do it.<sup><a href="#source-1">1</a></sup> By 2018, 28% of US Christians said they use social media to share their faith, and 58% of non-Christians said someone had shared their faith with them on Facebook.<sup><a href="#source-2">2</a></sup></p>
     <p>But the results sometimes backfire and harm how people see Christians and the faith. One in six US adults (17%) has unfollowed, blocked or muted someone because of the religious content they posted.<sup><a href="#source-3">3</a></sup> Among young adults outside the church, 87% called Christians judgmental and 85% called them hypocritical.<sup><a href="#source-4">4</a></sup></p>
     <p>In our endeavour to sharpen one another and our witness, we’ve created this tool so we can learn to represent Jesus better.</p>
     <ol class="footnotes">
-      <li id="source-1">Lifeway Research, <a href="https://research.lifeway.com/2020/05/01/few-protestant-churches-met-in-person-for-worship-services-in-april/" target="_blank" rel="noopener noreferrer">survey of 470 Protestant pastors</a>, April 2020.</li>
+      <li id="source-1">Pew Research Center, <a href="https://www.pewresearch.org/religion/2014/11/06/religion-and-electronic-media/" target="_blank" rel="noopener noreferrer">survey of 3,217 US adults</a>, May–June 2014.</li>
       <li id="source-2">Barna Group, <em>Spiritual Conversations in the Digital Age</em> (2018), reported in <a href="https://www.christianitytoday.com/news/2018/june/go-tell-it-iphone-technology-spiritual-conversation-barna.html" target="_blank" rel="noopener noreferrer">Christianity Today</a>.</li>
       <li id="source-3">Pew Research Center, <a href="https://www.pewresearch.org/short-reads/2023/06/21/one-in-six-americans-have-taken-steps-to-see-less-of-someone-on-social-media-due-to-religious-content/" target="_blank" rel="noopener noreferrer">survey of 11,377 US adults</a>, November 2022.</li>
       <li id="source-4">Barna Group for Kinnaman and Lyons, <em>unChristian</em> (2007): non-Christians aged 16 to 29, reported in <a href="https://content.time.com/time/nation/article/0,8599,1667639,00.html" target="_blank" rel="noopener noreferrer">TIME</a>.</li>
@@ -172,7 +172,8 @@ ${INTRO_HTML}
             <filter id="ld-f-lift" x="-10%" y="-20%" width="120%" height="140%"><feDropShadow dx="0" dy="-5" stdDeviation="9" flood-color="#5A4020" flood-opacity="0.16"/></filter>
           </defs>
         </svg>
-        <svg class="env-part env-back" viewBox="0 0 1470 1200" preserveAspectRatio="none" aria-hidden="true"><rect width="1470" height="1200" fill="url(#ld-g-back)"/></svg>
+        <svg class="env-part env-flap-open" viewBox="0 0 1470 420" preserveAspectRatio="none" aria-hidden="true"><path d="M0 420 H1470 L772 16 Q735 -7 698 16 Z" fill="url(#ld-g-flap)"/></svg>
+        <svg class="env-part env-back" viewBox="0 0 1470 760" preserveAspectRatio="none" aria-hidden="true"><rect width="1470" height="760" fill="url(#ld-g-back)"/></svg>
         <div class="letter" id="letter" role="region" aria-label="Your letter" tabindex="0">
           <div class="letter-body">
             <p class="letter-lede">Paste in public social-media Posts and see how they might land with people who do not share the Christian faith: rubric scores with evidence, simulated Persona reactions, a gentler rewrite, and discussion questions.</p>
@@ -242,21 +243,21 @@ ${INTRO_HTML}
             <p class="hint">Posts are reviewed one at a time. Persona Reactions are simulated perspectives, not real people’s opinions. <span id="save-note"></span></p>
           </div>
         </div>
-        <svg class="env-part env-pocket env-open" viewBox="0 0 1470 1200" preserveAspectRatio="none" aria-hidden="true">
+        <svg class="env-part env-pocket env-open" viewBox="0 0 1470 760" preserveAspectRatio="none" aria-hidden="true">
           <g filter="url(#ld-f-lift)">
-            <path d="M0 300 L660 1010 L0 1200 Z" fill="url(#ld-g-left)"/>
-            <path d="M1470 280 L810 1010 L1470 1200 Z" fill="url(#ld-g-right)"/>
-            <path d="M0 1200 L735 980 L1470 1200 Z" fill="url(#ld-g-bottom)"/>
+            <path d="M0 500 L470 735 L0 760 Z" fill="url(#ld-g-left)"/>
+            <path d="M1470 490 L1000 735 L1470 760 Z" fill="url(#ld-g-right)"/>
+            <path d="M0 760 L735 680 L1470 760 Z" fill="url(#ld-g-bottom)"/>
           </g>
         </svg>
-        <svg class="env-part env-pocket env-deep" viewBox="0 0 1470 1200" preserveAspectRatio="none" aria-hidden="true">
+        <svg class="env-part env-pocket env-deep" viewBox="0 0 1470 760" preserveAspectRatio="none" aria-hidden="true">
           <g filter="url(#ld-f-lift)">
-            <path d="M0 0 L735 566 L0 1200 Z" fill="url(#ld-g-left)"/>
-            <path d="M1470 0 L735 566 L1470 1200 Z" fill="url(#ld-g-right)"/>
-            <path d="M0 1200 L735 540 L1470 1200 Z" fill="url(#ld-g-bottom)"/>
+            <path d="M0 0 L735 360 L0 760 Z" fill="url(#ld-g-left)"/>
+            <path d="M1470 0 L735 360 L1470 760 Z" fill="url(#ld-g-right)"/>
+            <path d="M0 760 L735 340 L1470 760 Z" fill="url(#ld-g-bottom)"/>
           </g>
         </svg>
-        <svg class="env-part env-flap" viewBox="0 0 1470 750" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H1470 L772 728 Q735 762 698 728 Z" fill="url(#ld-g-flap)"/></svg>
+        <svg class="env-part env-flap" viewBox="0 0 1470 470" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H1470 L772 452 Q735 474 698 452 Z" fill="url(#ld-g-flap)"/></svg>
       </div>
     </div>
   </section>

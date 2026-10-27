@@ -218,9 +218,8 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
 
 /* ---------- The desk: the letter in its open envelope, the Mailbox beside it (design partner's mockup) ----------
    The envelope art reuses the intro's folds and paper gradients (fixed colours: it is an object, in either theme).
-   Geometry, in % of the stage: envelope full width, its fold at --fold; the letter 11%..87%, scrolling inside. */
+   Geometry is set on .stage below. */
 .desk {
-  --fold: 36%;
   --mail-red: #8A201C; --mail-cream: #FFFBF5; --mail-card: #CDD5DD; --mail-ink: #210C09; --mail-slate: #5D6378;
   --paper: #EFEEED; --paper-ink: #210C09; --paper-hint: #5D6378; --paper-line: #210C09; --chip: #FFFFFF; --chip-on: #C8D1D9;
   display: grid; grid-template-columns: minmax(0, 1fr) 17.5rem; gap: 2rem 3rem; align-items: start; margin-top: 1.4rem;
@@ -234,17 +233,25 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
 #view-results { max-width: 52rem; }
 #view-results .desk-title { text-align: left; }
 
-.stage { position: relative; height: max(540px, calc(100vh - 250px)); overflow: hidden; }
+/* The stage holds the whole envelope, never cropped: sized from the screen height (with a readable floor),
+   laid out in cqw (1cqw = 1% of the envelope width). Fold at 40cqw; a long envelope, 1470:760, so 51.7cqw tall;
+   the open flap rises 28.6cqw behind the letter; the letter (10..90cqw) scrolls and its foot sits in the pocket. */
+.stage {
+  position: relative; container-type: inline-size; margin-inline: auto;
+  width: max(min(100%, 38rem), min(100%, calc((100vh - 230px) / 0.94)));
+  aspect-ratio: 1 / 0.94;
+}
 .scene { position: absolute; inset: 0; }
 .env-defs { position: absolute; width: 0; height: 0; }
-.env-part { position: absolute; left: 0; width: 100%; top: var(--fold); aspect-ratio: 1470 / 1200; height: auto; display: block; pointer-events: none; }
+.env-part { position: absolute; left: 0; width: 100cqw; top: 40cqw; height: 51.7cqw; display: block; pointer-events: none; }
+.env-flap-open { z-index: 0; top: 11.4cqw; height: 28.6cqw; filter: drop-shadow(0 -4px 10px rgba(90, 64, 32, 0.10)); }
 .env-back { z-index: 1; filter: drop-shadow(0 22px 34px rgba(90, 64, 32, 0.14)); }
 .env-pocket { z-index: 3; overflow: visible; }
 .env-deep { opacity: 0; }
-.env-flap { z-index: 4; aspect-ratio: 1470 / 750; transform-origin: 50% 0; opacity: 0; filter: drop-shadow(0 10px 14px rgba(90, 64, 32, 0.18)); }
+.env-flap { z-index: 4; height: 32cqw; transform-origin: 50% 0; opacity: 0; filter: drop-shadow(0 10px 14px rgba(90, 64, 32, 0.18)); }
 
 .letter {
-  position: absolute; z-index: 2; left: 11%; width: 76%; top: 0; bottom: 0;
+  position: absolute; z-index: 2; left: 10cqw; width: 80cqw; top: 0; height: 88cqw;
   overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
   background: linear-gradient(162deg, color-mix(in srgb, var(--paper) 92%, #fff) 0%, var(--paper) 55%, color-mix(in srgb, var(--paper) 94%, #000) 100%);
   box-shadow: 0 -2px 14px rgba(70, 50, 25, 0.08);
@@ -324,16 +331,17 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
 
 /* The sealed envelope flying into the slot (desk.js). */
 .env-ghost { position: fixed; z-index: 2147482000; transform-origin: 0 0; pointer-events: none; }
-.env-ghost .env-part { top: 0; }
+.env-ghost .env-part { top: 0; width: 100%; height: 100%; }
+.env-ghost .env-flap { height: 61.8%; }
 .env-ghost .env-deep, .env-ghost .env-flap { opacity: 1; transform: none; }
 
 /* ---------- Narrow screens: no envelope, the letter is a plain sheet and the Mailbox follows it ---------- */
 @media (max-width: 999px) {
   .desk { grid-template-columns: minmax(0, 1fr); }
-  .stage { height: auto; overflow: visible; }
+  .stage { width: auto; aspect-ratio: auto; container-type: normal; }
   .scene { position: static; }
   .env-part { display: none; }
-  .letter { position: static; width: auto; overflow: visible; }
+  .letter { position: static; width: auto; height: auto; overflow: visible; }
   .letter-body { padding: 2rem 1.25rem 2.4rem; }
   .letter h2 { font-size: 1.7rem; }
   .mailbox { position: static; padding-bottom: 1.6rem; }

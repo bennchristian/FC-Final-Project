@@ -42,16 +42,25 @@ export async function sendLetter() {
   const open = scene.querySelector('.env-open');
   const deep = scene.querySelector('.env-deep');
   const flap = scene.querySelector('.env-flap');
+  const flapOpen = scene.querySelector('.env-flap-open');
   letter.scrollTop = 0;
 
-  // 1. The front of the envelope rises and the letter slides in, its top just below the fold.
+  // 1. The front of the envelope rises and the letter slides in, its top just below the fold. Whatever
+  // would pass the envelope's bottom edge is clipped, so the letter never shows below it.
   const backBox = back.getBoundingClientRect();
-  const drop = backBox.top - letter.getBoundingClientRect().top + backBox.height * 0.06;
+  const letterBox = letter.getBoundingClientRect();
+  const drop = backBox.top - letterBox.top + backBox.height * 0.06;
+  // A little above the bottom edge: the pocket's soft edge would otherwise let a line of text show.
+  const below = Math.max(0, letterBox.bottom + drop - backBox.bottom + backBox.height * 0.08);
   play(open, [{ opacity: 1 }, { opacity: 0 }], { duration: 320, easing: 'ease-out' });
   play(deep, [{ opacity: 0 }, { opacity: 1 }], { duration: 320, easing: 'ease-out' });
-  await settle([play(letter, [{ transform: 'none' }, { transform: `translateY(${drop}px)` }], { delay: 160, duration: 640, easing: EASE_IN_OUT })]);
+  await settle([play(letter, [
+    { transform: 'none', clipPath: 'inset(0 0 0 0)' },
+    { transform: `translateY(${drop}px)`, clipPath: `inset(0 0 ${below}px 0)` },
+  ], { delay: 160, duration: 640, easing: EASE_IN_OUT })]);
 
-  // 2. The flap swings down over it.
+  // 2. The open flap behind gives way as the flap swings down over the letter.
+  play(flapOpen, [{ opacity: 1 }, { opacity: 0 }], { duration: 200, easing: 'ease-out' });
   await settle([play(flap, [
     { offset: 0, transform: FLAP_UP, opacity: 0 },
     { offset: 0.2, opacity: 1 },

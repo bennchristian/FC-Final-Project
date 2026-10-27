@@ -31,8 +31,7 @@
 /* ---------- Top chrome: pinned to the viewport corners, sized with the stage ---------- */
 #ll-intro .ll-top { position: absolute; z-index: 10; opacity: 0; color: var(--ll-red); }
 #ll-intro .ll-brand { left: calc(50px * var(--s) + env(safe-area-inset-left, 0px)); top: calc(46px * var(--s) + env(safe-area-inset-top, 0px)); width: calc(146px * var(--s)); }
-#ll-intro .ll-brand svg { display: block; width: 100%; height: auto; overflow: visible; }
-#ll-intro .ll-brand text { font-family: var(--ll-serif); font-size: 128px; letter-spacing: -3px; fill: currentColor; }
+#ll-intro .ll-brand img { display: block; width: 100%; height: auto; }
 #ll-intro .ll-nav {
   right: calc(56px * var(--s) + env(safe-area-inset-right, 0px)); top: calc(40px * var(--s) + env(safe-area-inset-top, 0px));
   display: flex; align-items: center; gap: calc(22px * var(--s));

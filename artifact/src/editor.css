@@ -6,7 +6,7 @@
   bottom: max(8px, env(safe-area-inset-bottom, 0px));
   box-sizing: border-box; max-width: 56rem; margin: 0 auto;
   display: flex; flex-direction: column; gap: 6px; padding: 8px 10px;
-  background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 8px;
+  background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: var(--radius);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.22);
   font: 14px/1.3 system-ui, -apple-system, "Segoe UI", sans-serif; letter-spacing: normal; text-transform: none;
 }
@@ -15,7 +15,7 @@
 #ce-bar .ce-spacer { flex: 1 1 auto; }
 #ce-bar button, #ce-bar select, #ce-bar input {
   box-sizing: border-box; width: auto; margin: 0; padding: 4px 8px; min-height: 32px;
-  font: inherit; color: var(--fg); background: var(--soft); border: 1px solid var(--line); border-radius: 4px;
+  font: inherit; color: var(--fg); background: var(--soft); border: 1px solid var(--line); border-radius: var(--radius);
 }
 #ce-bar select { max-width: 11rem; }
 #ce-bar input[type="number"] { width: 4.75rem; }
@@ -29,7 +29,7 @@
 
 #ce-handle:not([hidden]) {
   position: fixed; z-index: 2147483647; left: 0; top: 0;
-  margin: 0; padding: 2px 8px; min-height: 0; border: 0; border-radius: 4px;
+  margin: 0; padding: 2px 8px; min-height: 0; border: 0; border-radius: var(--radius);
   background: var(--accent); color: var(--bg);
   font: 600 12px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; letter-spacing: normal; text-transform: none;
   cursor: move; touch-action: none; user-select: none; -webkit-user-select: none;

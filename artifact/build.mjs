@@ -69,7 +69,8 @@ const script = [
 
 // Living Letter first-screen intro: markup goes before <main>, styles join the page <style>.
 const INTRO_CSS = readFileSync(join(SRC, 'intro.css'), 'utf8');
-const INTRO_HTML = readFileSync(join(SRC, 'intro.html'), 'utf8');
+// The intro's logo is the design partner's file, filled in here (the intro is always cream, so always the red one).
+const INTRO_HTML = readFileSync(join(SRC, 'intro.html'), 'utf8').replace('{{LOGO_RED}}', imgData('logo-red.png'));
 if (/<\/style/i.test(INTRO_CSS)) fail(['intro.css: contains "</style"']);
 const PAGE_CSS = readFileSync(join(SRC, 'page.css'), 'utf8');
 if (/<\/style/i.test(PAGE_CSS)) fail(['page.css: contains "</style"']);
@@ -101,11 +102,8 @@ ${INTRO_HTML}
   <div class="back-row"><button type="button" id="theme-toggle" class="theme-toggle" aria-pressed="false">Dark mode</button></div>
   <header class="masthead">
     <button type="button" class="brand" id="nav-home" data-nav="home" aria-label="Living Letter: home">
-      <svg viewBox="0 0 340 214" aria-hidden="true">
-        <text x="6" y="104">Living</text>
-        <text x="6" y="200">Letter</text>
-        <path d="M152 22 H332 V206 H232 M332 22 L252 68" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"/>
-      </svg>
+      <img class="logo-light" src="${imgData('logo-red.png')}" width="360" height="210" alt="">
+      <img class="logo-dark" src="${imgData('logo-cream.png')}" width="360" height="210" alt="">
     </button>
     <nav class="tabs" aria-label="Living Letter">
       <button type="button" id="nav-review" data-nav="review">Review</button>

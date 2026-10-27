@@ -954,7 +954,10 @@ const NAV_FOR = { review: 'review', results: 'review', how: 'how', profile: 'pro
 function showView(name) {
   state.view = name;
   for (const view of VIEWS) $(`view-${view}`).hidden = view !== name;
-  $('desk').hidden = name !== 'review' && name !== 'results';
+  const onDesk = name === 'review' || name === 'results';
+  $('desk').hidden = !onDesk;
+  // On the desk the footer (Roadmap, versions) sits under the Mailbox, so the page ends with the envelope.
+  (onDesk ? $('desk-side') : document.querySelector('main')).append($('page-foot'));
   $('next-post-item').hidden = name !== 'results';
   for (const button of document.querySelectorAll('.tabs [data-nav]')) {
     button.setAttribute('aria-current', button.dataset.nav === NAV_FOR[name] ? 'page' : 'false');

@@ -202,8 +202,8 @@ ${INTRO_HTML}
             <filter id="ld-f-lift" x="-10%" y="-20%" width="120%" height="140%"><feDropShadow dx="0" dy="-5" stdDeviation="9" flood-color="#5A4020" flood-opacity="0.16"/></filter>
           </defs>
         </svg>
-        <svg class="env-part env-flap-open" viewBox="0 0 1470 420" preserveAspectRatio="none" aria-hidden="true"><path d="M0 420 H1470 L772 16 Q735 -7 698 16 Z" fill="url(#ld-g-flap)"/></svg>
-        <svg class="env-part env-back" viewBox="0 0 1470 760" preserveAspectRatio="none" aria-hidden="true"><rect width="1470" height="760" fill="url(#ld-g-back)"/></svg>
+        <svg class="env-part env-flap-open" viewBox="0 0 1350 435" preserveAspectRatio="none" aria-hidden="true"><path d="M0 435 Q60 140 260 75 L675 5 L1090 75 Q1290 140 1350 435 Z" fill="url(#ld-g-flap)"/></svg>
+        <svg class="env-part env-back" viewBox="0 0 1350 1065" preserveAspectRatio="none" aria-hidden="true"><rect width="1350" height="1065" fill="url(#ld-g-back)"/></svg>
         <div class="letter" id="letter" role="region" aria-label="Your letter" tabindex="0">
           <div class="letter-body">
             <p class="letter-lede">Paste in public social-media Posts and see how they might land with people who do not share the Christian faith: rubric scores with evidence, simulated Persona reactions, a gentler rewrite, and discussion questions.</p>
@@ -273,21 +273,21 @@ ${INTRO_HTML}
             <p class="hint">Posts are reviewed one at a time. Persona Reactions are simulated perspectives, not real people’s opinions. <span id="save-note"></span></p>
           </div>
         </div>
-        <svg class="env-part env-pocket env-open" viewBox="0 0 1470 760" preserveAspectRatio="none" aria-hidden="true">
+        <svg class="env-part env-pocket env-open" viewBox="0 0 1350 1065" preserveAspectRatio="none" aria-hidden="true">
           <g filter="url(#ld-f-lift)">
-            <path d="M0 500 L470 735 L0 760 Z" fill="url(#ld-g-left)"/>
-            <path d="M1470 490 L1000 735 L1470 760 Z" fill="url(#ld-g-right)"/>
-            <path d="M0 760 L735 680 L1470 760 Z" fill="url(#ld-g-bottom)"/>
+            <path d="M0 35 L560 560 L0 1065 Z" fill="url(#ld-g-left)"/>
+            <path d="M1350 15 L790 560 L1350 1065 Z" fill="url(#ld-g-right)"/>
+            <path d="M0 1065 L395 568 Q415 542 448 542 H902 Q935 542 955 568 L1350 1065 Z" fill="url(#ld-g-bottom)"/>
           </g>
         </svg>
-        <svg class="env-part env-pocket env-deep" viewBox="0 0 1470 760" preserveAspectRatio="none" aria-hidden="true">
+        <svg class="env-part env-pocket env-deep" viewBox="0 0 1350 1065" preserveAspectRatio="none" aria-hidden="true">
           <g filter="url(#ld-f-lift)">
-            <path d="M0 0 L735 360 L0 760 Z" fill="url(#ld-g-left)"/>
-            <path d="M1470 0 L735 360 L1470 760 Z" fill="url(#ld-g-right)"/>
-            <path d="M0 760 L735 340 L1470 760 Z" fill="url(#ld-g-bottom)"/>
+            <path d="M0 0 L675 520 L0 1065 Z" fill="url(#ld-g-left)"/>
+            <path d="M1350 0 L675 520 L1350 1065 Z" fill="url(#ld-g-right)"/>
+            <path d="M0 1065 L675 500 L1350 1065 Z" fill="url(#ld-g-bottom)"/>
           </g>
         </svg>
-        <svg class="env-part env-flap" viewBox="0 0 1470 470" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H1470 L772 452 Q735 474 698 452 Z" fill="url(#ld-g-flap)"/></svg>
+        <svg class="env-part env-flap" viewBox="0 0 1350 520" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H1350 L712 498 Q675 524 638 498 Z" fill="url(#ld-g-flap)"/></svg>
       </div>
     </div>
   </section>
@@ -300,6 +300,7 @@ ${INTRO_HTML}
   </section>
   </div>
 
+  <div class="desk-side" id="desk-side">
   <aside class="mailbox" id="mailbox" aria-label="Mailbox">
     <h2 class="mailbox-title">Mailbox</h2>
     <div class="mail-slot" id="mail-slot" aria-hidden="true"></div>
@@ -319,6 +320,7 @@ ${INTRO_HTML}
     </div>
     <textarea id="export-fallback" rows="8" readonly hidden aria-label="Review as text"></textarea>
   </aside>
+  </div>
   </div>
 
   <section id="view-profile" class="view" hidden>
@@ -381,7 +383,7 @@ ${ROADMAP.map(([name, text]) => `      <li><strong>${name}.</strong> ${text}</li
     </ul>
   </section>
 
-  <footer class="page-foot">
+  <footer class="page-foot" id="page-foot">
     <button type="button" class="link-button" data-nav="roadmap">Roadmap</button>
     <span class="muted">Versions: <span id="versions"></span></span>
   </footer>

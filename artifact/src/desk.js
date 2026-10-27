@@ -44,6 +44,10 @@ export async function sendLetter() {
   const flap = scene.querySelector('.env-flap');
   const flapOpen = scene.querySelector('.env-flap-open');
   letter.scrollTop = 0;
+  // The envelope is taller than most screens: bring its top into view so the sealed envelope is seen
+  // leaving. The motions below are offsets, so the scroll can run alongside them.
+  const top = stage.getBoundingClientRect().top;
+  if (top < 0 || top > window.innerHeight * 0.25) window.scrollBy({ top: top - 16, behavior: 'smooth' });
 
   // 1. The front of the envelope rises and the letter slides in, its top just below the fold. Whatever
   // would pass the envelope's bottom edge is clipped, so the letter never shows below it.
@@ -67,12 +71,16 @@ export async function sendLetter() {
     { offset: 1, transform: FLAP_SHUT, opacity: 1 },
   ], { duration: 480, easing: EASE_IN_OUT })]);
 
-  // 3. The view pulls back until the whole sealed envelope fits in the stage.
+  // 3. The view pulls back until the whole sealed envelope fits in the part of the stage on screen
+  // (the stage is taller than most screens). Measured again: the page may have scrolled since step 1.
   const stageBox = stage.getBoundingClientRect();
-  const envTop = backBox.top - stageBox.top;
-  const scale = Math.min(0.6, (stageBox.height * 0.8) / backBox.height);
-  const lift = (stageBox.height - backBox.height * scale) / 2 - envTop;
-  scene.style.transformOrigin = `${backBox.left - stageBox.left + backBox.width / 2}px ${envTop}px`;
+  const bodyBox = back.getBoundingClientRect();
+  const shownTop = Math.max(stageBox.top, 0);
+  const shownHeight = Math.min(stageBox.bottom, window.innerHeight) - shownTop;
+  const envTop = bodyBox.top - stageBox.top;
+  const scale = Math.min(0.6, (shownHeight * 0.8) / bodyBox.height);
+  const lift = shownTop - stageBox.top + (shownHeight - bodyBox.height * scale) / 2 - envTop;
+  scene.style.transformOrigin = `${bodyBox.left - stageBox.left + bodyBox.width / 2}px ${envTop}px`;
   await settle([play(scene, [{ transform: 'none' }, { transform: `translateY(${lift}px) scale(${scale})` }], { duration: 520, easing: EASE_IN_OUT })]);
 
   // 4. A copy of the sealed envelope flies to the Mailbox. It lives outside the stage, which clips.

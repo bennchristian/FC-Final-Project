@@ -923,14 +923,13 @@ function renderHowItWorks() {
       el('li', {}, `Any score below ${t.auto_rewrite_below} is a concern. The Post gets a Gentler Rewrite automatically.`),
       el('li', {}, `If the lowest score is ${t.offer_rewrite_at}, the Post is likely to land well. Scores of ${t.offer_rewrite_at} are shown but not treated as problems, and you can ask for a gentler version.`),
       el('li', {}, `If every score is ${t.offer_rewrite_at + 1} or above, the Post is likely to land well and gets no rewrite.`),
-      el('li', {}, 'These thresholds are applied by code, not by the model, so the same scores always give the same result.'),
     ),
   );
   $('how-offence').replaceChildren(el('ul', {}, rubric.offence_sources.map((o) =>
     el('li', {}, el('strong', {}, `${o.name}. `), o.meaning, ' ', el('em', {}, o.effect)))));
   $('how-criteria').replaceChildren(...rubric.criteria.map((c) =>
-    el('section', { className: 'criterion' },
-      el('h4', {}, `${c.number}. ${c.name}`),
+    el('details', { className: 'criterion' },
+      el('summary', {}, `${c.number}. ${c.name}`),
       el('p', {}, `Scores whether ${c.scores_whether}`),
       c.applies_to === 'own_content' ? el('p', { className: 'muted' }, `Not used in this demo: ${c.na_reason_others}`) : null,
       el('p', { className: 'label' }, 'What each score means'),
@@ -939,11 +938,17 @@ function renderHowItWorks() {
       renderSources(c.sources),
     )));
   $('how-personas').replaceChildren(...CONTENT.personaSet.personas.map((p) =>
-    el('section', { className: 'criterion' },
-      el('h4', {}, p.name, ' ', simulatedTag()),
+    el('details', { className: 'criterion' },
+      el('summary', {}, p.name, ' ', simulatedTag()),
       el('p', {}, el('em', {}, p.summary)),
       renderPersona(p),
     )));
+}
+
+// How it works shows one topic at a time, chosen by the toggle at its top.
+function syncHowTab() {
+  const tab = formMode('how-tab');
+  for (const panel of document.querySelectorAll('.how-panel')) panel.hidden = panel.id !== `how-panel-${tab}`;
 }
 
 // One view at a time. The masthead marks Review on the send page and the results. Those two sit
@@ -1004,6 +1009,8 @@ function start() {
   $('send-feedback').addEventListener('click', onSendFeedback);
   document.querySelector('main').addEventListener('click', onNav);
   renderHowItWorks();
+  $('how-tabs').addEventListener('change', syncHowTab);
+  syncHowTab();
   const hashView = location.hash.slice(1);
   showView(['review', 'how', 'roadmap'].includes(hashView) ? hashView : 'home');
 

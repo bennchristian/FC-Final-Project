@@ -339,40 +339,75 @@ ${INTRO_HTML}
 
   <section id="view-how" class="view" hidden>
     <h1 class="view-title">How it works</h1>
-    <h2>How the mechanism works</h2>
-    <ol>
-      <li><strong>Scoring and reactions, separately.</strong> Claude reads the Post (text, screenshots, or a video transcript) twice, in two separate requests. One scores it against the rubric. The other voices the Personas. Neither sees the other’s answer, so a Persona’s reaction can never change a score.</li>
-      <li><strong>Code applies the thresholds.</strong> Whether a Post is likely to land well, and whether it gets a rewrite, is worked out by code from the scores, not by the model.</li>
-      <li><strong>Questions and rewrite.</strong> A third request writes Discussion Questions from the Post, its scores and the reactions. When a rewrite is needed, a fourth writes it. The rewrite never changes the Post’s beliefs.</li>
-      <li><strong>Checks.</strong> Every answer is checked against a fixed format before it is shown. Comment sections are ignored, and any @handle other than the poster’s is removed.</li>
-      <li><strong>What is kept.</strong> Each Review you send is saved to your own Past Reviews, which only you can see. Screenshots are never shown again or stored. Links are shown but never opened, except an Instagram reel link, which is used only to transcribe the reel’s spoken words.</li>
-    </ol>
-    <p>Every result shows the versions that produced it: the rubric, the Persona set, the prompts and the model. When the rubric or Personas are revised, they get a new version number, so old and new scores are never mixed.</p>
+    <div class="choices how-tabs" id="how-tabs" role="radiogroup" aria-label="How it works topics">
+      <label class="choice"><input type="radio" name="how-tab" value="overview" checked> Overview</label>
+      <label class="choice"><input type="radio" name="how-tab" value="scoring"> Scoring</label>
+      <label class="choice"><input type="radio" name="how-tab" value="personas"> Personas</label>
+      <label class="choice"><input type="radio" name="how-tab" value="mechanism"> Mechanism</label>
+      <label class="choice"><input type="radio" name="how-tab" value="sources"> Sources</label>
+      <label class="choice"><input type="radio" name="how-tab" value="privacy"> Privacy</label>
+    </div>
 
-    <h2>How a Post is scored</h2>
-    <div id="how-scoring"></div>
+    <div id="how-panel-overview" class="how-panel">
+      <h2>What happens when you send a Post</h2>
+      <ol>
+        <li><strong>You add Posts.</strong> A link, a video transcript, screenshots or the text. One of these is enough.</li>
+        <li><strong>Each Post is scored.</strong> Ten Criteria, each with a score and the Evidence that earned it.</li>
+        <li><strong>The Personas react.</strong> Simulated people outside the faith say how the Post lands with them.</li>
+        <li><strong>You get next steps.</strong> Discussion Questions for every Post, and a Gentler Rewrite when a score shows a concern. If the Post is someone else’s, the Outreach Plan helps you raise it with them.</li>
+      </ol>
+      <p>The other tabs explain each part: what the scores mean, who the Personas are, how the results are produced, where the rubric comes from, and what is kept.</p>
+    </div>
 
-    <h2>Where the rubric and Personas come from</h2>
-    <ul>
-      <li><strong>Scripture.</strong> The fruit of the Spirit (Galatians 5:22–23); love in 1 Corinthians 13; Jesus eating with tax collectors and sinners (Matthew 9:9–13); “not ours to judge those outside” (1 Corinthians 5:12–13); “gentleness and respect” (1 Peter 3:15–16); speech “seasoned with salt” toward outsiders (Colossians 4:5–6).</li>
-      <li><strong>Paul in Athens (Acts 17).</strong> Five marks from <em>Culture and Ministry Design</em> (p. 28, adapted from Flemming): know the audience’s culture; do not compromise truth claims, where the only acceptable offence is the offence of the gospel; do not condemn; invite dialogue and questions; give a clear answer. The comparison of Paul’s audiences in Acts 13, 14 and 17 also shaped the Personas.</li>
-      <li><strong>Research on how outsiders see Christians.</strong> Kinnaman and Lyons, <em>unChristian</em> (2007) and <em>Good Faith</em> (2016); Barna studies from 2018 to 2024; Pew Research Center and PRRI surveys of the religiously unaffiliated. The same gap shows up from 2007 to today: most people view Jesus positively but distrust Christians, mainly over hypocrisy, judgment and politics.</li>
-      <li><strong>Writers on witness.</strong> Tim Keller, <em>Center Church</em> (contextualisation); Lesslie Newbigin, <em>The Gospel in a Pluralist Society</em>; Dietrich Bonhoeffer, <em>Discipleship</em> and <em>Letters and Papers from Prison</em>; Elmer Thiessen, <em>The Ethics of Evangelism</em>; and <em>Christian Witness in a Multi-Religious World</em> (2011).</li>
-      <li><strong>The Personas.</strong> Built along four lines that change how a Post lands: how familiar the person is with Christianity (Engel scale), how open they are (Rainer scale), their history with church (none, drifted or hurt), and their worldview (secular, spiritual, or another faith).</li>
-      <li><strong>The Outreach Plan.</strong> Its tone follows Jethro advising Moses (Exodus 18): ask first, treat the person as a person, name the problem and why it matters, offer one concrete idea.</li>
-    </ul>
-    <p class="notice">No published, tested rubric for Christian social-media witness exists, so this one is a new synthesis. Language models can flatten or stereotype groups of people, so every Persona Reaction is labelled simulated: treat it as a hypothesis to test with real people, not as data. The rubric and Personas will be revised after interviews with real people outside the faith.</p>
+    <div id="how-panel-scoring" class="how-panel" hidden>
+      <h2>How a Post is scored</h2>
+      <div id="how-scoring"></div>
+      <h2>Sources of offence</h2>
+      <p>When a Post might offend, the score names where the offence comes from. This keeps apart offence at the message and offence caused by the messenger.</p>
+      <div id="how-offence"></div>
+      <h2>The ten Criteria</h2>
+      <div id="how-criteria"></div>
+    </div>
 
-    <h2>Sources of offence</h2>
-    <p>When a Post might offend, the score names where the offence comes from. This keeps apart offence at the message and offence caused by the messenger.</p>
-    <div id="how-offence"></div>
+    <div id="how-panel-personas" class="how-panel" hidden>
+      <h2>The Personas</h2>
+      <p>Each Persona is a simulated person with a believable background and reasons for their views, not a caricature. They are built along four lines that change how a Post lands: how familiar the person is with Christianity (Engel scale), how open they are (Rainer scale), their history with church (none, drifted or hurt), and their worldview (secular, spiritual, or another faith).</p>
+      <p>The political lean of the set is deliberately one-sided: there is no secular-conservative Persona.</p>
+      <p class="notice">Language models can flatten or stereotype groups of people, so every Persona Reaction is labelled simulated: treat it as a hypothesis to test with real people, not as data. The Personas will be revised after interviews with real people outside the faith.</p>
+      <div id="how-personas"></div>
+    </div>
 
-    <h2>The ten Criteria</h2>
-    <div id="how-criteria"></div>
+    <div id="how-panel-mechanism" class="how-panel" hidden>
+      <h2>How the results are produced</h2>
+      <ol>
+        <li><strong>Scoring and reactions, separately.</strong> Claude reads the Post (text, screenshots, or a video transcript) twice, in two separate requests. One scores it against the rubric. The other voices the Personas. Neither sees the other’s answer, so a Persona’s reaction can never change a score.</li>
+        <li><strong>Code applies the thresholds.</strong> Whether a Post is likely to land well, and whether it gets a rewrite, is worked out by code from the scores, not by the model, so the same scores always give the same result.</li>
+        <li><strong>Questions and rewrite.</strong> A third request writes Discussion Questions from the Post, its scores and the reactions. When a rewrite is needed, a fourth writes it. The rewrite never changes the Post’s beliefs.</li>
+        <li><strong>Checks.</strong> Every answer is checked against a fixed format before it is shown. Comment sections are ignored, and any @handle other than the poster’s is removed.</li>
+      </ol>
+      <p>Every result shows the versions that produced it: the rubric, the Persona set, the prompts and the model. When the rubric or Personas are revised, they get a new version number, so old and new scores are never mixed.</p>
+    </div>
 
-    <h2>The Personas</h2>
-    <p>Each Persona is a simulated person with a believable background and reasons for their views, not a caricature. The political lean of the set is deliberately one-sided: there is no secular-conservative Persona.</p>
-    <div id="how-personas"></div>
+    <div id="how-panel-sources" class="how-panel" hidden>
+      <h2>Where the rubric and Personas come from</h2>
+      <ul>
+        <li><strong>Scripture.</strong> The fruit of the Spirit (Galatians 5:22–23); love in 1 Corinthians 13; Jesus eating with tax collectors and sinners (Matthew 9:9–13); “not ours to judge those outside” (1 Corinthians 5:12–13); “gentleness and respect” (1 Peter 3:15–16); speech “seasoned with salt” toward outsiders (Colossians 4:5–6).</li>
+        <li><strong>Paul in Athens (Acts 17).</strong> Five marks from <em>Culture and Ministry Design</em> (p. 28, adapted from Flemming): know the audience’s culture; do not compromise truth claims, where the only acceptable offence is the offence of the gospel; do not condemn; invite dialogue and questions; give a clear answer. The comparison of Paul’s audiences in Acts 13, 14 and 17 also shaped the Personas.</li>
+        <li><strong>Research on how outsiders see Christians.</strong> Kinnaman and Lyons, <em>unChristian</em> (2007) and <em>Good Faith</em> (2016); Barna studies from 2018 to 2024; Pew Research Center and PRRI surveys of the religiously unaffiliated. The same gap shows up from 2007 to today: most people view Jesus positively but distrust Christians, mainly over hypocrisy, judgment and politics.</li>
+        <li><strong>Writers on witness.</strong> Tim Keller, <em>Center Church</em> (contextualisation); Lesslie Newbigin, <em>The Gospel in a Pluralist Society</em>; Dietrich Bonhoeffer, <em>Discipleship</em> and <em>Letters and Papers from Prison</em>; Elmer Thiessen, <em>The Ethics of Evangelism</em>; and <em>Christian Witness in a Multi-Religious World</em> (2011).</li>
+        <li><strong>The Outreach Plan.</strong> Its tone follows Jethro advising Moses (Exodus 18): ask first, treat the person as a person, name the problem and why it matters, offer one concrete idea.</li>
+      </ul>
+      <p class="notice">No published, tested rubric for Christian social-media witness exists, so this one is a new synthesis. The rubric will be revised after interviews with real people outside the faith.</p>
+    </div>
+
+    <div id="how-panel-privacy" class="how-panel" hidden>
+      <h2>What is kept</h2>
+      <ul>
+        <li><strong>Your Reviews.</strong> Each Review you send is saved to your own Past Reviews, which only you can see.</li>
+        <li><strong>Screenshots.</strong> Never shown again or stored.</li>
+        <li><strong>Links.</strong> Shown but never opened, except an Instagram reel link, which is used only to transcribe the reel’s spoken words.</li>
+      </ul>
+    </div>
   </section>
 
   <section id="view-roadmap" class="view" hidden>

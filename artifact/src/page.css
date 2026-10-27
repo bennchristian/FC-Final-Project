@@ -212,6 +212,17 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
 
 /* ---------- Text pages keep the letter-width column; the masthead and the desk use the full width ---------- */
 #view-profile, #view-how, #view-roadmap, .page-foot { max-width: 48rem; margin-inline: auto; }
+/* How it works: one topic at a time. On a phone the toggle becomes a 3 × 2 grid so every topic stays in view. */
+.how-tabs { display: flex; flex-wrap: nowrap; width: fit-content; margin: 1.6rem 0 0.4rem; }
+.how-tabs .choice { white-space: nowrap; padding-inline: 1em; }
+@media (max-width: 640px) {
+  .how-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; width: 100%; border-radius: 12px; background: var(--accent); }
+  .how-tabs .choice { justify-content: center; background: var(--bg); padding-inline: 0.5em; }
+  .how-tabs .choice + .choice { border-left: 0; }
+}
+.how-panel > h2:first-child { margin-top: 1.6rem; }
+.how-panel details.criterion { padding-top: 0.6rem; margin: 0.6rem 0; }
+.how-panel details.criterion > summary { font: 400 1.5rem/1.15 var(--serif); color: var(--fg); letter-spacing: -0.015em; }
 .page-foot { box-sizing: border-box; width: 100%; }
 .nav-icon { display: inline-flex; align-items: center; margin-left: 0.5em; padding: 0.1em 0 0.1em 0.45em; }
 .tabs .nav-icon { border-left: 0; }
@@ -270,16 +281,13 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
 }
 
 /* ---------- The desk: the letter in its open envelope, the Mailbox beside it (design partner's mockup) ----------
-   The envelope art reuses the intro's folds and paper gradients (fixed colours: it is an object, in either theme).
+   The envelope art reuses the intro's folds and paper gradients. The envelope, the letter paper and the Mailbox are
+   objects, so they keep fixed light colours in either theme.
    Geometry is set on .stage below. */
 .desk {
   --mail-red: #8A201C; --mail-cream: #FFFBF5; --mail-card: #CDD5DD; --mail-ink: #210C09; --mail-slate: #5D6378;
   --paper: #EFEEED; --paper-ink: #210C09; --paper-hint: #5D6378; --paper-line: #210C09; --chip: #FFFFFF; --chip-on: #C8D1D9;
   display: grid; grid-template-columns: minmax(0, 1fr) 17.5rem; gap: 2rem 3rem; align-items: start; margin-top: 1.4rem;
-}
-:root[data-theme="dark"] .desk { --paper: #2F1B17; --paper-ink: #FFFBF5; --paper-hint: #C8D1D9; --paper-line: #C8D1D9; --chip: #210C09; --chip-on: #4A3833; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .desk { --paper: #2F1B17; --paper-ink: #FFFBF5; --paper-hint: #C8D1D9; --paper-line: #C8D1D9; --chip: #210C09; --chip-on: #4A3833; }
 }
 .desk-main { min-width: 0; }
 .desk-title { font: italic 400 clamp(2.6rem, 5vw, 4rem)/1 var(--serif); color: var(--heading); text-align: center; margin: 0 0 0.35em; }
@@ -311,6 +319,10 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
   background: linear-gradient(162deg, color-mix(in srgb, var(--paper) 92%, #fff) 0%, var(--paper) 55%, color-mix(in srgb, var(--paper) 94%, #000) 100%);
   box-shadow: 0 -2px 14px rgba(70, 50, 25, 0.08);
   color: var(--paper-ink);
+  /* White paper in dark mode too: the page tokens are reset to their light values on the letter. */
+  --fg: #210C09; --heading: #8A201C; --heading-alt: #8A201C; --strong: #210C09; --accent: #8A201C; --on-accent: #FFFBF5;
+  --muted: #5D6378; --line: #D7DCE2; --soft: #EFEEED; --band: #DCE2E8; --field: #FFFFFF; --bad: #8A201C; --good: #210C09;
+  color-scheme: light;
   /* Letter type scales with the envelope, as in the mockup, with a readable floor. */
   --lt: clamp(0.94rem, 1.55cqw, 1.15rem);
 }
@@ -341,8 +353,6 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
 .letter .choices .choice { background: var(--chip); color: var(--paper-ink); font: 400 var(--lt)/1.2 var(--sans); letter-spacing: -0.02em; padding: 0.55em 0.75em; }
 .letter .choices .choice + .choice { border-left: 0; }
 .letter .choices .choice:has(input:checked) { background: var(--chip-on); color: var(--mail-slate); font-weight: 600; }
-:root[data-theme="dark"] .letter .choices .choice:has(input:checked) { color: var(--paper-ink); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .letter .choices .choice:has(input:checked) { color: var(--paper-ink); } }
 .letter .choices + .field { margin-top: 0.8rem; }
 
 .letter-actions button { font-size: 0.95rem; padding: 0.5em 1.1em; }

@@ -99,7 +99,6 @@ ${INTRO_CSS}
 ${EDITOR_CSS}</style>
 ${INTRO_HTML}
 <main>
-  <div class="back-row"><button type="button" id="theme-toggle" class="theme-toggle" aria-pressed="false">Dark mode</button></div>
   <header class="masthead">
     <button type="button" class="brand" id="nav-home" data-nav="home" aria-label="Living Letter: home">
       <img class="logo-light" src="${imgData('logo-red.png')}" width="360" height="210" alt="">
@@ -110,6 +109,10 @@ ${INTRO_HTML}
       <button type="button" id="nav-how" data-nav="how">How it works</button>
       <button type="button" id="nav-profile" class="nav-icon" data-nav="profile" aria-label="Your profile">
         <svg viewBox="0 0 40 44" aria-hidden="true"><circle cx="20" cy="12" r="9.5"/><path d="M2 42.5v-3.5c0-8 6.5-14 14.5-14h7c8 0 14.5 6 14.5 14v3.5z"/></svg>
+      </button>
+      <button type="button" id="theme-toggle" class="nav-icon theme-toggle" aria-pressed="false" aria-label="Dark mode" title="Dark mode">
+        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
       </button>
     </nav>
   </header>

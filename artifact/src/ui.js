@@ -999,7 +999,9 @@ function onNextPost() {
 function start() {
   $('lands-anywhere').textContent = COPY.landsAnywhere;
   $('link-notice').textContent = COPY.linkNotice;
-  $('versions').textContent = `${LABELS.rubric} · ${LABELS.personas} · ${LABELS.prompts}`;
+  // Each label stays whole when the line wraps (it would otherwise break at the hyphen in persona-set@1).
+  $('versions').replaceChildren(...[LABELS.rubric, LABELS.personas, LABELS.prompts]
+    .flatMap((label, i) => (i ? [' · '] : []).concat(el('span', { className: 'nowrap' }, label))));
   const picker = $('model');
   picker.replaceChildren(...CONTENT.models.artifact_picker.map((m) => el('option', { value: m.id }, m.label)));
   picker.addEventListener('change', () => { state.modelId = picker.value; });

@@ -370,15 +370,15 @@ ${INTRO_HTML}
       <label class="choice"><input type="radio" name="how-tab" value="privacy"> Privacy</label>
     </div>
 
-    <div id="how-panel-overview" class="how-panel">
-      <h2>What happens when you send a Post</h2>
-      <ol>
-        <li><strong>You add Posts.</strong> A link, a video transcript, screenshots or the text. One of these is enough.</li>
-        <li><strong>Each Post is scored.</strong> Ten Criteria, each with a score and the Evidence that earned it.</li>
-        <li><strong>The Personas react.</strong> Simulated people outside the faith say how the Post lands with them.</li>
-        <li><strong>You get next steps.</strong> Discussion Questions for every Post, and a Gentler Rewrite when a score shows a concern. If the Post is someone else’s, the Outreach Plan helps you raise it with them.</li>
+    <div id="how-panel-overview" class="how-panel how-overview">
+      <h2 class="sr-only">What happens when you send a Post</h2>
+      <ol class="how-steps">
+        <li><img class="how-art" src="${imgData('how-add.png')}" width="240" height="240" alt=""><h3>Add posts</h3><p>A link, a video transcript, screenshots or the text. One of these is enough.</p></li>
+        <li><img class="how-art" src="${imgData('how-score.png')}" width="240" height="240" alt=""><h3>Receive scoring</h3><p>Ten Criteria, each with a score and the Evidence that earned it.</p></li>
+        <li><img class="how-art" src="${imgData('how-react.png')}" width="240" height="240" alt=""><h3>The Personas react</h3><p>Simulated people outside the faith say how the Post lands with them.</p></li>
+        <li><img class="how-art" src="${imgData('how-next.png')}" width="240" height="240" alt=""><h3>Next steps</h3><p>Discussion Questions for every Post, and a Gentler Rewrite when a score shows a concern. If the Post is someone else’s, the Outreach Plan helps you raise it with them.</p></li>
       </ol>
-      <p>The other tabs explain each part: what the scores mean, who the Personas are, how the results are produced, where the rubric comes from, and what is kept.</p>
+      <p class="how-more">The other tabs explain each part: what the scores mean, who the Personas are, how the results are produced, where the rubric comes from, and what is kept.</p>
     </div>
 
     <div id="how-panel-scoring" class="how-panel" hidden>

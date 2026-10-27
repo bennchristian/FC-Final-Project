@@ -217,7 +217,7 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
 .page-foot .muted { font-size: inherit; }
 
 /* ---------- Text pages start at the masthead's left edge and keep a readable line length ---------- */
-#view-profile, #view-how, #view-roadmap { max-width: var(--measure); }
+#view-profile, #view-roadmap, .how-panel { max-width: var(--measure); }
 /* How it works: one topic at a time. On a phone the toggle becomes a 3 × 2 grid so every topic stays in view. */
 .how-tabs { display: flex; flex-wrap: nowrap; width: fit-content; margin: 1.6rem 0 0.4rem; }
 .how-tabs .choice { white-space: nowrap; padding-inline: 1em; }
@@ -227,6 +227,28 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
   .how-tabs .choice + .choice { border-left: 0; }
 }
 .how-panel > h2:first-child { margin-top: 1.6rem; }
+/* Overview (design partner's mockup): four steps joined by arrows across the full width, then a closing line.
+   The illustrations sit on the mockup's cream, so they read as small cards in dark mode. */
+.how-panel.how-overview { max-width: none; }
+.how-steps { list-style: none; padding: 0; margin: 3rem 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2.5rem 4.5rem; text-align: center; }
+.how-steps li { position: relative; margin: 0; }
+.how-steps li:not(:last-child)::after {
+  content: ""; position: absolute; top: calc(6rem - 4px); left: calc(100% + 0.75rem); width: 3rem; height: 8px;
+  background: var(--accent);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 8'%3E%3Cpath d='M0 4H43' stroke='%23000' stroke-width='1.5'/%3E%3Cpath d='M41 1l7 3-7 3z'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+}
+.how-art { display: block; width: min(100%, 12rem); height: auto; margin: 0 auto; border-radius: var(--radius); }
+.how-steps h3 { font: italic 400 var(--fs-xl)/1.15 var(--serif); color: var(--heading-alt); margin: 1.25rem 0 0.6rem; }
+.how-steps p { line-height: 1.5; margin: 0; text-wrap: balance; }
+.how-more { font-size: var(--fs-lg); line-height: 1.45; text-align: center; text-wrap: balance; max-width: 42rem; margin: 4.5rem auto 0; }
+@media (max-width: 860px) {
+  .how-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.5rem 2rem; }
+  .how-steps li::after { display: none; }
+}
+@media (max-width: 520px) {
+  .how-steps { grid-template-columns: minmax(0, 1fr); }
+  .how-more { font-size: var(--fs-md); margin-top: 3rem; }
+}
 .how-panel details.criterion { padding-top: 0.6rem; margin: 0.6rem 0; }
 .how-panel details.criterion > summary { font: 400 var(--fs-lg)/1.2 var(--serif); color: var(--fg); letter-spacing: -0.015em; }
 .page-foot { box-sizing: border-box; width: 100%; }

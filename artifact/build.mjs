@@ -26,6 +26,11 @@ function toScript(file) {
   return text.replace(/^import[\s\S]*?from\s+['"][^'"]+['"];\s*$/gm, '').replace(/^export\s+/gm, '');
 }
 
+// A PNG from artifact/src/img/ as a data: URI (the Artifact's CSP blocks other image hosts).
+function imgData(file) {
+  return `data:image/png;base64,${readFileSync(join(SRC, 'img', file)).toString('base64')}`;
+}
+
 // JSON safe to place inside a <script> element.
 function inlineJson(value) {
   return JSON.stringify(value).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
@@ -82,7 +87,9 @@ const ROADMAP = [
   ['Usage caps', 'Daily and monthly limits on Claude usage for the hosted Web App.'],
 ];
 
-const html = `<title>Living Letter</title>
+// The charset comes first: the Artifact host adds one on publish, but a local copy has only this.
+const html = `<meta charset="utf-8">
+<title>Living Letter</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 ${FONTS}
 <style>
@@ -109,49 +116,72 @@ ${INTRO_HTML}
     </nav>
   </header>
 
-  <section id="view-home" class="view" hidden>
-    <div class="title-block">
-      <h1>Living Letter</h1>
-      <p class="tagline">Learning to witness well in a world where our lives are the only gospel people know.</p>
+  <section id="view-home" class="view home" hidden>
+    <div class="home-hero">
+      <svg class="home-seal" viewBox="0 0 54 40" aria-hidden="true">
+        <rect x="1.5" y="1.5" width="51" height="37" rx="1.5"/>
+        <path d="M1.5 3 L27 23 L52.5 3 M2 38 L21 19 M52 38 L33 19"/>
+        <path class="home-seal-cross" d="M27 5.5 V14.5 M23.5 8.5 H30.5"/>
+      </svg>
+      <h1 class="home-tagline">Learning to witness well in a world where our lives may be <span class="home-underline">the only gospel people know.</span></h1>
+      <p class="home-what">Living Letter is a review system made for believers to sharpen their witness online.</p>
+      <p class="home-lede">Paste in public social-media Posts and see how they might land with people who do not share the Christian faith: rubric scores with evidence, simulated Persona reactions, a gentler rewrite, and discussion questions.</p>
     </div>
 
-    <h2>What is Living Letter</h2>
-    <p>Living Letter is a review system made for believers to sharpen their witness online.</p>
-    <p>Paste in public social-media Posts and see how they might land with people who do not share the Christian faith: rubric scores with evidence, simulated Persona reactions, a gentler rewrite, and discussion questions.</p>
+    <section class="home-band home-why" aria-labelledby="home-why-title">
+      <div class="home-why-text">
+        <h2 id="home-why-title">Social media ministry is growing fast.</h2>
+        <p>Social media has become one of the main places faith is shared. Already in 2014, one in five Americans (20%) had shared their faith on social media in the past week, and nearly half (46%) had seen someone else do it.<sup><a href="#source-1">1</a></sup> By 2018, 28% of US Christians said they use social media to share their faith, and 58% of non-Christians said someone had shared their faith with them on Facebook.<sup><a href="#source-2">2</a></sup></p>
+        <p>But the results sometimes backfire and harm how people see Christians and the faith. One in six US adults (17%) has unfollowed, blocked or muted someone because of the religious content they posted.<sup><a href="#source-3">3</a></sup> Among young adults outside the church, 87% called Christians judgmental and 85% called them hypocritical.<sup><a href="#source-4">4</a></sup></p>
+        <p class="home-resolve">In our endeavour to sharpen one another and our witness, we’ve created this tool so we can learn to <span class="home-underline">represent Jesus better.</span></p>
+      </div>
+      <div class="home-why-side">
+        <img class="home-art" src="${imgData('home-devices.png')}" width="880" height="591" alt="">
+        <ol class="footnotes">
+          <li id="source-1">Pew Research Center, <a href="https://www.pewresearch.org/religion/2014/11/06/religion-and-electronic-media/" target="_blank" rel="noopener noreferrer">survey of 3,217 US adults</a>, May–June 2014.</li>
+          <li id="source-2">Barna Group, <em>Spiritual Conversations in the Digital Age</em> (2018), reported in <a href="https://www.christianitytoday.com/news/2018/june/go-tell-it-iphone-technology-spiritual-conversation-barna.html" target="_blank" rel="noopener noreferrer">Christianity Today</a>.</li>
+          <li id="source-3">Pew Research Center, <a href="https://www.pewresearch.org/short-reads/2023/06/21/one-in-six-americans-have-taken-steps-to-see-less-of-someone-on-social-media-due-to-religious-content/" target="_blank" rel="noopener noreferrer">survey of 11,377 US adults</a>, November 2022.</li>
+          <li id="source-4">Barna Group for Kinnaman and Lyons, <em>unChristian</em> (2007): non-Christians aged 16 to 29, reported in <a href="https://content.time.com/time/nation/article/0,8599,1667639,00.html" target="_blank" rel="noopener noreferrer">TIME</a>.</li>
+        </ol>
+      </div>
+    </section>
 
-    <h2>Why Living Letter</h2>
-    <p>Social media has become one of the main places faith is shared. Already in 2014, one in five Americans (20%) had shared their faith on social media in the past week, and nearly half (46%) had seen someone else do it.<sup><a href="#source-1">1</a></sup> By 2018, 28% of US Christians said they use social media to share their faith, and 58% of non-Christians said someone had shared their faith with them on Facebook.<sup><a href="#source-2">2</a></sup></p>
-    <p>But the results sometimes backfire and harm how people see Christians and the faith. One in six US adults (17%) has unfollowed, blocked or muted someone because of the religious content they posted.<sup><a href="#source-3">3</a></sup> Among young adults outside the church, 87% called Christians judgmental and 85% called them hypocritical.<sup><a href="#source-4">4</a></sup></p>
-    <p>In our endeavour to sharpen one another and our witness, we’ve created this tool so we can learn to represent Jesus better.</p>
-    <ol class="footnotes">
-      <li id="source-1">Pew Research Center, <a href="https://www.pewresearch.org/religion/2014/11/06/religion-and-electronic-media/" target="_blank" rel="noopener noreferrer">survey of 3,217 US adults</a>, May–June 2014.</li>
-      <li id="source-2">Barna Group, <em>Spiritual Conversations in the Digital Age</em> (2018), reported in <a href="https://www.christianitytoday.com/news/2018/june/go-tell-it-iphone-technology-spiritual-conversation-barna.html" target="_blank" rel="noopener noreferrer">Christianity Today</a>.</li>
-      <li id="source-3">Pew Research Center, <a href="https://www.pewresearch.org/short-reads/2023/06/21/one-in-six-americans-have-taken-steps-to-see-less-of-someone-on-social-media-due-to-religious-content/" target="_blank" rel="noopener noreferrer">survey of 11,377 US adults</a>, November 2022.</li>
-      <li id="source-4">Barna Group for Kinnaman and Lyons, <em>unChristian</em> (2007): non-Christians aged 16 to 29, reported in <a href="https://content.time.com/time/nation/article/0,8599,1667639,00.html" target="_blank" rel="noopener noreferrer">TIME</a>.</li>
-    </ol>
+    <section class="home-band home-who" aria-labelledby="home-who-title">
+      <h2 id="home-who-title" class="home-sans-title">Who is it for?</h2>
+      <ul class="who-list">
+        <li><img class="home-art who-face" src="${imgData('home-creator.png')}" width="250" height="320" alt=""><div><h3>Christian Content Creators</h3><p>who want to review their drafts before posting.</p></div></li>
+        <li><img class="home-art who-face" src="${imgData('home-individual.png')}" width="250" height="320" alt=""><div><h3>Individuals</h3><p>who find contentious posts online and are unsure how to evaluate them.</p></div></li>
+        <li><img class="home-art who-face" src="${imgData('home-leader.png')}" width="250" height="320" alt=""><div><h3>Leaders of youth and young adults</h3><p>who want a teaching tool: how we should and should not present ourselves online, and why we should be intentional about how we represent Christ.</p></div></li>
+      </ul>
+    </section>
 
-    <h2>Who is it for</h2>
-    <ul>
-      <li><strong>Budding Christian content creators</strong> who want to review their drafts before posting.</li>
-      <li><strong>Anyone who finds a contentious post online</strong> and is unsure how to evaluate it.</li>
-      <li><strong>Leaders of youth and young adults</strong> who want a teaching tool: how we should and should not present ourselves online, and why we should be intentional about how we represent Christ.</li>
-    </ul>
+    <section class="home-band home-overview" aria-labelledby="home-overview-title">
+      <h2 id="home-overview-title">Overview</h2>
+      <p class="home-what">Add up to 10 public Posts from one church, ministry or Christian creator.<br>Upload a Post, and Living Letter gives you:</p>
+      <ul class="overview-cards">
+        <li><h3>Rubric Scores</h3><p>Ten Criteria of good witness, each scored 1 to 5 with a quote from the Post as Evidence and a short explanation. The Criteria come from Scripture, from Paul’s speech in Athens, and from research on how people outside the faith see Christians.</p></li>
+        <li><h3>Persona Reactions</h3><p>How seven simulated people might feel reading the Post: six outside the faith, and one Christian who might copy its tone.</p></li>
+        <li><h3>A gentler rewrite</h3><p>When the Post has room to improve: the same message and convictions, said more clearly and kindly.</p></li>
+        <li><h3>Discussion questions</h3><p>For a small group, including “How might Jesus have posted this?”</p></li>
+      </ul>
+    </section>
 
-    <h2>Overview</h2>
-    <p>Add up to 10 public Posts from one church, ministry or Christian creator. You upload a Post, and Living Letter gives you:</p>
-    <ul>
-      <li><strong>Rubric Scores.</strong> Ten Criteria of good witness, each scored 1 to 5 with a quote from the Post as Evidence and a short explanation. The Criteria come from Scripture, from Paul’s speech in Athens, and from research on how people outside the faith see Christians.</li>
-      <li><strong>Persona Reactions.</strong> How seven simulated people might feel reading the Post: six outside the faith, and one Christian who might copy its tone.</li>
-      <li><strong>A Gentler Rewrite.</strong> When the Post has room to improve: the same message and convictions, said more clearly and kindly.</li>
-      <li><strong>Discussion Questions.</strong> For a small group, including “How might Jesus have posted this?”</li>
-    </ul>
-
-    <h2>Why “Living Letter”</h2>
-    <blockquote class="scripture">
-      <p>You are our letter, written in our hearts, known and read by all men; being revealed that you are a letter of Christ, served by us, written not with ink, but with the Spirit of the living God; not in tablets of stone, but in tablets that are hearts of flesh.</p>
-      <cite>2 Corinthians 3:2–3 (World English Bible)</cite>
-    </blockquote>
-    <p>Paul told the church in Corinth that they were a letter from Christ, read by everyone around them. Today much of that letter is read online, one Post at a time.</p>
+    <section class="home-band home-name" aria-labelledby="home-name-title">
+      <h2 id="home-name-title" class="home-name-title"><span>Why…</span><span class="sr-only"> Living Letter</span>
+        <svg viewBox="0 0 340 214" aria-hidden="true">
+          <text x="6" y="104">Living</text>
+          <text x="6" y="200">Letter</text>
+          <path d="M152 22 H332 V206 H232 M332 22 L252 68" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"/>
+        </svg>
+      </h2>
+      <div class="home-name-text">
+        <blockquote class="home-verse">
+          <p>You yourselves are our letter of recommendation, written on our hearts, to be known and read by all. And you show that you are a letter from Christ delivered by us, written not with ink but with the Spirit of the living God, not on tablets of stone but on tablets of human hearts.</p>
+          <cite>2 Corinthians 3:2–3 (ESV)</cite>
+        </blockquote>
+        <p>Paul told the church in Corinth that they were a letter from Christ, read by everyone around them. Today much of that letter is read online, one Post at a time.</p>
+      </div>
+    </section>
 
     <p class="cta"><button type="button" id="start-reviewing" data-nav="review">Start reviewing</button></p>
   </section>

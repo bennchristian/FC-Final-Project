@@ -111,5 +111,5 @@ must come from a real Evaluation run, recorded before the motion pass.
 - **Hook wording (1.1).** Kept close to yours. Whether "this person's a Christian?" lands as surprise
   depends on delivery; a pause before "this" helps.
 - **Part A timing.** The draft reads at about a minute. If it runs long, cut 3.1 or shorten 4.4 first.
-- **End card.** Tagline from the Artifact: "Learning to witness well in a world where our lives are the
-  only gospel people know." Show it, say it, or leave it out.
+- **End card.** Tagline from the Artifact: "Learning to witness well in a world where our lives may be
+  the only gospel people know." Show it, say it, or leave it out.

@@ -14,6 +14,8 @@
   --line: #D7DCE2;      /* mist hairline */
   --soft: #EFEEED;      /* letter paper */
   --band: #DCE2E8;      /* mist band */
+  --card: #CDD5DD;      /* slate card (Home Overview) */
+  --card-ink: #210C09;
   --field: #FFFFFF;
   --bad: #8A201C;
   --good: #210C09;
@@ -23,13 +25,13 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #210C09; --fg: #FFFBF5; --heading: #FFFBF5; --accent: #EDA59E; --on-accent: #210C09;
-    --muted: #C8D1D9; --tagline: #C8D1D9; --line: #4A3833; --soft: #2F1B17; --band: #3A2723; --field: #2A1612;
+    --muted: #C8D1D9; --tagline: #C8D1D9; --line: #4A3833; --soft: #2F1B17; --band: #3A2723; --field: #2A1612; --card: #3A2723; --card-ink: #FFFBF5;
     --bad: #F2A097; --good: #FFFBF5; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #210C09; --fg: #FFFBF5; --heading: #FFFBF5; --accent: #EDA59E; --on-accent: #210C09;
-  --muted: #C8D1D9; --tagline: #C8D1D9; --line: #4A3833; --soft: #2F1B17; --band: #3A2723; --field: #2A1612;
+  --muted: #C8D1D9; --tagline: #C8D1D9; --line: #4A3833; --soft: #2F1B17; --band: #3A2723; --field: #2A1612; --card: #3A2723; --card-ink: #FFFBF5;
   --bad: #F2A097; --good: #FFFBF5; color-scheme: dark;
 }
 
@@ -209,12 +211,63 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
 .page-foot .link-button { font-size: 1rem; }
 
 /* ---------- Text pages keep the letter-width column; the masthead and the desk use the full width ---------- */
-#view-home, #view-profile, #view-how, #view-roadmap, .page-foot { max-width: 48rem; margin-inline: auto; }
+#view-profile, #view-how, #view-roadmap, .page-foot { max-width: 48rem; margin-inline: auto; }
 .page-foot { box-sizing: border-box; width: 100%; }
 .nav-icon { display: inline-flex; align-items: center; margin-left: 0.5em; padding: 0.1em 0 0.1em 0.45em; }
 .tabs .nav-icon { border-left: 0; }
 .nav-icon svg { width: 1.05em; height: 1.15em; fill: none; stroke: currentColor; stroke-width: 2.2; }
 .tabs .nav-icon[aria-current="page"] svg { fill: color-mix(in srgb, var(--heading) 16%, transparent); }
+
+/* ---------- Home (design partner's home mockup): a centred hero, then bands split by slate hairlines.
+   The illustrations (artifact/src/img/) are the design partner's, on transparent backgrounds, so they suit either theme. */
+#view-home { max-width: 76rem; margin-inline: auto; }
+.home-hero { text-align: center; max-width: 72rem; margin-inline: auto; padding-block: 3rem 4rem; }
+.home-seal { display: block; width: 52px; height: auto; margin: 0 auto 3rem; fill: none; stroke: var(--fg); stroke-width: 1.6; stroke-linejoin: round; }
+.home-seal-cross { stroke: var(--heading); }
+.home-tagline { font: italic 400 clamp(2.4rem, 5.2vw, 4rem)/1.12 var(--serif); color: var(--fg); letter-spacing: -0.03em; margin: 0; }
+.home-underline { text-decoration: underline; text-decoration-color: var(--muted); text-decoration-thickness: 1px; text-underline-offset: 0.12em; }
+.home-what { font: 500 clamp(1.35rem, 2.4vw, 1.8rem)/1.2 var(--sans); letter-spacing: -0.04em; color: var(--heading); text-wrap: balance; margin: 1.6em auto 0; }
+.home-lede { max-width: 48rem; margin: 1.8em auto 0; text-align: left; }
+.home-band { border-top: 1px solid var(--muted); padding-block: 4rem; }
+.home h2 { margin: 0; }
+.home-why { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 2.5rem 4rem; align-items: center; }
+.home-why h2 { font-size: clamp(2.6rem, 5vw, 3.6rem); letter-spacing: -0.045em; margin-bottom: 0.6em; }
+.home-resolve { font-weight: 600; margin-top: 1.2em; }
+.home-art { display: block; max-width: 100%; height: auto; }
+.home-why-side .home-art { width: min(100%, 26rem); margin-inline: auto; }
+.home-why-side .footnotes { border-top: 0; padding-top: 0; margin-top: 1.6rem; }
+.home-sans-title { font: 500 clamp(1.5rem, 2.6vw, 1.9rem)/1.2 var(--sans); letter-spacing: -0.04em; color: var(--heading); text-align: center; }
+.who-list { list-style: none; padding: 0; margin: 3rem 0 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2.5rem; }
+.who-list li { display: flex; gap: 1.2rem; align-items: flex-start; margin: 0; }
+.who-face { flex: none; width: 7rem; }
+.who-list h3 { font-size: clamp(1.7rem, 2.4vw, 2.1rem); letter-spacing: -0.04em; margin: 0.4rem 0; }
+.who-list p { font-size: 1.05rem; line-height: 1.3; margin: 0; }
+.home-overview { text-align: center; }
+.home-overview h2 { color: var(--fg); font-size: clamp(2.8rem, 5vw, 3.8rem); letter-spacing: -0.03em; }
+.home-overview .home-what { max-width: 60rem; margin-top: 0.6em; }
+.overview-cards { list-style: none; padding: 0; margin: 3rem 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.6rem; text-align: left; }
+.overview-cards li { background: var(--card); color: var(--card-ink); padding: 1.6rem 1.3rem 2rem; min-height: 17rem; margin: 0; }
+.overview-cards h3 { font-size: clamp(1.8rem, 2.4vw, 2.2rem); letter-spacing: -0.045em; color: var(--card-ink); text-align: center; margin: 0 0 0.8rem; }
+.overview-cards p { font-size: 1.05rem; line-height: 1.3; margin: 0; }
+.home-name { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 2fr); gap: 2rem 3.5rem; align-items: center; }
+.home-name-title { display: grid; gap: 1.2rem; font-size: clamp(2.8rem, 5vw, 3.6rem); letter-spacing: -0.04em; }
+.home-name-title svg { width: min(100%, 17rem); overflow: visible; }
+.home-name-title text { font-family: var(--serif); font-size: 128px; letter-spacing: -3px; fill: currentColor; }
+.home-verse { margin: 0; }
+.home-verse p { font: 500 clamp(1.3rem, 2.3vw, 1.75rem)/1.15 var(--sans); letter-spacing: -0.04em; margin: 0; }
+.home-verse cite { display: block; font: 500 clamp(1.2rem, 2vw, 1.6rem)/1.2 var(--sans); font-style: normal; letter-spacing: -0.04em; margin-top: 1em; }
+.home-name-text > p { font-size: 1.1rem; margin-top: 1.2em; }
+.home .cta { text-align: center; border-top: 1px solid var(--muted); padding-top: 3rem; margin-top: 0; }
+@media (max-width: 860px) {
+  .home-why, .home-name, .who-list { grid-template-columns: minmax(0, 1fr); }
+  .overview-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  .home-band { padding-block: 2.5rem; }
+  .overview-cards { grid-template-columns: minmax(0, 1fr); }
+  .overview-cards li { min-height: 0; }
+  .who-face { width: 5.5rem; }
+}
 
 /* ---------- The desk: the letter in its open envelope, the Mailbox beside it (design partner's mockup) ----------
    The envelope art reuses the intro's folds and paper gradients (fixed colours: it is an object, in either theme).

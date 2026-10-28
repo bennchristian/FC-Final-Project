@@ -72,6 +72,7 @@ The first use is formation, not correction: a youth leader puts other people's p
 - **Permitted Retrieval** — Reading Post content from a Source URL through a route the platform's terms allow. In MVP the only candidate is TikTok's public oEmbed endpoint [W2, conditional].
 - **Review** — One run of the tool over one or more Posts, producing one Evaluation per Post plus Review-level outputs. Records the Rubric Version and Persona Version used.
 - **Others' Review** — A Review of someone else's public Posts. **Own-Content Review** — a Review of the User's own published or draft Posts [W2].
+- **Connected Account** — A Creator's own Instagram professional account, linked to the Web App through Instagram's login so its Posts can be picked for an Own-Content Review (FR-16a) [Post-MVP].
 - **Evaluation** — The per-Post result: Rubric Scores, Persona Reactions, Gentler Rewrite, any Soundness Flag, and Discussion Questions.
 - **Rubric** — The set of Criteria that define good witness. **Rubric Version** — an immutable, numbered release of the Rubric (v1 is defined in §4.2).
 - **Criterion** — One dimension of the Rubric, scored per Post. **Rubric Score** — a Criterion's value: 1–5, or N/A when the Criterion does not apply. Every Rubric Score carries **Evidence**: a quote from the Post that earned it.
@@ -250,6 +251,14 @@ A Creator can record how they want to come across and rank their Target Audience
 #### FR-16: Run an Own-Content Review and Draft Checkpoint [W2]
 A Creator can review their own published Posts or an Unpublished Post, receiving the full Evaluation including Criterion 10.
 
+#### FR-16a: Connect a Creator's own Instagram account [Post-MVP, added 2026-10-28 by Bennett]
+A signed-in Creator can connect their own Instagram professional (Business or Creator) account and pick Posts from it for an Own-Content Review instead of pasting or screenshotting them (`ARCHITECTURE.md` AD-17).
+- The Creator connects through Instagram's own login and can disconnect at any time, which deletes the stored access.
+- The Web App reads only the Connected Account's own media: caption, media type, link, and for a carousel each slide's image. Slide images are sent to Claude as screenshots and are never stored.
+- Only Posts the Creator picks are read. Nothing is read on a schedule (§5, Not a monitor).
+- A personal (non-professional) account cannot connect; the Creator is told to paste or screenshot instead.
+- Until Meta approves the app (App Review and Business Verification), only accounts with a role on the app can connect.
+
 #### FR-17: Show the "lands anywhere" reminder [F]
 Every User sees a standing reminder that a post can land on anyone's page, so witness matters whatever the intended audience.
 
@@ -288,7 +297,7 @@ The Demo Artifact has a separate tab listing what is planned but not yet built, 
 
 ## 5. Non-Goals (Explicit)
 
-- **Not a scraper.** No automatic collection of posts from Instagram, TikTok, or anywhere else beyond FR-3 and the single-post read of FR-3a.
+- **Not a scraper.** No automatic collection of posts from Instagram, TikTok, or anywhere else beyond FR-3, the single-post read of FR-3a, and a Creator's own Connected Account (FR-16a).
 - **Not a content generator.** The Gentler Rewrite revises a supplied Post; the tool does not write new posts or content calendars for ministries.
 - **Not a theological judge.** No doctrinal scoring or rulings on a ministry or person; the Soundness Flag is the limit.
 - **Not a messenger.** The tool never sends messages, comments, or DMs.
@@ -318,6 +327,11 @@ Live public link on Vercel. Everything in 6.1 except FR-22, plus FR-10, FR-14 to
 - A secular-conservative persona — deliberately excluded.
 - A soundness standard and soundness-correcting rewrites — deferred (OQ-2).
 - Platforms beyond Instagram and TikTok as named targets (pasted content from anywhere still works).
+- Reading other people's accounts through Instagram Business Discovery: it covers only Business and Creator accounts, cannot look up one post by link, and needs App Review for production.
+
+### 6.4 After the MVP
+
+- **FR-16a Connected Account.** Lands after the week-2 Web App, because it needs a Meta developer app that Bennett creates and, for anyone outside the app's roles, Meta's App Review. Alternative to weigh first: Ayrshare is already Meta-approved and returns carousel slide links for connected accounts, but costs $299 a month after a 28-day trial.
 
 ## 7. Constraints and Guardrails
 

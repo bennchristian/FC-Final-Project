@@ -8,7 +8,7 @@ scope: 'Both MVP surfaces: the Demo Artifact (Fri 2026-10-23) and the Web App (w
 status: final
 created: '2026-10-21'
 updated: '2026-10-21'
-binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, FR-11, FR-12, FR-13, FR-14, FR-15, FR-16, FR-17, FR-18, FR-19, FR-20, FR-21, FR-22, FR-23, OQ-5]
+binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, FR-11, FR-12, FR-13, FR-14, FR-15, FR-16, FR-16a, FR-17, FR-18, FR-19, FR-20, FR-21, FR-22, FR-23, OQ-5]
 sources: [PRD.md, RULES.md, _bmad-output/planning-artifacts/prds/prd-FC-Final-Project-2026-10-21/addendum.md, bmad-ux shared note ux-facts-for-architecture.md]
 companions: [SCHEMA.md]
 ---
@@ -376,6 +376,7 @@ flowchart LR
     - A metadata failure falls back to the transcript alone, except a permission answer (`approval_required`, `not_in_manifest`), which stops the read.
   - The UI does not name Supadata. The page runs on the latest runtime contract, since `mcp` did not reach the page on 0.2.88.
   - If the post cannot be read, the Post is still added when it has text or screenshots; otherwise the viewer is asked to paste the transcript or text.
+  - A second exception, once AD-17 is adopted: the Web App reads a Creator's own Connected Account through the official Instagram API (FR-16a). It reads by media id, never by Source URL.
   - Source URLs are display-only and are never sent to a model. Profile URLs are never read.
 
 ### AD-14 — PRD tone and content rules live in versioned prompt content
@@ -461,6 +462,26 @@ flowchart LR
     - Vitest runs them against `src/domain/`, from week 2.
     - Both are in the check command.
     - The fake adapter's fixtures are conformance-valid outputs.
+
+### AD-17 — A Creator's own Instagram account is read only through the official API, on the server [PROPOSED 2026-10-28, Post-MVP]
+
+- **Binds:** FR-16, FR-16a, Web App only
+- **Prevents:** reading anyone else's account, an access token reaching the browser, slide images kept after an Evaluation.
+- **Rule:**
+  - **App and login:**
+    - A Meta app using "Instagram API with Instagram Login", requesting `instagram_business_basic` only.
+    - The OAuth callback is `/api/instagram/callback`. It runs behind the verified user (AD-9).
+  - **Token:**
+    - The long-lived token (60 days) is encrypted and stored in a server-only `instagram_connection` row with no Data API access, even for its owner (`SCHEMA.md` §5, AD-9).
+    - It is refreshed before it expires and never sent to the client. Disconnect deletes the row.
+  - **Reads (only on the Creator's action; no schedule):**
+    - `/api/instagram/media` lists the Connected Account's posts: `id, caption, media_type, permalink, timestamp, thumbnail_url`.
+    - `/api/instagram/media/[id]` reads one post, plus `children{media_type,media_url}` for a carousel.
+  - **Slide images:**
+    - The server downloads them, downscales them to the AD-5 edge, and passes them to step 1 as screenshots.
+    - They are never stored. The per-Post cap is `MAX_IMAGES_PER_POST`.
+  - **Config:** `INSTAGRAM_APP_ID` and `INSTAGRAM_APP_SECRET` (server-only), plus the token-encryption key `INSTAGRAM_TOKEN_KEY`, live in Vercel env (AD-15). Development uses the app in Development mode, with Bennett's accounts as testers.
+  - **Scope:** personal accounts, other people's accounts and Business Discovery are out (PRD §6.3).
 
 ## Consistency Conventions
 
@@ -572,6 +593,7 @@ FC-Final-Project/
 | FR-13 Ministry Outreach Plan | F + W2 | Outreach (`artifact/src/pipeline.js`; `/api/reviews/[id]/outreach`) | AD-2, AD-8, AD-12, AD-14 |
 | FR-14 Profile Summary | W2 | `src/domain` stats + Profile Summary call | AD-2, AD-3 |
 | FR-15/16 Creator Foundation, Own-Content, Draft Checkpoint, Criterion 10 | W2 | `creator_foundation`; `review.kind`, `is_draft_checkpoint` | AD-3, AD-6, AD-9 |
+| FR-16a Connected Account | Post-MVP | `instagram_connection`; `/api/instagram/*` | AD-5, AD-9, AD-13, AD-15, AD-17 |
 | FR-17 "Lands anywhere" reminder | F + W2 | fixed UI copy | AD-14 |
 | FR-18 Accounts | W2 | Supabase Auth, `src/proxy.ts` | AD-9, AD-11 |
 | FR-19 Saved Reviews | W2 | `review` and its children, reopened | AD-5, AD-6, AD-9, AD-10 |

@@ -826,7 +826,6 @@ function renderPast() {
         state.reviewId === item.id ? el('span', { className: 'muted' }, ' · Open now') : null),
       el('p', {}, `${plural(item.postCount, 'Post', 'Posts')}: ${t.landsWell || 0} likely to land well, ${t.concerns || 0} with concerns.`),
       item.reviewSourceUrl ? el('p', {}, 'Profile: ', sourceLink(item.reviewSourceUrl)) : null,
-      el('p', { className: 'muted' }, `Versions: ${item.labels ? `${item.labels.rubric} · ${item.labels.personas} · ${item.labels.prompts}` : 'unknown'}`),
       openable ? null : el('p', { className: 'muted' }, COPY.pastOtherVersions),
       el('div', { className: 'row' },
         el('button', { type: 'button', onclick: () => onOpenPast(item), disabled: state.busy || !openable }, 'Open'),
@@ -999,9 +998,6 @@ function onNextPost() {
 function start() {
   $('lands-anywhere').textContent = COPY.landsAnywhere;
   $('link-notice').textContent = COPY.linkNotice;
-  // Each label stays whole when the line wraps (it would otherwise break at the hyphen in persona-set@1).
-  $('versions').replaceChildren(...[LABELS.rubric, LABELS.personas, LABELS.prompts]
-    .flatMap((label, i) => (i ? [' · '] : []).concat(el('span', { className: 'nowrap' }, label))));
   const picker = $('model');
   picker.replaceChildren(...CONTENT.models.artifact_picker.map((m) => el('option', { value: m.id }, m.label)));
   picker.addEventListener('change', () => { state.modelId = picker.value; });

@@ -387,22 +387,30 @@ ${INTRO_HTML}
       <p class="how-more">The other tabs explain each part: what the scores mean, who the Personas are, how the results are produced, where the rubric comes from, and what is kept.</p>
     </div>
 
-    <div id="how-panel-scoring" class="how-panel" hidden>
-      <h2>How a Post is scored</h2>
-      <div id="how-scoring"></div>
-      <h2>Sources of offence</h2>
-      <p>When a Post might offend, the score names where the offence comes from. This keeps apart offence at the message and offence caused by the messenger.</p>
-      <div id="how-offence"></div>
-      <h2>The ten Criteria</h2>
-      <div id="how-criteria"></div>
+    <div id="how-panel-scoring" class="how-panel how-split" hidden>
+      <div class="how-split-main">
+        <h2>How a Post is scored</h2>
+        <div id="how-scoring"></div>
+        <h2>Sources of offence</h2>
+        <p>When a Post might offend, the score names where the offence comes from. This keeps apart offence at the message and offence caused by the messenger.</p>
+        <div id="how-offence"></div>
+      </div>
+      <div class="how-split-side">
+        <h2>The ten Criteria</h2>
+        <div id="how-criteria"></div>
+      </div>
     </div>
 
-    <div id="how-panel-personas" class="how-panel" hidden>
-      <h2>The Personas</h2>
-      <p>Each Persona is a simulated person with a believable background and reasons for their views, not a caricature. They are built along four lines that change how a Post lands: how familiar the person is with Christianity (Engel scale), how open they are (Rainer scale), their history with church (none, drifted or hurt), and their worldview (secular, spiritual, or another faith).</p>
-      <p>The political lean of the set is deliberately one-sided: there is no secular-conservative Persona.</p>
-      <p class="notice">Language models can flatten or stereotype groups of people, so every Persona Reaction is labelled simulated: treat it as a hypothesis to test with real people, not as data. The Personas will be revised after interviews with real people outside the faith.</p>
-      <div id="how-personas"></div>
+    <div id="how-panel-personas" class="how-panel how-split" hidden>
+      <div class="how-split-main">
+        <h2>The Personas</h2>
+        <p>Each Persona is a simulated person with a believable background and reasons for their views, not a caricature. They are built along four lines that change how a Post lands: how familiar the person is with Christianity (Engel scale), how open they are (Rainer scale), their history with church (none, drifted or hurt), and their worldview (secular, spiritual, or another faith).</p>
+        <p>The political lean of the set is deliberately one-sided: there is no secular-conservative Persona.</p>
+        <p class="notice">Language models can flatten or stereotype groups of people, so every Persona Reaction is labelled simulated: treat it as a hypothesis to test with real people, not as data. The Personas will be revised after interviews with real people outside the faith.</p>
+      </div>
+      <div class="how-split-side is-list">
+        <div id="how-personas"></div>
+      </div>
     </div>
 
     <div id="how-panel-mechanism" class="how-panel" hidden>
@@ -448,7 +456,6 @@ ${ROADMAP.map(([name, text]) => `      <li><strong>${name}.</strong> ${text}</li
 
   <footer class="page-foot" id="page-foot">
     <button type="button" class="link-button" data-nav="roadmap">Roadmap</button>
-    <span class="muted">Versions: <span id="versions"></span></span>
   </footer>
 </main>
 <script>

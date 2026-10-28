@@ -19,9 +19,9 @@ import { STYLE_KEYS, FONT_CHOICES, COPY_EDITS_VERSION, normalizeText, matchCopyE
   // Claude still scores with the locked rubric and Persona text (Bennett, 2026-10-26).
   // The Review results are re-rendered by ui.js, so their boxes are found again after each render.
   const LIVE = '#posts, #feedback-body';
-  // Status and error lines, the versions label, the lists ui.js re-renders outside the results
+  // Status and error lines, the lists ui.js re-renders outside the results
   // (the send page's Posts, the overall summary, Past Reviews) and the editor itself are never editable.
-  const EXCLUDED = '#availability, #images-hint, #post-count, #versions, #post-list, #overall, #past-list, #past-state, [aria-live], .error, #ce-bar, #ce-handle';
+  const EXCLUDED = '#availability, #images-hint, #post-count, #post-list, #overall, #past-list, #past-state, [aria-live], .error, #ce-bar, #ce-handle';
   const SKIPPED_TAGS = new Set(['SCRIPT', 'STYLE', 'TEMPLATE', 'SVG', 'SELECT', 'OPTION', 'TEXTAREA', 'INPUT']);
 
   function hasOwnText(node) {

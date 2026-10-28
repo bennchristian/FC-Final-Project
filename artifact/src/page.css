@@ -129,7 +129,6 @@ fieldset.either legend + * { clear: both; }
 .choices .choice input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .choices .choice:has(input:checked) { background: var(--accent); color: var(--on-accent); }
 .choices .choice:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 3px; }
-.nowrap { white-space: nowrap; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 1rem; }
 .muted { color: var(--muted); font-size: var(--fs-sm); }
@@ -214,7 +213,6 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
 .past-item h3 .muted { font-family: var(--sans); letter-spacing: 0; }
 .past-item p { margin: 0.3em 0; }
 .page-foot { margin-top: 4rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: var(--fs-xs); color: var(--muted); display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baseline; justify-content: space-between; }
-.page-foot .muted { font-size: inherit; }
 
 /* ---------- Text pages start at the masthead's left edge and keep a readable line length ---------- */
 #view-profile, #view-roadmap, .how-panel { max-width: var(--measure); }
@@ -251,6 +249,14 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
 }
 .how-panel details.criterion { padding-top: 0.6rem; margin: 0.6rem 0; }
 .how-panel details.criterion > summary { font: 400 var(--fs-lg)/1.2 var(--serif); color: var(--fg); letter-spacing: -0.015em; }
+/* Scoring and Personas: the explanation on the left, the Criteria or Personas list on the right; one column below 1000px. */
+.how-split > div > h2:first-child { margin-top: 1.6rem; }
+@media (min-width: 1000px) {
+  .how-panel.how-split { max-width: none; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 4rem; align-items: start; }
+  /* The Personas list has no heading: its first rule lines up with the heading opposite. */
+  .how-split-side.is-list { padding-top: 1.6rem; }
+  .how-split-side.is-list .criterion:first-child { margin-top: 0; }
+}
 .page-foot { box-sizing: border-box; width: 100%; }
 .nav-icon { display: inline-flex; align-items: center; margin-left: 0.5em; padding: 0.1em 0 0.1em 0.45em; }
 .tabs .nav-icon { border-left: 0; }

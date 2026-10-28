@@ -228,16 +228,16 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
 }
 .how-panel > h2:first-child { margin-top: 1.6rem; }
 /* Overview (design partner's mockup): four steps joined by arrows across the full width, then a closing line.
-   The illustrations sit on the mockup's cream, so they read as small cards in dark mode. */
+   The icons (artifact/src/img/icon-*.png) are transparent; each sits in a 10rem box, so the arrows meet their middles. */
 .how-panel.how-overview { max-width: none; }
 .how-steps { list-style: none; padding: 0; margin: 3rem 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2.5rem 4.5rem; text-align: center; }
 .how-steps li { position: relative; margin: 0; }
 .how-steps li:not(:last-child)::after {
-  content: ""; position: absolute; top: calc(6rem - 4px); left: calc(100% + 0.75rem); width: 3rem; height: 8px;
+  content: ""; position: absolute; top: calc(5rem - 4px); left: calc(100% + 0.75rem); width: 3rem; height: 8px;
   background: var(--accent);
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 8'%3E%3Cpath d='M0 4H43' stroke='%23000' stroke-width='1.5'/%3E%3Cpath d='M41 1l7 3-7 3z'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
 }
-.how-art { display: block; width: min(100%, 12rem); height: auto; margin: 0 auto; border-radius: var(--radius); }
+.how-art { display: block; width: 100%; max-width: 12rem; height: 10rem; margin: 0 auto; background-position: center; background-size: contain; background-repeat: no-repeat; }
 .how-steps h3 { font: italic 400 var(--fs-xl)/1.15 var(--serif); color: var(--heading-alt); margin: 1.25rem 0 0.6rem; }
 .how-steps p { line-height: 1.5; margin: 0; text-wrap: balance; }
 .how-more { font-size: var(--fs-lg); line-height: 1.45; text-align: center; text-wrap: balance; max-width: 42rem; margin: 4.5rem auto 0; }
@@ -283,10 +283,16 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
 .home-overview { text-align: center; }
 .home-overview h2 { color: var(--fg); letter-spacing: -0.03em; }
 .home-overview .home-what { max-width: 56rem; margin-top: 0.75rem; }
-.overview-cards { list-style: none; padding: 0; margin: 3rem 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.6rem; text-align: left; }
-.overview-cards li { background: var(--card); color: var(--card-ink); border-radius: var(--radius); padding: 1.5rem 1.25rem 1.75rem; margin: 0; }
-.overview-cards h3 { letter-spacing: -0.03em; color: var(--card-ink); text-align: center; margin: 0 0 0.8rem; }
-.overview-cards p { font-size: var(--fs-sm); line-height: 1.5; margin: 0; }
+.overview-cards {
+  list-style: none; margin: 3rem 0 0; padding: 3rem clamp(1.25rem, 3vw, 2.5rem) 3.5rem;
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2.5rem; text-align: center;
+  background: var(--card); color: var(--card-ink); border-radius: var(--radius); box-shadow: 0 6px 18px rgba(33, 12, 9, 0.12);
+}
+.overview-cards li { margin: 0; }
+/* The icon itself comes from an .icon-* class that build.mjs writes. */
+.overview-art { display: block; width: 100%; max-width: 10rem; height: 8.5rem; margin: 0 auto 1.5rem; background-position: center; background-size: contain; background-repeat: no-repeat; }
+.overview-cards h3 { letter-spacing: -0.03em; color: var(--card-ink); margin: 0 0 0.75rem; }
+.overview-cards p { font-size: var(--fs-sm); line-height: 1.5; margin: 0; text-wrap: balance; }
 .home-name { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 2fr); gap: 2rem 3.5rem; align-items: center; }
 .home-name-title { color: var(--heading); display: grid; gap: 1rem; letter-spacing: -0.03em; }
 .home-name-title svg { width: min(100%, 17rem); overflow: visible; }

@@ -73,6 +73,11 @@ const INTRO_CSS = readFileSync(join(SRC, 'intro.css'), 'utf8');
 const INTRO_HTML = readFileSync(join(SRC, 'intro.html'), 'utf8').replace('{{LOGO_RED}}', imgData('logo-red.png'));
 if (/<\/style/i.test(INTRO_CSS)) fail(['intro.css: contains "</style"']);
 const PAGE_CSS = readFileSync(join(SRC, 'page.css'), 'utf8');
+// The design partner's icons, used on Home and in How it works: each is inlined once, as a CSS variable,
+// and shown as a background (the images are decorative), so a second use costs nothing.
+const ICONS = ['checklist', 'person', 'pen', 'bubbles', 'mailbox'];
+const ICON_CSS = `:root { ${ICONS.map((n) => `--icon-${n}: url("${imgData(`icon-${n}.png`)}");`).join(' ')} }\n`
+  + ICONS.map((n) => `.icon-${n} { background-image: var(--icon-${n}); }`).join('\n');
 if (/<\/style/i.test(PAGE_CSS)) fail(['page.css: contains "</style"']);
 const EDITOR_CSS = readFileSync(join(SRC, 'editor.css'), 'utf8');
 if (/<\/style/i.test(EDITOR_CSS)) fail(['editor.css: contains "</style"']);
@@ -95,6 +100,7 @@ const html = `<meta charset="utf-8">
 ${FONTS}
 <style>
 ${PAGE_CSS}
+${ICON_CSS}
 ${INTRO_CSS}
 ${EDITOR_CSS}</style>
 ${INTRO_HTML}
@@ -160,10 +166,10 @@ ${INTRO_HTML}
       <h2 id="home-overview-title">Overview</h2>
       <p class="home-what">Add up to 10 public Posts from one church, ministry or Christian creator.<br>Upload a Post, and Living Letter gives you:</p>
       <ul class="overview-cards">
-        <li><h3>Rubric Scores</h3><p>Ten Criteria of good witness, each scored 1 to 5 with a quote from the Post as Evidence and a short explanation. The Criteria come from Scripture, from Paul’s speech in Athens, and from research on how people outside the faith see Christians.</p></li>
-        <li><h3>Persona Reactions</h3><p>How seven simulated people might feel reading the Post: six outside the faith, and one Christian who might copy its tone.</p></li>
-        <li><h3>A gentler rewrite</h3><p>When the Post has room to improve: the same message and convictions, said more clearly and kindly.</p></li>
-        <li><h3>Discussion questions</h3><p>For a small group, including “How might Jesus have posted this?”</p></li>
+        <li><span class="overview-art icon-checklist" aria-hidden="true"></span><h3>Rubric Scores</h3><p>Ten Criteria of good witness, each scored 1 to 5 with a quote from the Post as Evidence and a short explanation. The Criteria come from Scripture, from Paul’s speech in Athens, and from research on how people outside the faith see Christians.</p></li>
+        <li><span class="overview-art icon-person" aria-hidden="true"></span><h3>Persona Reactions</h3><p>How seven simulated people might feel reading the Post: six outside the faith, and one Christian who might copy its tone.</p></li>
+        <li><span class="overview-art icon-pen" aria-hidden="true"></span><h3>A gentler rewrite</h3><p>When the Post has room to improve: the same message and convictions, said more clearly and kindly.</p></li>
+        <li><span class="overview-art icon-bubbles" aria-hidden="true"></span><h3>Discussion questions</h3><p>For a small group, including “How might Jesus have posted this?”</p></li>
       </ul>
     </section>
 
@@ -373,10 +379,10 @@ ${INTRO_HTML}
     <div id="how-panel-overview" class="how-panel how-overview">
       <h2 class="sr-only">What happens when you send a Post</h2>
       <ol class="how-steps">
-        <li><img class="how-art" src="${imgData('how-add.png')}" width="240" height="240" alt=""><h3>Add posts</h3><p>A link, a video transcript, screenshots or the text. One of these is enough.</p></li>
-        <li><img class="how-art" src="${imgData('how-score.png')}" width="240" height="240" alt=""><h3>Receive scoring</h3><p>Ten Criteria, each with a score and the Evidence that earned it.</p></li>
-        <li><img class="how-art" src="${imgData('how-react.png')}" width="240" height="240" alt=""><h3>The Personas react</h3><p>Simulated people outside the faith say how the Post lands with them.</p></li>
-        <li><img class="how-art" src="${imgData('how-next.png')}" width="240" height="240" alt=""><h3>Next steps</h3><p>Discussion Questions for every Post, and a Gentler Rewrite when a score shows a concern. If the Post is someone else’s, the Outreach Plan helps you raise it with them.</p></li>
+        <li><span class="how-art icon-mailbox" aria-hidden="true"></span><h3>Add posts</h3><p>A link, a video transcript, screenshots or the text. One of these is enough.</p></li>
+        <li><span class="how-art icon-checklist" aria-hidden="true"></span><h3>Receive scoring</h3><p>Ten Criteria, each with a score and the Evidence that earned it.</p></li>
+        <li><span class="how-art icon-person" aria-hidden="true"></span><h3>The Personas react</h3><p>Simulated people outside the faith say how the Post lands with them.</p></li>
+        <li><span class="how-art icon-bubbles" aria-hidden="true"></span><h3>Next steps</h3><p>Discussion Questions for every Post, and a Gentler Rewrite when a score shows a concern. If the Post is someone else’s, the Outreach Plan helps you raise it with them.</p></li>
       </ol>
       <p class="how-more">The other tabs explain each part: what the scores mean, who the Personas are, how the results are produced, where the rubric comes from, and what is kept.</p>
     </div>

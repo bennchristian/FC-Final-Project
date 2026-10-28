@@ -1,10 +1,13 @@
 // Home page motion (design partner, 2026-10-28). The first time Home is on screen, the envelope mark
 // draws itself and the hero text is typed in place, then "the only gospel people know" is underlined.
-// Then the devices beside the statistics drop in from above, once they are also in view, and float.
+// Once the underline is fully drawn, the devices beside the statistics drop in from above as soon as
+// half of them is in view, then hover gently.
 // With reduced motion none of it runs: everything is simply there. Decoration only: the text is in
 // the page from the start, so nothing depends on this running.
 
-const TYPING = [['.home-tagline', 32], ['.home-hero .home-what', 14], ['.home-lede', 5]];
+const TYPING = [['.home-tagline', 22], ['.home-hero .home-what', 9], ['.home-lede', 3]];
+const UNDERLINE_MS = 900; // matches the underline transition in page.css
+const DEVICES_IN_VIEW = 0.5;
 
 let homeMotion = 'off'; // off -> waiting -> played
 let heroTyped = false;
@@ -27,14 +30,19 @@ export async function playHomeMotion() {
   const seal = view.querySelector('.home-seal');
   const strokes = [...seal.children];
   for (const stroke of strokes) Object.assign(stroke.style, { strokeDasharray: '1', strokeDashoffset: '1' });
+  // Each block of text stays hidden until its own typing starts.
+  const blocks = TYPING.map(([selector, msPerChar]) => [view.querySelector(selector), msPerChar]);
+  for (const [el] of blocks) el.classList.add('type-pending');
   view.classList.replace('home-hero-wait', 'home-hero-typing');
   await Promise.all(strokes.map((stroke, i) => stroke.animate(
     [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }],
-    { duration: 650, delay: i * 220, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fill: 'forwards' },
+    { duration: 450, delay: i * 150, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fill: 'forwards' },
   ).finished.catch(() => undefined)));
-  for (const [selector, msPerChar] of TYPING) await typeInPlace(view.querySelector(selector), msPerChar);
-  // CSS draws the underline across "the only gospel people know" once the typing class goes.
+  for (const [el, msPerChar] of blocks) await typeInPlace(el, msPerChar);
+  // CSS draws the underline across "the only gospel people know" once the typing class goes;
+  // the devices wait until it is fully drawn.
   view.classList.replace('home-hero-typing', 'home-hero-typed');
+  await new Promise((resolve) => setTimeout(resolve, UNDERLINE_MS));
   heroTyped = true;
   showDevices();
 }
@@ -55,6 +63,8 @@ function typeInPlace(el, msPerChar) {
       node.replaceWith(shown, rest);
       return { node, shown, rest, text: node.data };
     });
+    // Its text is now all in hidden remainders, so the block can show without a flash.
+    el.classList.remove('type-pending');
     const caret = document.createElement('span');
     caret.className = 'type-caret';
     caret.setAttribute('aria-hidden', 'true');
@@ -88,7 +98,8 @@ function typeInPlace(el, msPerChar) {
   });
 }
 
-// The devices wait, hidden, until the hero is typed and about a third of them is in view.
+// The devices wait, hidden, until the hero is typed and half of them is in view. The first report
+// counts as "in view" only if half is already showing (isIntersecting alone is true for a sliver).
 function watchDevices() {
   const box = document.querySelector('.home-devices');
   if (!box) return;
@@ -98,12 +109,12 @@ function watchDevices() {
     return;
   }
   const observer = new IntersectionObserver((entries) => {
-    if (entries.some((entry) => entry.isIntersecting)) {
+    if (entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= DEVICES_IN_VIEW)) {
       observer.disconnect();
       devicesInView = true;
       showDevices();
     }
-  }, { threshold: 0.3 });
+  }, { threshold: DEVICES_IN_VIEW });
   observer.observe(box);
 }
 

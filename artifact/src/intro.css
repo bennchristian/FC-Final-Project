@@ -1,7 +1,8 @@
 /* Living Letter: first-screen intro (envelope opens; Learn more or Begin review closes it and it flies off).
    Geometry is laid out on a 1920x1080 stage that is scaled to the viewport (--s, set in intro.js).
    Stage map (from the design person's slide 2): envelope hinge y=790, x 225..1695 (W 1470, H 1200),
-   flap depth 750 (open apex y=40), letter 1093 wide at (415,278), letter rests 542px lower when inside. */
+   flap depth 750 (open apex y=40), letter 1093 wide at (415,190), letter rests 630px lower when inside.
+   The letter stands high enough that the room above it (flap) and below its buttons are about even. */
 
 #ll-intro {
   --ll-cream: #FFFBF5;
@@ -14,7 +15,7 @@
   --ll-sans: "Open Sans", "Segoe UI", Arial, sans-serif;
   --s: 1;
   --ll-closed: translateY(-770px) scale(0.45);
-  --ll-letter-in: translateY(542px);
+  --ll-letter-in: translateY(630px);
 
   position: fixed;
   inset: 0;
@@ -69,7 +70,7 @@
 
 /* ---------- The letter ---------- */
 #ll-intro .ll-letter {
-  left: 415px; top: 278px; width: 1093px; height: 1150px; z-index: 3;
+  left: 415px; top: 190px; width: 1093px; height: 1150px; z-index: 3;
   box-sizing: border-box; margin: 0; padding: 40px 40px 0 38px;
   background: linear-gradient(162deg, #F3F2F1 0%, var(--ll-card) 55%, #E9E7E4 100%);
   box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.7) inset, 0 -2px 14px rgba(70, 50, 25, 0.08);
@@ -94,7 +95,7 @@
   font: 400 26px/1.04 var(--ll-sans); letter-spacing: -0.045em;
 }
 #ll-intro .ll-body + .ll-body { margin-top: 28px; }
-#ll-intro .ll-actions { display: flex; justify-content: center; align-items: center; gap: 72px; margin: 104px 0 0; opacity: 0; }
+#ll-intro .ll-actions { display: flex; justify-content: center; align-items: center; gap: 72px; margin: 80px 0 0; opacity: 0; }
 #ll-intro .ll-choice {
   padding: 6px 10px; background: none; border: 0; cursor: pointer;
   color: var(--ll-slate); font: 400 27px/1 var(--ll-sans); letter-spacing: 0.02em; word-spacing: 0.2em; text-transform: uppercase;

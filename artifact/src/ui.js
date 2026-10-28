@@ -103,6 +103,8 @@ const state = {
   profile: null,
   profileForm: null,
   profileStatus: '',
+  statusFor: '',        // which control the status belongs to: 'role', 'audiences' or a text field's key
+  editing: {},          // text fields reopened with Edit, by key
   summaryPosts: null,
 };
 
@@ -113,6 +115,8 @@ const offenceByKey = Object.fromEntries(rubric.offence_sources.map((o) => [o.key
 const AUDIENCES = CONTENT.personaSet.target_audiences;
 const AUDIENCE_KEYS = AUDIENCES.map((a) => a.key);
 const PERSONA_KEYS = CONTENT.personaSet.personas.map((p) => p.key);
+// The Creator preferences written as text: each has its own Save, Edit and last-edited time.
+const PREF_FIELDS = { come_across: 'pref-come-across', theology: 'pref-theology' };
 
 function pickedModel() {
   return CONTENT.models.artifact_picker.find((m) => m.id === state.modelId);
@@ -508,39 +512,78 @@ async function loadProfile() {
     state.profileStatus = 'failed';
   }
   state.profileForm = { ...(state.profile || blankProfile()) };
-  $('pref-come-across').value = state.profileForm.come_across;
-  $('pref-theology').value = state.profileForm.theology;
+  for (const [key, id] of Object.entries(PREF_FIELDS)) $(id).value = state.profileForm[key];
   render();
 }
 
-// One write at a time: the role saves at once, the preferences on Save.
-async function saveProfile(message) {
-  if (!state.db || !state.viewerId || state.profileStatus === 'saving') return;
-  state.profileForm.come_across = $('pref-come-across').value;
-  state.profileForm.theology = $('pref-theology').value;
+// One write at a time, of the whole record: the role saves at once, each text field and the
+// audience order on their own Save. Resolves whether it was saved.
+async function saveProfile(statusFor) {
+  if (!state.db || !state.viewerId || state.profileStatus === 'saving') return false;
   const record = profileRecord(state.profileForm, AUDIENCE_KEYS, new Date().toISOString());
+  state.statusFor = statusFor;
   state.profileStatus = 'saving';
   render();
+  let saved = false;
   try {
     await pastCollection().doc(PROFILE_DOC).set(record);
     state.profile = record;
-    state.profileStatus = message;
+    state.profileStatus = 'saved';
+    saved = true;
   } catch {
     state.profileStatus = 'failed';
   }
   render();
   if (isCreator()) loadSummaryPosts();
+  return saved;
 }
 
 function onRoleChange(event) {
   if (event.target.name !== 'profile-role' || !state.profileForm) return;
   state.profileForm.role = event.target.value;
-  saveProfile('');
+  saveProfile('role');
 }
 
 function onPrefsSubmit(event) {
   event.preventDefault();
-  saveProfile('saved');
+  saveProfile('audiences');
+}
+
+// Edit, Save and Cancel on a text field. Once saved, the field shows as text with when it was last edited.
+async function onPrefFieldClick(event) {
+  const button = event.target.closest('[data-edit], [data-save], [data-cancel]');
+  if (!button || !state.profileForm) return;
+  const key = button.dataset.edit || button.dataset.save || button.dataset.cancel;
+  const box = $(PREF_FIELDS[key]);
+  if (button.dataset.edit) {
+    state.editing[key] = true;
+    box.value = state.profile ? state.profile[key] : '';
+    render();
+    box.focus();
+  } else if (button.dataset.cancel) {
+    state.editing[key] = false;
+    box.value = state.profile ? state.profile[key] : '';
+    if (state.statusFor === key) state.profileStatus = '';
+    render();
+    focusPrefField(key);
+  } else {
+    const before = { [key]: state.profileForm[key], [`${key}_at`]: state.profileForm[`${key}_at`] };
+    Object.assign(state.profileForm, { [key]: box.value, [`${key}_at`]: new Date().toISOString() });
+    if (await saveProfile(key)) {
+      state.editing[key] = false;
+      render();
+      focusPrefField(key);
+    } else {
+      // Not saved: the draft stays in the box, and other saves keep the stored text.
+      Object.assign(state.profileForm, before);
+    }
+  }
+}
+
+function focusPrefField(key) {
+  const field = document.querySelector(`.pref-field[data-field="${key}"]`);
+  const target = field.querySelector('.pref-view:not([hidden]) [data-edit]') || $(PREF_FIELDS[key]);
+  target.focus();
 }
 
 function moveAudience(index, step) {
@@ -548,7 +591,7 @@ function moveAudience(index, step) {
   const to = index + step;
   if (to < 0 || to >= list.length) return;
   [list[index], list[to]] = [list[to], list[index]];
-  state.profileStatus = '';
+  if (state.statusFor === 'audiences') state.profileStatus = '';
   render();
   // Keep focus on the moved audience's button, which render() recreated.
   const button = $('pref-audiences').children[to].querySelector(step < 0 ? '.move-up' : '.move-down');
@@ -994,7 +1037,7 @@ function renderOutreach() {
 
 // ---------- Your profile view ----------
 
-const PROFILE_STATUS = { saving: 'Saving…', saved: 'Preferences saved.', failed: 'That could not be saved. Try again.' };
+const PROFILE_STATUS = { saving: 'Saving…', saved: 'Saved.', failed: 'That could not be saved. Try again.' };
 
 function renderProfile() {
   const signedIn = Boolean(state.db && state.viewerId);
@@ -1016,7 +1059,24 @@ function renderProfile() {
   }
   $('creator-prefs').hidden = !(form && form.role === 'creator');
   $('prefs-save').disabled = !form || saving;
-  $('prefs-status').textContent = PROFILE_STATUS[state.profileStatus] || '';
+  const status = PROFILE_STATUS[state.profileStatus] || '';
+  $('prefs-status').textContent = state.statusFor === 'audiences' ? status : '';
+  if (state.statusFor === 'role' && state.profileStatus === 'failed') $('profile-state').textContent = PROFILE_STATUS.failed;
+  // A saved text field shows as text with when it was last edited, until Edit reopens it.
+  for (const [key, id] of Object.entries(PREF_FIELDS)) {
+    const stored = state.profile ? state.profile[key] : '';
+    const editing = !stored || Boolean(state.editing[key]);
+    const field = document.querySelector(`.pref-field[data-field="${key}"]`);
+    field.querySelector('.pref-view').hidden = editing;
+    field.querySelector('.pref-edit').hidden = !editing;
+    field.querySelector('[data-cancel]').hidden = !stored;
+    field.querySelector('[data-save]').disabled = !form || saving;
+    $(`${id}-text`).textContent = stored;
+    const at = state.profile && state.profile[`${key}_at`];
+    $(`${id}-when`).textContent = at ? `Last edited ${new Date(at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}` : '';
+    // "Saved." would only flash before the field turns back into text, so only saving and failures show.
+    $(`${id}-status`).textContent = state.statusFor === key && state.profileStatus !== 'saved' ? status : '';
+  }
   $('pref-audiences').replaceChildren(...(form ? form.audiences : []).map((key, i, all) => {
     const label = AUDIENCES.find((a) => a.key === key).label;
     return el('li', {}, el('div', { className: 'audience-row' },
@@ -1221,6 +1281,7 @@ function start() {
   $('feedback').addEventListener('click', onFeedbackClick);
   document.querySelector('.role-cards').addEventListener('change', onRoleChange);
   $('prefs-form').addEventListener('submit', onPrefsSubmit);
+  $('prefs-form').addEventListener('click', onPrefFieldClick);
   document.querySelector('main').addEventListener('click', onNav);
   renderHowItWorks();
   $('how-tabs').addEventListener('change', syncHowTab);

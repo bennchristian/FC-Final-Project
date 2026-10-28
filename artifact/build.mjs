@@ -376,15 +376,33 @@ ${INTRO_HTML}
       <h2 id="prefs-title">Creator preferences</h2>
       <p>How you want to come across, what you believe, and who you most want to reach. Your Reviews then list first the Personas who lead your top audiences. Scores never change.</p>
       <form id="prefs-form" class="prefs-form">
-        <label for="pref-come-across">How you want to come across</label>
-        <textarea id="pref-come-across" rows="3" maxlength="2000" placeholder="For example: warm, honest and curious; never preachy."></textarea>
-        <label for="pref-theology">Your theology and tradition</label>
-        <textarea id="pref-theology" rows="3" maxlength="2000" placeholder="For example: evangelical Anglican; we hold to the Nicene Creed."></textarea>
+        <div class="pref-field" data-field="come_across">
+          <label for="pref-come-across">How you want to come across</label>
+          <div class="pref-view" hidden>
+            <p class="pref-text" id="pref-come-across-text"></p>
+            <p class="pref-meta"><span class="muted" id="pref-come-across-when"></span> <button type="button" class="link-button" data-edit="come_across">Edit</button></p>
+          </div>
+          <div class="pref-edit">
+            <textarea id="pref-come-across" rows="3" maxlength="2000" placeholder="For example: warm, honest and curious; never preachy."></textarea>
+            <div class="row"><button type="button" data-save="come_across">Save</button><button type="button" class="link-button" data-cancel="come_across">Cancel</button><span class="muted" id="pref-come-across-status" aria-live="polite"></span></div>
+          </div>
+        </div>
+        <div class="pref-field" data-field="theology">
+          <label for="pref-theology">Your theology and tradition</label>
+          <div class="pref-view" hidden>
+            <p class="pref-text" id="pref-theology-text"></p>
+            <p class="pref-meta"><span class="muted" id="pref-theology-when"></span> <button type="button" class="link-button" data-edit="theology">Edit</button></p>
+          </div>
+          <div class="pref-edit">
+            <textarea id="pref-theology" rows="3" maxlength="2000" placeholder="For example: evangelical Anglican; we hold to the Nicene Creed."></textarea>
+            <div class="row"><button type="button" data-save="theology">Save</button><button type="button" class="link-button" data-cancel="theology">Cancel</button><span class="muted" id="pref-theology-status" aria-live="polite"></span></div>
+          </div>
+        </div>
         <fieldset class="audience-rank">
           <legend>The audiences you want to reach, most important first</legend>
           <ol id="pref-audiences"></ol>
         </fieldset>
-        <div class="row"><button type="submit" id="prefs-save">Save preferences</button><span id="prefs-status" class="muted" aria-live="polite"></span></div>
+        <div class="row"><button type="submit" id="prefs-save">Save order</button><span id="prefs-status" class="muted" aria-live="polite"></span></div>
       </form>
     </section>
 

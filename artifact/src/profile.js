@@ -9,12 +9,15 @@ const TEXT_LIMIT = 2000;
 
 // The stored profile. Unknown roles and audience keys are dropped; every known audience appears once,
 // in the viewer's order, with any they have not placed kept at the end in the Persona set's order.
+// Each text field keeps when it was last edited (`*_at`), apart from `updatedAt`, which any save moves.
 export function profileRecord(form, audienceKeys, savedAt) {
   const chosen = (form.audiences || []).filter((k, i, all) => audienceKeys.includes(k) && all.indexOf(k) === i);
   return {
     role: ROLES.includes(form.role) ? form.role : '',
     come_across: String(form.come_across || '').trim().slice(0, TEXT_LIMIT),
+    come_across_at: String(form.come_across_at || ''),
     theology: String(form.theology || '').trim().slice(0, TEXT_LIMIT),
+    theology_at: String(form.theology_at || ''),
     audiences: chosen.concat(audienceKeys.filter((k) => !chosen.includes(k))),
     updatedAt: savedAt,
   };

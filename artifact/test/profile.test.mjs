@@ -32,6 +32,14 @@ test('a profile keeps only known roles and audiences, every audience once, in th
   assert.equal(profileRecord({ theology: 'x'.repeat(3000) }, AUDIENCES, 't').theology.length, 2000);
 });
 
+test('each text field keeps its own last-edited time, which other saves leave alone', () => {
+  const saved = profileRecord({ come_across: 'warm', come_across_at: '2026-10-28T09:00:00Z' }, AUDIENCES, '2026-10-28T09:00:00Z');
+  const later = profileRecord({ ...saved, role: 'creator' }, AUDIENCES, '2026-10-28T10:00:00Z');
+  assert.equal(later.come_across_at, '2026-10-28T09:00:00Z');
+  assert.equal(later.theology_at, '');
+  assert.equal(later.updatedAt, '2026-10-28T10:00:00Z');
+});
+
 test('ranked audiences put their lead Personas first, each once, and keep every Persona', () => {
   assert.deepEqual(personaOrder(['secular', 'dechurched'], TARGETS, PERSONAS), ['skeptic', 'drifter', 'exvangelical', 'seeker', 'believer']);
   assert.deepEqual(personaOrder([], TARGETS, PERSONAS), PERSONAS);

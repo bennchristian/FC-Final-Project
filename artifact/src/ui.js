@@ -3,8 +3,8 @@
 // Everything renders as text nodes; screenshots appear only as file-name chips.
 // `CONTENT` and `LABELS` are inlined by artifact/build.mjs.
 
-import { INTAKE_LIMITS, checkPostIntake, checkSourceUrl, canAddPost, provenanceLabel, isInstagramPostLink } from './core.js';
-import { transcribeReel } from './reel.js';
+import { INTAKE_LIMITS, checkPostIntake, checkSourceUrl, canAddPost, provenanceLabel, isReadablePostLink } from './core.js';
+import { readPostDetails, needsSlides, transcribeReel } from './reel.js';
 import { evaluatePost, requestRewrite, createOutreach } from './pipeline.js';
 import { reviewToMarkdown } from './export.js';
 
@@ -13,7 +13,7 @@ import { reviewToMarkdown } from './export.js';
 const COPY = {
   simulated: 'Simulated perspective',
   linkNotice: 'The profile link is only shown alongside the results. It is never opened.',
-  readingReel: 'Reading the reel…',
+  readingPost: 'Reading the post…',
   soundnessNote: 'A prompt for discussion with a leader, not a ruling.',
   suggestion: 'Suggestion',
   landsAnywhere: 'A post can land on anyone’s page. Whoever you meant it for, people outside the faith may read it too.',
@@ -32,18 +32,27 @@ const ERROR_COPY = {
   conflict: 'That has already been done.',
 };
 
-// Shown only when a reel link is the Post's sole content and could not be read.
+// Shown only when a post link is the Post's sole content and could not be read.
 const REEL_ERROR_COPY = {
-  approval_required: 'This page needs your permission to read reels. Allow it in the artifact’s permissions, or paste the video transcript.',
-  not_in_manifest: 'This page is not allowed to read reels in this view. Paste the video transcript instead.',
-  server_unavailable: 'The reel could not be read just now. Try again, or paste the video transcript.',
-  upstream_error: 'The reel could not be read just now. Try again, or paste the video transcript.',
-  rate_limited: 'The reel could not be read just now. Wait a little and try again, or paste the video transcript.',
-  empty: 'No spoken words were found at this link. Paste the post’s caption or add screenshots.',
+  approval_required: 'This page needs your permission to read posts. Allow it in the artifact’s permissions, or add the post’s text, transcript or screenshots.',
+  not_in_manifest: 'This page is not allowed to read posts in this view. Add the post’s text, transcript or screenshots instead.',
+  server_unavailable: 'The post could not be read just now. Try again, or add the post’s text, transcript or screenshots.',
+  upstream_error: 'The post could not be read just now. Try again, or add the post’s text, transcript or screenshots.',
+  rate_limited: 'The post could not be read just now. Wait a little and try again, or add the post’s text, transcript or screenshots.',
+  failed: 'The post could not be read just now. Try again, or add the post’s text, transcript or screenshots.',
+  empty: 'No caption or spoken words were found at this link. Add the post’s text, transcript or screenshots.',
 };
 
+// A connector answer that no other call will get past: the read stops instead of falling back.
+const PERMISSION_CODES = ['approval_required', 'not_in_manifest', 'not_granted'];
+
 function reelErrorText(code) {
-  return REEL_ERROR_COPY[code] || 'This reel could not be read here. Paste its video transcript instead.';
+  if (code === 'needs_slides') {
+    return state.maxImages
+      ? `This post is a carousel or image, and the words on its slides can’t be read from the link. Choose “Add screenshots” and add a screenshot of each slide (up to ${state.maxImages}), or choose “Paste the text” and type out the words on its slides.`
+      : 'This post is a carousel or image, and the words on its slides can’t be read from the link. Choose “Paste the text” and type out the words on its slides.';
+  }
+  return REEL_ERROR_COPY[code] || 'This post could not be read here. Add its text, transcript or screenshots instead.';
 }
 
 const FICTIONAL_EXAMPLES = [
@@ -65,7 +74,7 @@ const state = {
   sampleChecked: false,
   downloads: null,
   mcp: null,
-  readingReel: false,
+  readingPost: false,
   maxImages: 0,
   mediaTypes: [],
   modelId: CONTENT.models.default,
@@ -160,21 +169,31 @@ function addPost(fields) {
   state.outreach = null;
 }
 
-// The reel's transcript, or '' when it cannot be read. A failure blocks the Post only
-// when the reel link is all it has.
-async function readReel(url, hasOtherContent) {
-  state.readingReel = true;
+// Reads a linked post into `fields` (AD-13): its caption as the text when none was pasted,
+// and a video's transcript. A carousel or image post needs screenshots or typed-out slide
+// text, because the words on its slides cannot be read from the link. A failure to read
+// blocks the Post only when the link is all it has.
+async function readLinkedPost(fields, imageCount) {
+  state.readingPost = true;
   $('intake-errors').textContent = '';
-  $('intake-status').textContent = COPY.readingReel;
+  $('intake-status').textContent = COPY.readingPost;
   render();
   try {
     if (!state.mcp) throw { code: 'not_granted' };
-    return await transcribeReel(state.mcp, url);
+    const details = await readPostDetails(state.mcp, fields.source_url).catch((e) => {
+      if (e && PERMISSION_CODES.includes(e.code)) throw e;
+      return null;
+    });
+    if (needsSlides(details, fields.pasted_text, imageCount)) throw { code: 'needs_slides' };
+    if (details && !fields.pasted_text.trim()) fields.pasted_text = details.caption;
+    if (!details || details.isVideo) {
+      fields.video_transcript = await transcribeReel(state.mcp, fields.source_url);
+    }
   } catch (e) {
-    if (!hasOtherContent) throw e;
-    return '';
+    if (e && e.code === 'needs_slides') throw e;
+    if (!(fields.pasted_text.trim() || fields.video_transcript.trim() || imageCount)) throw e;
   } finally {
-    state.readingReel = false;
+    state.readingPost = false;
     $('intake-status').textContent = '';
     render();
   }
@@ -202,7 +221,7 @@ function syncFormModes() {
 
 async function onAddPost(event) {
   event.preventDefault();
-  if (state.readingReel) return;
+  if (state.readingPost) return;
   const video = formMode('video-mode');
   const content = contentMode();
   const files = content === 'images' ? [...$('post-images').files] : [];
@@ -211,9 +230,9 @@ async function onAddPost(event) {
     video_transcript: video === 'transcript' ? $('post-transcript').value : '',
     source_url: video === 'link' ? $('post-url').value.trim() : '',
   };
-  if (!fields.video_transcript.trim() && isInstagramPostLink(fields.source_url) && canAddPost(state.posts.length)) {
+  if (isReadablePostLink(fields.source_url) && canAddPost(state.posts.length)) {
     try {
-      fields.video_transcript = await readReel(fields.source_url, Boolean(fields.pasted_text.trim() || files.length));
+      await readLinkedPost(fields, files.length);
     } catch (e) {
       $('intake-errors').textContent = reelErrorText(e && e.code);
       return;
@@ -638,7 +657,7 @@ function render() {
   $('post-images').setAttribute('accept', state.mediaTypes.join(','));
   $('images-hint').textContent = `Up to ${state.maxImages} screenshots. They are sent to Claude only while this Post is evaluated and are never shown or kept.`;
   $('post-count').textContent = `${state.posts.length} of ${INTAKE_LIMITS.maxPosts} Posts`;
-  $('add-post').disabled = state.readingReel || !canAddPost(state.posts.length);
+  $('add-post').disabled = state.readingPost || !canAddPost(state.posts.length);
 
   const pending = state.posts.some((p) => p.status === 'pending');
   $('evaluate-all').disabled = state.busy || !state.sample || !pending;

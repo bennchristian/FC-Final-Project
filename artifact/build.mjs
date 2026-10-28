@@ -59,6 +59,7 @@ const script = [
   toScript('export.js'),
   toScript('past.js'),
   toScript('profile.js'),
+  toScript('home.js'),
   toScript('desk.js'),
   toScript('ui.js'),
   toScript('theme.js'),
@@ -127,9 +128,9 @@ ${INTRO_HTML}
   <section id="view-home" class="view home" hidden>
     <div class="home-hero">
       <svg class="home-seal" viewBox="0 0 54 40" aria-hidden="true">
-        <rect x="1.5" y="1.5" width="51" height="37" rx="1.5"/>
-        <path d="M1.5 3 L27 23 L52.5 3 M2 38 L21 19 M52 38 L33 19"/>
-        <path class="home-seal-cross" d="M27 5.5 V14.5 M23.5 8.5 H30.5"/>
+        <rect x="1.5" y="1.5" width="51" height="37" rx="1.5" pathLength="1"/>
+        <path d="M1.5 3 L27 23 L52.5 3 M2 38 L21 19 M52 38 L33 19" pathLength="1"/>
+        <path class="home-seal-cross" d="M27 5.5 V14.5 M23.5 8.5 H30.5" pathLength="1"/>
       </svg>
       <h1 class="home-tagline">Learning to witness well in a world where our lives may be <span class="home-underline">the only gospel people know.</span></h1>
       <p class="home-what">Living Letter is a review system made for believers to sharpen their witness online.</p>
@@ -144,7 +145,12 @@ ${INTRO_HTML}
         <p class="home-resolve">In our endeavour to sharpen one another and our witness, we’ve created this tool so we can learn to <span class="home-underline">represent Jesus better.</span></p>
       </div>
       <div class="home-why-side">
-        <img class="home-art" src="${imgData('home-devices.png')}" width="880" height="591" alt="">
+        <div class="home-devices" aria-hidden="true">
+          <img class="home-device device-white" src="${imgData('device-white.png')}" width="217" height="279" alt="">
+          <img class="home-device device-dark" src="${imgData('device-dark.png')}" width="209" height="291" alt="">
+          <img class="home-device device-pink" src="${imgData('device-pink.png')}" width="223" height="298" alt="">
+          <img class="home-device device-tablet" src="${imgData('device-tablet.png')}" width="445" height="509" alt="">
+        </div>
         <ol class="footnotes">
           <li id="source-1">Pew Research Center, <a href="https://www.pewresearch.org/religion/2014/11/06/religion-and-electronic-media/" target="_blank" rel="noopener noreferrer">survey of 3,217 US adults</a>, May–June 2014.</li>
           <li id="source-2">Barna Group, <em>Spiritual Conversations in the Digital Age</em> (2018), reported in <a href="https://www.christianitytoday.com/news/2018/june/go-tell-it-iphone-technology-spiritual-conversation-barna.html" target="_blank" rel="noopener noreferrer">Christianity Today</a>.</li>

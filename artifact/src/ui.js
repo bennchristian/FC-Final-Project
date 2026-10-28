@@ -10,6 +10,7 @@ import { evaluatePost, requestRewrite, createOutreach } from './pipeline.js';
 import { reviewToMarkdown } from './export.js';
 import { PAST_REVIEWS_SHOWN, pastReviewsPath, reviewTally, pastReviewRecord, pastPostRecord, restorePost, sameVersions } from './past.js';
 import { PROFILE_DOC, profileRecord, personaOrder, profileSummary } from './profile.js';
+import { prepareHomeMotion, playHomeMotion } from './home.js';
 
 // ---------- Fixed UI copy (AD-14). Constants, never model output. Wording owned by bmad-ux. ----------
 
@@ -1240,6 +1241,7 @@ function showView(name) {
     button.setAttribute('aria-current', button.dataset.nav === NAV_FOR[name] ? 'page' : 'false');
   }
   if (name === 'profile') loadPast();
+  if (name === 'home') playHomeMotion();
   render();
   window.scrollTo(0, 0);
 }
@@ -1284,6 +1286,7 @@ function start() {
   $('prefs-form').addEventListener('click', onPrefFieldClick);
   document.querySelector('main').addEventListener('click', onNav);
   renderHowItWorks();
+  prepareHomeMotion();
   $('how-tabs').addEventListener('change', syncHowTab);
   syncHowTab();
   const hashView = location.hash.slice(1);

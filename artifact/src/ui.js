@@ -1048,9 +1048,6 @@ function renderProfile() {
     : !signedIn
       ? 'Not signed in here'
       : state.me && state.me.name ? `Signed in as ${state.me.name}, with your Claude account` : 'Signed in with your Claude account';
-  const avatar = $('profile-avatar');
-  avatar.hidden = !(signedIn && state.me);
-  if (!avatar.hidden && avatar.getAttribute('src') !== state.me.avatarUrl) avatar.setAttribute('src', state.me.avatarUrl);
   $('profile-state').textContent = !state.dbChecked ? '' : !signedIn ? COPY.profileUnavailable : state.profileStatus === 'failed' && !state.profile && !form ? COPY.profileFailed : '';
 
   const saving = state.profileStatus === 'saving';

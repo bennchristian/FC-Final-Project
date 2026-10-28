@@ -361,7 +361,7 @@ ${INTRO_HTML}
   <section id="view-profile" class="view" hidden>
     <h1 class="view-title">Your profile</h1>
     <div class="profile-account">
-      <img id="profile-avatar" class="profile-avatar" alt="" width="56" height="56" hidden>
+      <span class="profile-avatar" aria-hidden="true"><svg viewBox="0 0 40 44"><circle cx="20" cy="12" r="9.5"/><path d="M2 42.5v-3.5c0-8 6.5-14 14.5-14h7c8 0 14.5 6 14.5 14v3.5z"/></svg></span>
       <div>
         <p id="profile-signin" class="profile-signin">Signed in with your Claude account</p>
         <p class="muted">Your profile, preferences and saved Reviews are private: nobody else can see them, not even this page’s owner.</p>

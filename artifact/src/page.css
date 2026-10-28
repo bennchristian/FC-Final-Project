@@ -216,7 +216,9 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
 .profile-block > h2 { margin-top: 2rem; }
 .profile-block > p, .prefs-form, #past-list, #past-state, #profile-state { max-width: var(--measure); }
 .profile-account { display: flex; align-items: center; gap: 1rem; margin-top: 1.25rem; max-width: var(--measure); }
-.profile-avatar { flex: none; width: 56px; height: 56px; border-radius: 50%; object-fit: cover; }
+/* The masthead's profile icon in a brand circle (not the platform's avatar, whose colour is not a brand colour). */
+.profile-avatar { flex: none; display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: var(--band); color: var(--heading); }
+.profile-avatar svg { width: 24px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.2; }
 .profile-signin { font-weight: 600; margin: 0; }
 .profile-account .muted { margin: 0.2rem 0 0; }
 

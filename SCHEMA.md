@@ -377,6 +377,7 @@ Users never insert, update or delete through the Data API. Review deletion is a 
     - `data/users/<viewer id>/<review id>`: `savedAt`, `reviewSourceUrl`, `modelId`, `labels` (the three content ids), `postCount`, `tally`, and the finished `outreach` or null.
     - `data/users/<viewer id>/<review id>/posts/<position>`: `position`, `pasted_text`, `video_transcript`, `source_url`, `image_names`, `status`, `evaluation` (only when `done`) and `error`. Screenshots are never stored, only their file names (AD-5).
     - A Review whose `labels` differ from the page’s versions is listed but cannot be reopened (FR-20). Delete removes the Review and its Posts.
+    - `data/users/<viewer id>/profile` (2026-10-28, `artifact/src/profile.js`): `role` (`creator` | `leader` | `individual` | `""`), `come_across` and `theology` (free text, up to 2,000 characters each), `audiences` (Target Audience keys from the Persona set, in the viewer's order) and `updatedAt`. It sits in the same collection as the Reviews and is skipped when they are listed. Each Review record also keeps `foundation`, a copy of the role and preferences when it was saved, or null.
   - No browser storage is used.
   - The platform's `sample` answer cache lasts 5 minutes per viewer and browser. It is bypassed with `cache: false` on Try again.
 

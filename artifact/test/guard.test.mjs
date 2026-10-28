@@ -55,6 +55,17 @@ test('the fictional examples name no real handles', () => {
   assert.doesNotMatch(examples, /@\w/);
 });
 
+test('no two functions share a name once the sources are inlined into one script', () => {
+  // build.mjs joins every source into one script, where a second declaration silently replaces the first.
+  const names = sources.flatMap(([f, text]) => [...text.matchAll(/^(?:export )?(?:async )?function (\w+)/gm)].map((m) => `${m[1]} (${f})`));
+  const seen = new Map();
+  for (const entry of names) {
+    const name = entry.split(' ')[0];
+    assert.ok(!seen.has(name), `${entry} repeats ${seen.get(name)}`);
+    seen.set(name, entry);
+  }
+});
+
 test('Send feedback opens the Outreach Plan in a popup; the results have no Outreach section', () => {
   const build = readFileSync(join(ROOT, 'artifact', 'build.mjs'), 'utf8');
   assert.match(build, /<dialog class="feedback" id="feedback"/);

@@ -21,7 +21,7 @@ import { STYLE_KEYS, FONT_CHOICES, COPY_EDITS_VERSION, normalizeText, matchCopyE
   const LIVE = '#posts, #feedback-body';
   // Status and error lines, the lists ui.js re-renders outside the results
   // (the send page's Posts, the overall summary, Past Reviews) and the editor itself are never editable.
-  const EXCLUDED = '#availability, #images-hint, #post-count, #post-list, #overall, #past-list, #past-state, [aria-live], .error, #ce-bar, #ce-handle';
+  const EXCLUDED = '#availability, #images-hint, #post-count, #post-list, #overall, #past-list, #past-state, #profile-signin, #profile-state, #pref-audiences, #prefs-status, #profile-summary, [aria-live], .error, #ce-bar, #ce-handle';
   const SKIPPED_TAGS = new Set(['SCRIPT', 'STYLE', 'TEMPLATE', 'SVG', 'SELECT', 'OPTION', 'TEXTAREA', 'INPUT']);
 
   function hasOwnText(node) {

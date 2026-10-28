@@ -58,3 +58,10 @@ test('only Reviews with the same versions can be reopened', () => {
   assert.equal(sameVersions(labels, { ...labels, rubric: 'witness-rubric@9' }), false);
   assert.equal(sameVersions(labels, undefined), false);
 });
+
+test('a Review keeps the creator’s preferences as they were when it was saved', () => {
+  const foundation = { role: 'creator', come_across: 'warm', theology: '', audiences: ['curious'] };
+  const posts = [post({ status: 'done', evaluation: evaluation(true) })];
+  assert.deepEqual(pastReviewRecord({ posts, modelId: 'm', foundation }, labels, 't').foundation, foundation);
+  assert.equal(pastReviewRecord({ posts, modelId: 'm' }, labels, 't').foundation, null);
+});

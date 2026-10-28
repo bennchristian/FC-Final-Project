@@ -9,19 +9,22 @@ import { sendLetter, resetDesk } from './desk.js';
 import { evaluatePost, requestRewrite, createOutreach } from './pipeline.js';
 import { reviewToMarkdown } from './export.js';
 import { PAST_REVIEWS_SHOWN, pastReviewsPath, reviewTally, pastReviewRecord, pastPostRecord, restorePost, sameVersions } from './past.js';
+import { PROFILE_DOC, profileRecord, personaOrder, profileSummary } from './profile.js';
 
 // ---------- Fixed UI copy (AD-14). Constants, never model output. Wording owned by bmad-ux. ----------
 
 const COPY = {
   simulated: 'Simulated perspective',
   linkNotice: 'The profile link is only shown alongside the results. It is never opened.',
-  savedHere: 'Each Review you send is saved to your Past Reviews, which only you can see. Screenshots are never saved.',
+  savedHere: 'Each Review you send is saved to your profile’s Saved Reviews, which only you can see. Screenshots are never saved.',
   savedNowhere: 'This page cannot save Reviews here: closing or reloading it clears the Review. Use Copy Review or Save Review as file to keep your results.',
-  savedToPast: 'Saved to your Past Reviews.',
-  pastSaveFailed: 'This Review could not be saved to your Past Reviews. Use Copy Review or Save Review as file to keep it.',
-  pastFull: 'Past Reviews are full. Delete an old Review to save new ones.',
-  pastUnavailable: 'Past Reviews are not available in this view. Use Copy Review or Save Review as file to keep a Review.',
+  savedToPast: 'Saved to your profile.',
+  pastSaveFailed: 'This Review could not be saved to your profile. Use Copy Review or Save Review as file to keep it.',
+  pastFull: 'Your Saved Reviews are full. Delete an old Review to save new ones.',
+  pastUnavailable: 'Saved Reviews are not available in this view. Use Copy Review or Save Review as file to keep a Review.',
   pastOtherVersions: 'Scored with other rubric or Persona versions, so it cannot be reopened here.',
+  profileUnavailable: 'Your profile needs your Claude account and this page’s private store, which this view does not have. Open the page as a Claude artifact while signed in.',
+  profileFailed: 'Your profile could not be loaded. Try again later.',
   readingReel: 'Reading the reel…',
   soundnessNote: 'A prompt for discussion with a leader, not a ruling.',
   suggestion: 'Suggestion',
@@ -95,12 +98,21 @@ const state = {
   past: null,
   pastError: '',
   confirmDelete: null,
+  // Your profile (profile.js): the stored record, the form being edited, the Posts behind the summary.
+  me: null,
+  profile: null,
+  profileForm: null,
+  profileStatus: '',
+  summaryPosts: null,
 };
 
 const rubric = CONTENT.rubric;
 const personaByKey = Object.fromEntries(CONTENT.personaSet.personas.map((p) => [p.key, p]));
 const criterionByKey = Object.fromEntries(rubric.criteria.map((c) => [c.key, c]));
 const offenceByKey = Object.fromEntries(rubric.offence_sources.map((o) => [o.key, o]));
+const AUDIENCES = CONTENT.personaSet.target_audiences;
+const AUDIENCE_KEYS = AUDIENCES.map((a) => a.key);
+const PERSONA_KEYS = CONTENT.personaSet.personas.map((p) => p.key);
 
 function pickedModel() {
   return CONTENT.models.artifact_picker.find((m) => m.id === state.modelId);
@@ -444,7 +456,7 @@ async function saveReview() {
   if (!state.db || !state.viewerId || !hasSent()) return;
   const ref = state.reviewId ? pastCollection().doc(state.reviewId) : pastCollection().doc();
   try {
-    await ref.set(pastReviewRecord(state, LABELS, new Date().toISOString()));
+    await ref.set(pastReviewRecord({ ...state, foundation: state.profile }, LABELS, new Date().toISOString()));
     state.reviewId = ref.id;
     for (const [i, post] of state.posts.entries()) {
       await ref.collection('posts').doc(String(i + 1)).set(pastPostRecord(post, i + 1));
@@ -465,11 +477,106 @@ async function loadPast() {
   render();
   try {
     const snap = await pastCollection().orderBy('savedAt', 'desc').limit(PAST_REVIEWS_SHOWN).get();
-    state.past = { status: 'done', items: snap.docs.map((d) => ({ id: d.id, ...d.data() })) };
+    // The profile document shares the collection; it is not a Review.
+    state.past = { status: 'done', items: snap.docs.filter((d) => d.id !== PROFILE_DOC).map((d) => ({ id: d.id, ...d.data() })) };
   } catch {
     state.past = { status: 'failed', items: [] };
   }
+  state.summaryPosts = null;
   render();
+  loadSummaryPosts();
+}
+
+// ---------- Your profile (one private document beside the Reviews; profile.js has the shapes) ----------
+
+function isCreator() {
+  return Boolean(state.profile && state.profile.role === 'creator');
+}
+
+function blankProfile() {
+  return profileRecord({}, AUDIENCE_KEYS, '');
+}
+
+async function loadProfile() {
+  if (!state.db || !state.viewerId) return;
+  state.profileStatus = 'loading';
+  try {
+    const snap = await pastCollection().doc(PROFILE_DOC).get();
+    state.profile = snap.exists ? profileRecord(snap.data(), AUDIENCE_KEYS, snap.data().updatedAt || '') : null;
+    state.profileStatus = '';
+  } catch {
+    state.profileStatus = 'failed';
+  }
+  state.profileForm = { ...(state.profile || blankProfile()) };
+  $('pref-come-across').value = state.profileForm.come_across;
+  $('pref-theology').value = state.profileForm.theology;
+  render();
+}
+
+// One write at a time: the role saves at once, the preferences on Save.
+async function saveProfile(message) {
+  if (!state.db || !state.viewerId || state.profileStatus === 'saving') return;
+  state.profileForm.come_across = $('pref-come-across').value;
+  state.profileForm.theology = $('pref-theology').value;
+  const record = profileRecord(state.profileForm, AUDIENCE_KEYS, new Date().toISOString());
+  state.profileStatus = 'saving';
+  render();
+  try {
+    await pastCollection().doc(PROFILE_DOC).set(record);
+    state.profile = record;
+    state.profileStatus = message;
+  } catch {
+    state.profileStatus = 'failed';
+  }
+  render();
+  if (isCreator()) loadSummaryPosts();
+}
+
+function onRoleChange(event) {
+  if (event.target.name !== 'profile-role' || !state.profileForm) return;
+  state.profileForm.role = event.target.value;
+  saveProfile('');
+}
+
+function onPrefsSubmit(event) {
+  event.preventDefault();
+  saveProfile('saved');
+}
+
+function moveAudience(index, step) {
+  const list = state.profileForm.audiences;
+  const to = index + step;
+  if (to < 0 || to >= list.length) return;
+  [list[index], list[to]] = [list[to], list[index]];
+  state.profileStatus = '';
+  render();
+  // Keep focus on the moved audience's button, which render() recreated.
+  const button = $('pref-audiences').children[to].querySelector(step < 0 ? '.move-up' : '.move-down');
+  (button && !button.disabled ? button : $('pref-audiences').children[to].querySelector('button:not(:disabled)')).focus();
+}
+
+// The Posts behind the Profile Summary: every saved Post at this page's versions.
+async function loadSummaryPosts() {
+  if (!isCreator() || !state.past || state.past.status !== 'done' || state.summaryPosts) return;
+  state.summaryPosts = { status: 'loading', posts: [] };
+  render();
+  try {
+    const items = state.past.items.filter((item) => sameVersions(item.labels, LABELS));
+    const snaps = await Promise.all(items.map((item) => pastCollection().doc(item.id).collection('posts').get()));
+    const posts = snaps.flatMap((snap, i) => snap.docs.map((d) => d.data())
+      .filter((record) => record.status === 'done' && record.evaluation)
+      .map((record) => ({ evaluation: record.evaluation, savedAt: items[i].savedAt, excerpt: postExcerpt(record) })));
+    state.summaryPosts = { status: 'done', posts };
+  } catch {
+    state.summaryPosts = { status: 'failed', posts: [] };
+  }
+  render();
+}
+
+function postExcerpt(record) {
+  const text = (record.pasted_text || record.video_transcript || (record.evaluation && record.evaluation.post_transcript) || '').trim().replace(/\s+/g, ' ');
+  if (text) return text.length > 90 ? `${text.slice(0, 90)}…` : text;
+  return record.source_url || (record.image_names || []).join(', ') || 'A Post';
 }
 
 // Reopening makes the saved Review the current one: later runs save back to it.
@@ -672,10 +779,19 @@ function renderSummary(evaluation) {
   );
 }
 
+// On a creator's Reviews, the Personas who lead their top audiences come first. Scores never change.
+function orderedReactions(evaluation) {
+  const reactions = evaluation.reactions.reactions;
+  if (!isCreator()) return reactions;
+  const order = personaOrder(state.profile.audiences, AUDIENCES, PERSONA_KEYS);
+  return [...reactions].sort((a, b) => order.indexOf(a.persona) - order.indexOf(b.persona));
+}
+
 function renderReactions(evaluation) {
   return el('section', {},
     el('h4', {}, 'Persona Reactions ', simulatedTag()),
-    el('ul', { className: 'reactions' }, evaluation.reactions.reactions.map((r) =>
+    isCreator() ? el('p', { className: 'muted' }, 'Listed with the Personas who lead your top audiences first.') : null,
+    el('ul', { className: 'reactions' }, orderedReactions(evaluation).map((r) =>
       el('li', {},
         el('strong', {}, personaByKey[r.persona].name), ' ', simulatedTag(),
         el('div', { className: 'muted' }, personaByKey[r.persona].summary),
@@ -808,13 +924,13 @@ function renderOverall() {
 function renderPast() {
   const p = state.past;
   $('past-state').textContent = !state.dbChecked
-    ? 'Looking for your past Reviews…'
+    ? 'Looking for your saved Reviews…'
     : !state.db
       ? COPY.pastUnavailable
       : !p || p.status === 'loading'
-        ? 'Loading your past Reviews…'
+        ? 'Loading your saved Reviews…'
         : p.status === 'failed'
-          ? 'Your past Reviews could not be loaded. Try again later.'
+          ? 'Your saved Reviews could not be loaded. Try again later.'
           : p.items.length === 0 ? 'No saved Reviews yet. Each Review you send appears here.' : state.pastError;
   if (!p || p.status !== 'done') return [];
   return p.items.map((item) => {
@@ -876,6 +992,95 @@ function renderOutreach() {
   return children;
 }
 
+// ---------- Your profile view ----------
+
+const PROFILE_STATUS = { saving: 'Saving…', saved: 'Preferences saved.', failed: 'That could not be saved. Try again.' };
+
+function renderProfile() {
+  const signedIn = Boolean(state.db && state.viewerId);
+  const form = state.profileForm;
+  $('profile-signin').textContent = !state.dbChecked
+    ? 'Checking your Claude account…'
+    : !signedIn
+      ? 'Not signed in here'
+      : state.me && state.me.name ? `Signed in as ${state.me.name}, with your Claude account` : 'Signed in with your Claude account';
+  const avatar = $('profile-avatar');
+  avatar.hidden = !(signedIn && state.me);
+  if (!avatar.hidden && avatar.getAttribute('src') !== state.me.avatarUrl) avatar.setAttribute('src', state.me.avatarUrl);
+  $('profile-state').textContent = !state.dbChecked ? '' : !signedIn ? COPY.profileUnavailable : state.profileStatus === 'failed' && !state.profile && !form ? COPY.profileFailed : '';
+
+  const saving = state.profileStatus === 'saving';
+  for (const input of document.querySelectorAll('input[name="profile-role"]')) {
+    input.checked = Boolean(form) && form.role === input.value;
+    input.disabled = !form || saving;
+  }
+  $('creator-prefs').hidden = !(form && form.role === 'creator');
+  $('prefs-save').disabled = !form || saving;
+  $('prefs-status').textContent = PROFILE_STATUS[state.profileStatus] || '';
+  $('pref-audiences').replaceChildren(...(form ? form.audiences : []).map((key, i, all) => {
+    const label = AUDIENCES.find((a) => a.key === key).label;
+    return el('li', {}, el('div', { className: 'audience-row' },
+      el('span', { className: 'audience-label' }, label),
+      el('span', { className: 'audience-moves' },
+        el('button', { type: 'button', className: 'move-up', 'aria-label': `Move up: ${label}`, disabled: i === 0, onclick: () => moveAudience(i, -1) }, '↑'),
+        el('button', { type: 'button', className: 'move-down', 'aria-label': `Move down: ${label}`, disabled: i === all.length - 1, onclick: () => moveAudience(i, 1) }, '↓'))));
+  }));
+
+  $('summary-block').hidden = !isCreator();
+  $('profile-summary').replaceChildren(...(isCreator() ? renderProfileSummary() : []));
+}
+
+// The Profile Summary (FR-14), from profileSummary() over the saved Posts. Each part has the design partner's icon.
+function renderProfileSummary() {
+  const sp = state.summaryPosts;
+  if (!sp || sp.status === 'loading') return [el('p', { className: 'muted' }, 'Working out your summary…')];
+  if (sp.status === 'failed') return [el('p', { className: 'error' }, 'Your summary could not be worked out. Try again later.')];
+  const sum = profileSummary(sp.posts, rubric, PERSONA_KEYS);
+  if (sum.postCount === 0) return [el('p', {}, 'Send a Review of your own Posts, and your summary appears here.')];
+
+  const below = rubric.thresholds.auto_rewrite_below;
+  const name = (key) => criterionByKey[key].name;
+  const part = (icon, title, ...body) => el('section', { className: 'summary-part' },
+    el('span', { className: `summary-icon icon-${icon}`, 'aria-hidden': 'true' }),
+    el('div', { className: 'summary-body' }, el('h3', {}, title), ...body));
+  const none = (text) => el('p', { className: 'muted' }, text);
+  const personaLine = (p, count, word) => el('li', {}, el('strong', {}, personaByKey[p.key].name), ' ', simulatedTag(), ` ${count} of ${sum.postCount} Posts ${word}`);
+
+  const patterns = [
+    ...sum.concernPatterns.map((p) => el('li', {}, `${p.count} of ${p.of} Posts score below ${below} on `, el('strong', {}, name(p.criterion)), '.')),
+    ...sum.strengthPatterns.map((p) => el('li', {}, `${p.count} of ${p.of} Posts score 4 or more on `, el('strong', {}, name(p.criterion)), '.')),
+  ];
+  const postLine = (p) => el('li', {}, el('span', { className: 'said' }, p.excerpt), el('span', { className: 'muted' }, ` · average ${p.average} / 5`));
+
+  return [
+    el('p', {}, `Across ${plural(sum.postCount, 'saved Post', 'saved Posts')}${sum.notAssessable ? `, leaving out ${sum.notAssessable} that could not be assessed` : ''}.`),
+    el('div', { className: 'summary-parts' },
+      part('checklist', 'Criterion averages',
+        el('div', { className: 'table-wrap' }, el('table', { className: 'overview' },
+          el('thead', {}, el('tr', {}, el('th', {}, 'Criterion'), el('th', { className: 'num' }, 'Average'))),
+          el('tbody', {}, sum.averages.map((a) => el('tr', { className: a.average !== null && a.average < below ? 'concern' : '' },
+            el('td', {}, `${criterionByKey[a.criterion].number}. ${name(a.criterion)}`),
+            el('td', { className: 'num' }, a.average === null ? 'N/A' : `${a.average} / 5`))))))),
+      part('bubbles', 'Recurring patterns',
+        patterns.length ? el('ul', {}, patterns) : none('No pattern yet: one shows once two or more Posts share it.')),
+      part('person', 'How the Personas react',
+        el('p', { className: 'label' }, 'React well'),
+        sum.reactWell.length ? el('ul', {}, sum.reactWell.map((p) => personaLine(p, p.positive, 'positive.'))) : none('None yet.'),
+        el('p', { className: 'label' }, 'React badly'),
+        sum.reactBadly.length ? el('ul', {}, sum.reactBadly.map((p) => personaLine(p, p.negative, 'negative.'))) : none('None yet.')),
+      part('mailbox', 'Strongest and weakest Posts',
+        el('p', { className: 'label' }, 'Strongest'), el('ul', {}, sum.strongest.map(postLine)),
+        el('p', { className: 'label' }, 'Weakest'), sum.weakest.length ? el('ul', {}, sum.weakest.map(postLine)) : none('Save a few more Posts to compare.')),
+      part('pen', 'Top changes',
+        sum.topChanges.length
+          ? el('ol', {}, sum.topChanges.map((c) => el('li', {},
+            el('strong', {}, name(c.criterion)), ` (${c.concerns} of ${c.of} Posts score below ${below}). `,
+            el('span', { className: 'muted' }, `What a 4 looks like: ${criterionByKey[c.criterion].guidance['4']}`))))
+          : none('No concerns across your saved Posts.')),
+    ),
+  ];
+}
+
 function render() {
   const picker = $('model');
   picker.disabled = state.posts.length > 0; // locked once the Review has Posts (AD-6)
@@ -907,6 +1112,7 @@ function render() {
   $('overall').replaceChildren(...renderOverall());
   $('posts').replaceChildren(...state.posts.map((post, i) => (post.status === 'pending' ? null : renderPost(post, i))).filter(Boolean));
   $('feedback-body').replaceChildren(...renderOutreach());
+  renderProfile();
   $('past-list').replaceChildren(...renderPast());
 }
 
@@ -1013,6 +1219,8 @@ function start() {
   $('next-post').addEventListener('click', onNextPost);
   $('send-feedback').addEventListener('click', onSendFeedback);
   $('feedback').addEventListener('click', onFeedbackClick);
+  document.querySelector('.role-cards').addEventListener('change', onRoleChange);
+  $('prefs-form').addEventListener('submit', onPrefsSubmit);
   document.querySelector('main').addEventListener('click', onNav);
   renderHowItWorks();
   $('how-tabs').addEventListener('change', syncHowTab);
@@ -1031,9 +1239,11 @@ function start() {
     // Past Reviews need both: db for the store, user for the viewer's private subtree id.
     Promise.all([window.claude.use('db'), window.claude.use('user')]).then(async ([db, user]) => {
       const id = user ? await user.id() : null;
+      if (user) state.me = await user.me();
       if (db && id) {
         state.db = db;
         state.viewerId = id;
+        await loadProfile();
       }
     }).catch(() => {}).finally(() => {
       state.dbChecked = true;

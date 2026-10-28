@@ -58,6 +58,7 @@ const script = [
   toScript('pipeline.js'),
   toScript('export.js'),
   toScript('past.js'),
+  toScript('profile.js'),
   toScript('desk.js'),
   toScript('ui.js'),
   toScript('theme.js'),
@@ -73,22 +74,22 @@ const INTRO_CSS = readFileSync(join(SRC, 'intro.css'), 'utf8');
 const INTRO_HTML = readFileSync(join(SRC, 'intro.html'), 'utf8').replace('{{LOGO_RED}}', imgData('logo-red.png'));
 if (/<\/style/i.test(INTRO_CSS)) fail(['intro.css: contains "</style"']);
 const PAGE_CSS = readFileSync(join(SRC, 'page.css'), 'utf8');
-// The design partner's icons, used on Home and in How it works: each is inlined once, as a CSS variable,
+// The design partner's icons and portraits, used on Home, in How it works and on the profile: each is inlined once, as a CSS variable,
 // and shown as a background (the images are decorative), so a second use costs nothing.
-const ICONS = ['checklist', 'person', 'pen', 'bubbles', 'mailbox'];
-const ICON_CSS = `:root { ${ICONS.map((n) => `--icon-${n}: url("${imgData(`icon-${n}.png`)}");`).join(' ')} }\n`
-  + ICONS.map((n) => `.icon-${n} { background-image: var(--icon-${n}); }`).join('\n');
+const ICONS = {
+  checklist: 'icon-checklist.png', person: 'icon-person.png', pen: 'icon-pen.png', bubbles: 'icon-bubbles.png', mailbox: 'icon-mailbox.png',
+  creator: 'home-creator.png', individual: 'home-individual.png', leader: 'home-leader.png',
+};
+const ICON_CSS = `:root { ${Object.entries(ICONS).map(([n, file]) => `--icon-${n}: url("${imgData(file)}");`).join(' ')} }\n`
+  + Object.keys(ICONS).map((n) => `.icon-${n} { background-image: var(--icon-${n}); }`).join('\n');
 if (/<\/style/i.test(PAGE_CSS)) fail(['page.css: contains "</style"']);
 const EDITOR_CSS = readFileSync(join(SRC, 'editor.css'), 'utf8');
 if (/<\/style/i.test(EDITOR_CSS)) fail(['editor.css: contains "</style"']);
 const FONTS = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Open+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">';
 
 const ROADMAP = [
-  ['Web App with private accounts', 'Sign in to a private account and save Reviews to reopen later, unchanged, with their recorded versions.'],
-  ['Creator Foundation', 'Creators record how they want to come across and rank the audiences they want to reach.'],
+  ['Web App with private accounts', 'Sign in to the hosted Web App with your own account, and keep your profile, preferences and Reviews there. In this demo your Claude account already keeps them private.'],
   ['Own-Content Review and Draft Checkpoint', 'Creators review their own posts, or a draft before publishing, including Criterion 10, Self-Presentation Alignment.'],
-  ['Persona order by audience', 'On a Creator’s own Review, the Personas closest to their top audience are shown first. Scores do not change.'],
-  ['Profile Summary', 'A roll-up across a profile’s Posts: Criterion averages, recurring patterns, which Personas react well or badly, the strongest and weakest Posts, and the top changes.'],
   ['New Rubric and Persona Versions', 'Personas and the rubric are revised after interviews with real people outside the faith and with creators. Old Reviews keep the versions that produced them.'],
   ['Usage caps', 'Daily and monthly limits on Claude usage for the hosted Web App.'],
 ];
@@ -156,9 +157,9 @@ ${INTRO_HTML}
     <section class="home-band home-who" aria-labelledby="home-who-title">
       <h2 id="home-who-title" class="home-sans-title">Who is it for?</h2>
       <ul class="who-list">
-        <li><img class="home-art who-face" src="${imgData('home-creator.png')}" width="250" height="320" alt=""><div><h3>Christian Content Creators</h3><p>who want to review their drafts before posting.</p></div></li>
-        <li><img class="home-art who-face" src="${imgData('home-individual.png')}" width="250" height="320" alt=""><div><h3>Individuals</h3><p>who find contentious posts online and are unsure how to evaluate them.</p></div></li>
-        <li><img class="home-art who-face" src="${imgData('home-leader.png')}" width="250" height="320" alt=""><div><h3>Leaders of youth and young adults</h3><p>who want a teaching tool: how we should and should not present ourselves online, and why we should be intentional about how we represent Christ.</p></div></li>
+        <li><span class="who-face icon-creator" aria-hidden="true"></span><div><h3>Christian Content Creators</h3><p>who want to review their drafts before posting.</p></div></li>
+        <li><span class="who-face icon-individual" aria-hidden="true"></span><div><h3>Individuals</h3><p>who find contentious posts online and are unsure how to evaluate them.</p></div></li>
+        <li><span class="who-face icon-leader" aria-hidden="true"></span><div><h3>Leaders of youth and young adults</h3><p>who want a teaching tool: how we should and should not present ourselves online, and why we should be intentional about how we represent Christ.</p></div></li>
       </ul>
     </section>
 
@@ -317,7 +318,7 @@ ${INTRO_HTML}
         <li id="next-post-item" hidden><button type="button" id="next-post">Next post</button></li>
         <li><button type="button" id="save-review" hidden>Save Review as file</button></li>
         <li><button type="button" id="copy-review">Copy review</button></li>
-        <li><button type="button" data-nav="profile">View past reviews</button></li>
+        <li><button type="button" data-nav="profile">View saved reviews</button></li>
         <li class="has-tip">
           <button type="button" id="send-feedback" aria-describedby="feedback-tip" aria-disabled="true">Send feedback</button>
           <span class="tip" id="feedback-tip" role="tooltip">Drafts a loving message you could send the account behind these Posts, with Talking Points tied to each Post. You send it yourself: Living Letter never sends anything. Ready once a Post has been reviewed.</span>
@@ -353,16 +354,52 @@ ${INTRO_HTML}
 
   <section id="view-profile" class="view" hidden>
     <h1 class="view-title">Your profile</h1>
-    <h2>Past Reviews</h2>
-    <p>Each Review you send is saved here for you alone. Nobody else can see it, not even this page’s owner. Screenshots are never saved, only their file names.</p>
-    <p id="past-state" class="muted" aria-live="polite"></p>
-    <div id="past-list"></div>
-    <h2>Coming to your profile</h2>
-    <p>Planned for the web app, not yet in this demo:</p>
-    <ul>
-      <li><strong>Ranked target audiences.</strong> Record who you most want to reach, in your order. Your own Reviews then show the closest Personas first.</li>
-      <li><strong>Overall feedback.</strong> A summary across all your Posts: average scores, recurring patterns, your strongest and weakest Posts, and the changes that would help most.</li>
-    </ul>
+    <div class="profile-account">
+      <img id="profile-avatar" class="profile-avatar" alt="" width="56" height="56" hidden>
+      <div>
+        <p id="profile-signin" class="profile-signin">Signed in with your Claude account</p>
+        <p class="muted">Your profile, preferences and saved Reviews are private: nobody else can see them, not even this page’s owner.</p>
+      </div>
+    </div>
+    <p id="profile-state" class="muted" aria-live="polite"></p>
+
+    <section class="profile-block" aria-labelledby="role-title">
+      <h2 id="role-title">How you’re using Living Letter</h2>
+      <div class="role-cards" role="radiogroup" aria-labelledby="role-title">
+        <label class="role-card"><input type="radio" name="profile-role" value="creator"><span class="role-face icon-creator" aria-hidden="true"></span><span class="role-name">As a creator</span><span class="role-note">Reviewing my own Posts and drafts before I post.</span></label>
+        <label class="role-card"><input type="radio" name="profile-role" value="leader"><span class="role-face icon-leader" aria-hidden="true"></span><span class="role-name">As a leader</span><span class="role-note">Teaching young people how we present ourselves online.</span></label>
+        <label class="role-card"><input type="radio" name="profile-role" value="individual"><span class="role-face icon-individual" aria-hidden="true"></span><span class="role-name">As an individual</span><span class="role-note">Weighing up Posts I come across.</span></label>
+      </div>
+    </section>
+
+    <section class="profile-block" id="creator-prefs" aria-labelledby="prefs-title" hidden>
+      <h2 id="prefs-title">Creator preferences</h2>
+      <p>How you want to come across, what you believe, and who you most want to reach. Your Reviews then list first the Personas who lead your top audiences. Scores never change.</p>
+      <form id="prefs-form" class="prefs-form">
+        <label for="pref-come-across">How you want to come across</label>
+        <textarea id="pref-come-across" rows="3" maxlength="2000" placeholder="For example: warm, honest and curious; never preachy."></textarea>
+        <label for="pref-theology">Your theology and tradition</label>
+        <textarea id="pref-theology" rows="3" maxlength="2000" placeholder="For example: evangelical Anglican; we hold to the Nicene Creed."></textarea>
+        <fieldset class="audience-rank">
+          <legend>The audiences you want to reach, most important first</legend>
+          <ol id="pref-audiences"></ol>
+        </fieldset>
+        <div class="row"><button type="submit" id="prefs-save">Save preferences</button><span id="prefs-status" class="muted" aria-live="polite"></span></div>
+      </form>
+    </section>
+
+    <section class="profile-block" id="summary-block" aria-labelledby="summary-title" hidden>
+      <h2 id="summary-title">Your profile summary</h2>
+      <p class="muted">Worked out from your saved Reviews by code, not by Claude. Persona Reactions are simulated perspectives, not real people’s opinions.</p>
+      <div id="profile-summary"></div>
+    </section>
+
+    <section class="profile-block" aria-labelledby="saved-title">
+      <h2 id="saved-title">Saved Reviews</h2>
+      <p>Each Review you send is saved here. Screenshots are never saved, only their file names.</p>
+      <p id="past-state" class="muted" aria-live="polite"></p>
+      <div id="past-list"></div>
+    </section>
   </section>
 
   <section id="view-how" class="view" hidden>
@@ -439,7 +476,7 @@ ${INTRO_HTML}
     <div id="how-panel-privacy" class="how-panel" hidden>
       <h2>What is kept</h2>
       <ul>
-        <li><strong>Your Reviews.</strong> Each Review you send is saved to your own Past Reviews, which only you can see.</li>
+        <li><strong>Your Reviews and profile.</strong> Each Review you send is saved to your profile’s Saved Reviews, with your role and Creator preferences beside them. Only you can see them.</li>
         <li><strong>Screenshots.</strong> Never shown again or stored.</li>
         <li><strong>Links.</strong> Shown but never opened, except an Instagram reel link, which is used only to transcribe the reel’s spoken words.</li>
       </ul>

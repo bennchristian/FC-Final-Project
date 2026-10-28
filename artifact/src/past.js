@@ -27,7 +27,8 @@ export function reviewTally(posts) {
   };
 }
 
-export function pastReviewRecord({ posts, reviewSourceUrl, modelId, outreach }, labels, savedAt) {
+// `foundation` is the creator's role and preferences as they were when the Review was saved (FR-15).
+export function pastReviewRecord({ posts, reviewSourceUrl, modelId, outreach, foundation }, labels, savedAt) {
   return {
     savedAt,
     reviewSourceUrl: reviewSourceUrl || '',
@@ -37,6 +38,7 @@ export function pastReviewRecord({ posts, reviewSourceUrl, modelId, outreach }, 
     tally: reviewTally(posts),
     // A plan still being written is not kept.
     outreach: outreach && outreach.status === 'done' ? outreach : null,
+    foundation: foundation || null,
   };
 }
 

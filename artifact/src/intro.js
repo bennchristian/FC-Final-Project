@@ -3,9 +3,9 @@
 // Learn more / Begin review: the letter slides back in, the flap closes, the envelope flies up off the screen and
 // Home or the Review page shows. "Review" and "How it works" at the top do the same exit, then open that page.
 // Escape skips straight to the exit, onto Home.
-// Try the demo (FR-24) asks ui.js to start the guided demo, then does the Begin review exit onto the real, empty
-// Review page. When ui.js accepted, it sets <html data-demo="started"> and fires `ll:demo-started`, which starts
-// the walkthrough in tour.js.
+// Try the demo (FR-24) asks ui.js to start the guided demo. When ui.js accepted, it does the Learn more exit onto
+// Home, then sets <html data-demo="started"> and fires `ll:demo-started`, which starts the walkthrough in tour.js
+// (Home, Your profile, How it works, then the real, empty Review page). When ui.js declined, it is Begin review.
 (function () {
   'use strict';
   const root = document.getElementById('ll-intro');
@@ -185,7 +185,7 @@
       if (state === 'closing' || state === 'done') return;
       const detail = { loaded: false };
       document.dispatchEvent(new CustomEvent('ll:try-demo', { detail }));
-      const exiting = exit('review');
+      const exiting = exit(detail.loaded ? 'home' : 'review');
       if (!detail.loaded) return;
       Promise.resolve(exiting).then(() => {
         document.documentElement.dataset.demo = 'started';

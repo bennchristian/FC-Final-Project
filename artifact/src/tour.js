@@ -1,10 +1,12 @@
 // The guided demo (PRD FR-24): coach cards over the real pages, started by Try the demo on the intro.
-// The intro fires `ll:demo-started` once the empty Review page shows. The cards explain each option, fill in
-// the sample reel's link and wait for Send for review, which ui.js replays from the saved sample (no Claude or
-// Supadata call) and saves to Saved Reviews. Then the Results, the Mailbox, Your profile (the viewer picks a
-// role) and reopening the Review from Saved Reviews, and a closing card on the Results.
-// A step that needs the viewer's click waits for it; when this view cannot save (no db or no signed-in viewer)
-// it offers Next instead. End tour, the last card, or Clear Review ends it.
+// The intro exits onto Home and fires `ll:demo-started`. The cards go Home (what it is, who it is for, what you
+// get) → Your profile (the viewer picks a role; creators see Creator preferences) → How it works (Overview,
+// Scoring and Personas tabs) → the Review page, where they fill in the sample reel's link and wait for Send for
+// review, which ui.js replays from the saved sample (no Claude or Supadata call) and saves to Saved Reviews.
+// Then the Results, the Mailbox, reopening the Review from Saved Reviews, and a closing card on the Results.
+// Before the Review page, Next moves to the next page itself (through the masthead links) and each page's first
+// card names its link. A step that needs the viewer's click waits for it; when this view cannot save (no db or
+// no signed-in viewer) it offers Next instead. End tour, the last card, or Clear Review ends it.
 // Hooks from ui.js: ll:demo-replaying, ll:demo-replayed, ll:demo-ended, ll:view, ll:past-opened. It answers
 // with ll:tour-ended. Text nodes only; no storage, no network. One IIFE: the build shares one script scope.
 (function () {
@@ -25,6 +27,17 @@
   function pick(selector) {
     const node = q(selector);
     if (node) node.click();
+  }
+  // Opens a page through its masthead link, unless it is already showing.
+  function visit(view) {
+    const page = q(`#view-${view}`);
+    if (page && page.hidden) pick(`#nav-${view}`);
+  }
+  // Opens How it works on one of its tabs.
+  function howTab(value) {
+    visit('how');
+    const input = q(`input[name="how-tab"][value="${value}"]`);
+    if (input && !input.checked) input.click();
   }
   function modelLabel() {
     const select = q('#model');
@@ -57,17 +70,35 @@
   let tour = null;
 
   const STEPS = [
-    { id: 'start', view: 'review', anchor: ['#letter'], title: 'This is the Review page',
-      body: () => 'It is the same page you use for your own Reviews. These cards walk you through each part, then put in a sample Post for you to send.' },
-    { id: 'model', view: 'review', anchor: ['.field-select'], title: 'Model',
-      body: () => `Choose which Claude model reads your Posts. It is fixed once the Review has Posts, and live Reviews use your own Claude usage. The sample was reviewed with ${modelLabel()}.` },
-    { id: 'profile-link', view: 'review', anchor: () => { const f = q('#review-url'); return f && f.closest('.field'); }, title: 'Profile link (optional)',
-      body: () => 'If your Posts come from one account, paste its profile link. It is only shown beside the results and is never opened. Leave it empty for the demo.' },
-    { id: 'videos', view: 'review', anchor: () => document.querySelectorAll('#post-form fieldset.either')[0], title: 'Videos',
-      body: () => 'Add a video by its link, or paste what is said in it. An Instagram reel’s spoken words are transcribed from its link.' },
-    { id: 'static', view: 'review', anchor: () => document.querySelectorAll('#post-form fieldset.either')[1], title: 'Static posts',
-      body: () => 'For a photo or text Post, add screenshots or paste its text. A Post needs only one of these: a link, a transcript, screenshots or text.' },
-    { id: 'link', view: 'review', anchor: ['#link-field'], enter: fillLink, title: 'A sample Post',
+    // Home: what Living Letter is, who it is for, what you get. The hero may still be typing in, so the card says it all.
+    { id: 'what', view: 'home', anchor: ['.home-hero'], enter: () => visit('home'), title: 'What Living Letter is',
+      body: () => 'Living Letter reviews public social-media Posts from churches, ministries and Christian creators through the eyes of people who do not share the faith, so believers can sharpen their witness online. This is Home; the logo at the top of the page brings you back.' },
+    { id: 'who', view: 'home', anchor: ['.home-who'], enter: () => visit('home'), title: 'Who it is for',
+      body: () => 'Christian content creators checking their drafts before they post, individuals weighing up Posts they come across, and leaders teaching young people how we present ourselves online.' },
+    { id: 'get', view: 'home', anchor: ['.home-overview'], enter: () => visit('home'), title: 'What you get',
+      body: () => 'For each Post: Rubric Scores with Evidence, simulated Persona Reactions, a Gentler Rewrite when it has room to improve, and Discussion Questions. Next opens Your profile.' },
+    // Your profile: the masthead's person icon.
+    { id: 'profile', view: 'profile', anchor: ['.profile-account'], enter: () => visit('profile'), title: 'Your profile',
+      body: () => 'The person icon at the top of the page opens it. It belongs to your Claude account and is private: nobody else can see it, not even this page’s owner. Your Saved Reviews are listed at the bottom.' },
+    { id: 'role', view: 'profile', anchor: ['.role-cards'], enter: () => visit('profile'), title: 'Who you are',
+      body: () => 'Your profile starts with how you use Living Letter: as a creator, a leader or an individual. Your choice saves at once, and you can change it any time.',
+      wait: { on: 'role', can: () => Boolean(q('input[name="profile-role"]:not(:disabled)')), hint: 'Pick the card that fits you.',
+        otherwise: 'You are not signed in here, so a role cannot be saved.' } },
+    { id: 'prefs', view: 'profile', anchor: ['#creator-prefs'], enter: () => visit('profile'), title: 'Creator preferences', skip: () => tour.role !== 'creator',
+      body: () => 'As a creator you can say how you want to come across, your theology and tradition, and which audiences matter most. Your Reviews then list first the Personas who lead your top audiences. Scores never change.' },
+    // How it works: three of its six tabs.
+    { id: 'how', view: 'how', anchor: ['.how-steps'], enter: () => howTab('overview'), title: 'How it works',
+      body: () => 'How it works, at the top of the page, explains what happens when you send a Post: you add it, it is scored, the Personas react, and you get next steps. Its tabs explain each part.' },
+    { id: 'scoring', view: 'how', anchor: ['#how-panel-scoring'], enter: () => howTab('scoring'), title: 'Scoring',
+      body: () => 'Each Post is scored 1 to 5 on ten Criteria of good witness, with the Evidence that earned each score. When a Post might offend, the score says whether the offence is at the message or at the messenger. The ten Criteria are listed here too.' },
+    { id: 'personas', view: 'how', anchor: ['#how-panel-personas'], enter: () => howTab('personas'), title: 'Personas',
+      body: () => `${personaCount()} simulated people, most of them outside the faith, each with a believable background. They react to every Post but never change its scores. The last three tabs, Mechanism, Sources and Privacy, explain how the results are produced, where the rubric comes from, and what is kept.` },
+    // The Review page: the masthead's Review link.
+    { id: 'setup', view: 'review', anchor: ['.field-select'], enter: () => visit('review'), title: 'Set up the review',
+      body: () => `Review, at the top of the page, opens your letter. First, which Claude model reads your Posts: it is fixed once the Review has Posts, and live Reviews use your own Claude usage. The sample was reviewed with ${modelLabel()}. Below it, an optional profile link is only shown beside the results and never opened. Leave it empty for the demo.` },
+    { id: 'add', view: 'review', anchor: () => q('#post-form fieldset.either'), enter: () => visit('review'), title: 'Add a Post',
+      body: () => 'Add a video by its link, or paste what is said in it: an Instagram reel’s spoken words are transcribed from its link. For a photo or text Post, use Static posts below: screenshots or its text. A Post needs only one of these.' },
+    { id: 'link', view: 'review', anchor: ['#link-field'], enter: () => { visit('review'); fillLink(); }, title: 'A sample Post',
       body: () => 'We have put in the link to a public Instagram reel. Its results were worked out ahead of time, so sending it uses none of your Claude usage.' },
     { id: 'send', view: 'review', anchor: ['#evaluate-all'], title: 'Send it for review',
       body: () => 'The letter goes into its envelope and the Mailbox, and the results open. If you change the link first, Send runs a live Review on your own Claude usage.',
@@ -89,22 +120,17 @@
       wait: { on: 'profile', can: () => tour.canSave, hint: 'Click View saved reviews.',
         otherwise: 'This view cannot save Reviews. Open the page as a Claude artifact while signed in to keep them.',
         next: () => pick('#mailbox [data-nav="profile"]') } },
-    { id: 'role', view: 'profile', anchor: ['.role-cards'], title: 'Who you are',
-      body: () => 'Your profile starts with how you use Living Letter: as a creator, a leader or an individual. Your choice saves at once, and you can change it any time.',
-      wait: { on: 'role', can: () => tour.canSave && Boolean(q('input[name="profile-role"]:not(:disabled)')), hint: 'Pick the card that fits you.',
-        otherwise: 'You are not signed in here, so a role cannot be saved.' } },
-    { id: 'prefs', view: 'profile', anchor: ['#creator-prefs'], title: 'Creator preferences', skip: () => tour.role !== 'creator',
-      body: () => 'As a creator you can say how you want to come across, your theology and tradition, and which audiences matter most. Your Reviews then list first the Personas who lead your top audiences. Scores never change.' },
     { id: 'saved', view: 'profile', anchor: ['#past-list .past-item:first-child'], fallback: '#past-state', title: 'Saved Reviews',
-      body: () => 'The Review you just sent is saved here, where only you can see it.',
+      body: () => 'The Review you just sent is saved here, at the bottom of your profile, where only you can see it.',
       wait: { on: 'opened', can: () => tour.anchored, hint: 'Click Open to read it again.',
         otherwise: 'Nothing was saved in this view, so there is nothing to reopen.',
         next: () => pick('#nav-review') } },
     { id: 'done', view: 'results', anchor: ['#overall'], last: true, enter: () => { if (q('#view-results').hidden) pick('#nav-review'); },
       title: 'That is the whole flow',
       body: () => {
-        const did = ['sent a Post', 'read its results'];
+        const did = ['saw what Living Letter is'];
         if (tour.role) did.push('chose who you are');
+        did.push('sent a Post', 'read its results');
         if (tour.reopened) did.push('reopened the saved Review');
         return `You ${did.slice(0, -1).join(', ')} and ${did[did.length - 1]}. To review your own Posts, choose Send another post in the Mailbox, then Clear Review.`;
       } },
@@ -193,6 +219,8 @@
   function layout() {
     if (!tour || card.hidden) return;
     const step = STEPS[tour.index];
+    // The role step can turn waitable once the profile has loaded: show its hint instead of Next then.
+    if (waiting(step) !== tour.waited) show(step);
     if (!shown(tour.target)) tour.target = find(step, true).node; // re-rendered, or back on the step's page
     const box = targetBox();
     ring.hidden = !box;
@@ -266,6 +294,7 @@
 
   function show(step) {
     const wait = waiting(step);
+    tour.waited = wait;
     parts.title.textContent = step.title;
     parts.body.textContent = step.body();
     parts.hint.textContent = wait ? step.wait.hint : step.wait ? step.wait.otherwise : '';
@@ -301,7 +330,15 @@
     if (!step || !step.wait || step.wait.on !== kind || !waiting(step)) return;
     if (kind === 'role') tour.role = detail;
     if (kind === 'opened') tour.reopened = true;
-    go(tour.index + 1, false);
+    // Move on once the viewer's click has finished: a page move inside a role card's click re-renders the
+    // radios before their change event, and the role would never save.
+    const index = tour.index;
+    const token = ++tour.token;
+    card.hidden = true;
+    ring.hidden = true;
+    setTimeout(() => {
+      if (tour && tour.index === index && tour.token === token) go(index + 1, false);
+    }, 0);
   }
 
   function start() {
@@ -342,11 +379,12 @@
   document.addEventListener('ll:demo-replayed', (event) => {
     if (!tour) return;
     tour.replaying = false;
-    tour.canSave =Boolean(event.detail && event.detail.canSave);
+    tour.canSave = Boolean(event.detail && event.detail.canSave);
     tour.saved = Boolean(event.detail && event.detail.saved);
     go(STEPS.findIndex((s) => s.id === 'overall'), false);
   });
   document.addEventListener('ll:view', (event) => {
+    // Only the Mailbox step waits on 'profile' (done() checks); the early profile cards open it themselves.
     if (event.detail && event.detail.name === 'profile') done('profile');
     // A live Send (the viewer changed the link) opens the Results without a replay: carry on from there.
     if (event.detail && event.detail.name === 'results' && tour && !tour.replaying && STEPS[tour.index].id === 'send') {

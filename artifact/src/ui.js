@@ -16,7 +16,7 @@ import { prepareHomeMotion, playHomeMotion } from './home.js';
 // ---------- Fixed UI copy (AD-14). Constants, never model output. Wording owned by bmad-ux. ----------
 
 const COPY = {
-  simulated: 'Simulated perspective',
+  simulated: 'Simulated perspectives, not real people’s opinions.',
   linkNotice: 'The profile link is only shown alongside the results. It is never opened.',
   savedHere: 'Each Review you send is saved to your profile’s Saved Reviews, which only you can see. Screenshots are never saved.',
   sampleNotice: 'This is a sample Review of a public Instagram reel. Its results were evaluated ahead of time, so it used none of your Claude usage.',
@@ -148,10 +148,6 @@ function $(id) {
 function sourceLink(url) {
   if (!url || checkSourceUrl(url).length) return null;
   return el('a', { href: url, className: 'said', target: '_blank', rel: 'noopener noreferrer' }, url);
-}
-
-function simulatedTag() {
-  return el('span', { className: 'simulated' }, COPY.simulated);
 }
 
 // Text Claude wrote or the viewer supplied, inside the Review results. The owner copy editor
@@ -898,11 +894,12 @@ function orderedReactions(evaluation) {
 
 function renderReactions(evaluation) {
   return el('section', { 'data-tour': 'reactions' },
-    el('h4', {}, 'Persona Reactions ', simulatedTag()),
+    el('h4', {}, 'Persona Reactions'),
+    el('p', { className: 'muted' }, COPY.simulated),
     isCreator() ? el('p', { className: 'muted' }, 'Listed with the Personas who lead your top audiences first.') : null,
     el('ul', { className: 'reactions' }, orderedReactions(evaluation).map((r) =>
       el('li', {},
-        el('strong', {}, personaByKey[r.persona].name), ' ', simulatedTag(),
+        el('strong', {}, personaByKey[r.persona].name),
         el('div', { className: 'muted' }, personaByKey[r.persona].summary),
         el('div', {}, 'Felt response: ', said(r.felt_response), ` (${r.valence})`),
         el('ul', {}, r.reasons.map((reason) => el('li', { className: 'said' }, reason))),
@@ -945,7 +942,7 @@ function renderQuestions(evaluation) {
   return el('section', { 'data-tour': 'questions' },
     el('h4', {}, 'Discussion Questions'),
     el('ol', {}, evaluation.discussion_questions.questions.map((q) =>
-      el('li', {}, said(q.text), q.persona ? [' ', simulatedTag(), ` (${personaByKey[q.persona].name})`] : null),
+      el('li', {}, said(q.text), q.persona ? ` (${personaByKey[q.persona].name})` : null),
     )),
   );
 }
@@ -1080,7 +1077,7 @@ function renderOutreach() {
       `${tp.kind === 'concern' ? 'Concern' : 'Affirmation'} · Post ${tp.post_position} · ${criterionByKey[tp.criterion].name}: `,
       said(tp.text),
       tp.change ? el('span', {}, ' Change: ', said(tp.change)) : null,
-      tp.persona ? el('span', {}, ' ', simulatedTag(), ` (${personaByKey[tp.persona].name})`) : null,
+      tp.persona ? el('span', {}, ` (${personaByKey[tp.persona].name})`) : null,
     );
     const lists = ['affirmation', 'concern']
       .map((kind) => o.output.talking_points.filter((tp) => (tp.kind === 'concern') === (kind === 'concern')))
@@ -1167,7 +1164,7 @@ function renderProfileSummary() {
     el('span', { className: `summary-icon icon-${icon}`, 'aria-hidden': 'true' }),
     el('div', { className: 'summary-body' }, el('h3', {}, title), ...body));
   const none = (text) => el('p', { className: 'muted' }, text);
-  const personaLine = (p, count, word) => el('li', {}, el('strong', {}, personaByKey[p.key].name), ' ', simulatedTag(), ` ${count} of ${sum.postCount} Posts ${word}`);
+  const personaLine = (p, count, word) => el('li', {}, el('strong', {}, personaByKey[p.key].name), ` ${count} of ${sum.postCount} Posts ${word}`);
 
   const patterns = [
     ...sum.concernPatterns.map((p) => el('li', {}, `${p.count} of ${p.of} Posts score below ${below} on `, el('strong', {}, name(p.criterion)), '.')),

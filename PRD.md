@@ -194,8 +194,8 @@ For each Post, the system produces one Persona Reaction for each Persona in the 
 - The Emboldened Believer's reaction describes how the post might shape a Christian's behaviour toward others, not how it lands with a non-believer.
 - Personas speak from their own experience; they never diagnose the poster's or other outsiders' hidden motives, and reactions never use labels such as "idolatry" or "syncretism".
 
-#### FR-9: Label every reaction as simulated [F]
-Every Persona Reaction is visibly labelled as a simulated perspective, never presented as a real person's opinion.
+#### FR-9: Label reactions as simulated [F]
+Persona Reactions are visibly labelled as simulated perspectives, never presented as real people's opinions. One plain line under the Persona Reactions heading says so; individual reactions, Discussion Questions, Talking Points and Profile Summary rows carry no per-item tag (changed 2026-10-29 by Bennett: the tags added clutter, not clarity).
 
 #### FR-10: Order Personas by Target Audience [W2]
 On an Own-Content Review, the Personas most relevant to the Creator's top-ranked Target Audience are shown first.
@@ -367,7 +367,7 @@ Post content enters only by user supply or Permitted Retrieval. No logged-in scr
 - The published Demo Artifact ships with no real people's posts preloaded. Example posts are entered during the recording; any built-in sample is fictional. **Exception (Bennett, 2026-10-29):** the FR-24 sample Review preloads one public reel by a public creator, with any handle removed. Its link (`https://www.instagram.com/p/DcRYltnvb77/`, which names no handle) ships in the sample, is filled in by the guided demo, and is saved with the demo Review in the viewer's own Saved Reviews (widened 2026-10-29). (Claude Artifact publishing policy bars content that targets private individuals, so the sample must never be a private person's post.)
 
 ### 7.3 Honest simulation
-Persona Reactions are labelled simulated everywhere they appear (FR-9) and are kept apart from any real interview data.
+Persona Reactions are labelled simulated where they appear (FR-9) and are kept apart from any real interview data.
 
 ### 7.4 Tone
 All feedback — Evaluations as well as Outreach Messages — is charitable and specific: it affirms what is genuinely good before raising concerns, critiques the Post rather than the person, and points to a concrete line and a concrete change. No mockery of the poster. No theological verdicts.

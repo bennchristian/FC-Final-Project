@@ -41,12 +41,11 @@ test('editor.js parses markup only into an inert template, and never renders mod
   assert.doesNotMatch(editor, /evaluatePost|requestRewrite|createOutreach|\.evaluation\b/);
 });
 
-test('every persona-bearing view in ui.js carries the simulated label', () => {
+test('Persona Reactions carry the one-line simulated note (FR-9)', () => {
   const ui = sources.find(([f]) => f === 'ui.js')[1];
-  for (const fn of ['renderReactions', 'renderQuestions', 'renderOutreach']) {
-    const body = ui.slice(ui.indexOf(`function ${fn}`), ui.indexOf('\nfunction ', ui.indexOf(`function ${fn}`) + 1));
-    assert.match(body, /simulatedTag\(\)/, fn);
-  }
+  const body = ui.slice(ui.indexOf('function renderReactions'), ui.indexOf('\nfunction ', ui.indexOf('function renderReactions') + 1));
+  assert.match(body, /COPY\.simulated/);
+  assert.match(ui, /simulated: 'Simulated perspectives, not real people’s opinions\.'/);
 });
 
 test('no two functions share a name once the sources are inlined into one script', () => {

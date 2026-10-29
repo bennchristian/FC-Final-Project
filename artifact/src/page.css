@@ -141,10 +141,6 @@ fieldset.either legend + * { clear: both; }
 .pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 .post > .pre { background: var(--field); padding: 0.8em 1em; font-size: var(--fs-md); border-radius: var(--radius); }
 .chip { display: inline-block; font-size: var(--fs-xs); border: 1px solid var(--line); border-radius: var(--radius); padding: 0 0.7em; margin: 0 4px 4px 0; background: var(--field); }
-.simulated {
-  display: inline-block; vertical-align: 0.15em; font: 600 var(--fs-2xs)/1.4 var(--sans); text-transform: uppercase; letter-spacing: 0.07em;
-  color: var(--muted); border: 1px solid var(--muted); border-radius: var(--radius); padding: 0 0.6em;
-}
 .evaluation { margin-top: 1.4rem; border-top: 1px solid var(--line); padding-top: 0.8rem; }
 .summary { margin-block: 1rem; }
 .summary.good { background: var(--band); border-radius: var(--radius); padding: 0.75em 1em; font-weight: 600; color: var(--good); }

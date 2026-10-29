@@ -233,6 +233,10 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
 .profile-block > h2 { margin-top: 2rem; }
 .profile-block > p, #past-list, #past-state, #profile-state { max-width: var(--measure); }
 #creator-prefs > p { max-width: none; }
+/* The leader's Facilitation guide reads as prose: one column at --measure. */
+.guide { max-width: var(--measure); }
+.guide li + li { margin-top: 0.4em; }
+.guide ol > li > ul { margin-top: 0.4em; }
 .profile-account { display: flex; align-items: center; gap: 1rem; margin-top: 1.25rem; max-width: var(--measure); }
 /* The masthead's profile icon in a brand circle (not the platform's avatar, whose colour is not a brand colour). */
 .profile-avatar { flex: none; display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: var(--band); color: var(--heading); }

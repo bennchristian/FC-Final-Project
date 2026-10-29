@@ -1180,6 +1180,7 @@ function renderProfile() {
     input.disabled = !form || saving;
   }
   $('creator-prefs').hidden = !(form && form.role === 'creator');
+  $('leader-guide').hidden = !(form && form.role === 'leader');
   $('prefs-save').disabled = !form || saving;
   const status = PROFILE_STATUS[state.profileStatus] || '';
   $('prefs-status').textContent = state.statusFor === 'audiences' ? status : '';

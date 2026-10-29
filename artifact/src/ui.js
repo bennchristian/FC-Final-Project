@@ -8,6 +8,7 @@ import { readCaption, transcribeReel } from './reel.js';
 import { sendLetter, resetDesk } from './desk.js';
 import { evaluatePost, requestRewrite, createOutreach } from './pipeline.js';
 import { reviewToMarkdown } from './export.js';
+import { samplePosts } from './sample.js';
 import { PAST_REVIEWS_SHOWN, pastReviewsPath, reviewTally, pastReviewRecord, pastPostRecord, restorePost, sameVersions } from './past.js';
 import { samplePosts, sampleLink, isSamplePost } from './sample.js';
 import { PROFILE_DOC, profileRecord, personaOrder, profileSummary } from './profile.js';
@@ -845,32 +846,68 @@ function renderOffence(keys) {
   );
 }
 
-function renderScores(evaluation) {
-  const overview = evaluation.assessment.scores.map((s) => {
+// One part of a Post's results (Rubric Scores, Persona Reactions, rewrite, questions): a rule above,
+// and the part's icon from How it works beside its heading. `tour` names it for the guided demo (tour.js).
+function evalPart(icon, title, tour, ...children) {
+  return el('section', { className: 'eval-part', 'data-tour': tour },
+    title ? el('h4', { className: 'eval-head' }, el('span', { className: `eval-icon icon-${icon}`, 'aria-hidden': 'true' }), title) : null,
+    ...children,
+  );
+}
+
+function scoreLabel(s) {
+  return s.score === null ? 'N/A' : `${s.score} / 5`;
+}
+
+function isConcern(s) {
+  return s.score !== null && s.score < 3;
+}
+
+// One Criterion's Evidence, explanation and sources: the column beside the scores table.
+function renderCriterion(s) {
+  const criterion = criterionByKey[s.criterion];
+  return el('div', { className: `criterion${isConcern(s) ? ' concern' : ''}` },
+    el('h5', {}, `${criterion.number}. ${criterion.name}: ${scoreLabel(s)}`),
+    s.evidence ? el('p', {}, el('span', { className: 'label' }, 'Evidence: '), el('q', { className: 'said' }, s.evidence)) : null,
+    el('p', {}, el('span', { className: 'label' }, s.score === null ? 'Why N/A: ' : 'Why: '), said(s.explanation)),
+    renderOffence(s.offence_sources),
+    criterionDetails(criterion, s.score),
+  );
+}
+
+// The scores table, where each Criterion opens its explanation in the column beside it (below on
+// narrow screens). The choice is kept on the Post, so a re-render shows the same Criterion.
+function renderScores(post, evaluation) {
+  const scores = evaluation.assessment.scores;
+  const detailId = `criterion-detail-${post.id}`;
+  const detail = el('div', { className: 'criterion-detail', id: detailId, 'aria-live': 'polite' });
+  const rows = scores.map((s) => {
     const criterion = criterionByKey[s.criterion];
-    return el('tr', { className: s.score !== null && s.score < 3 ? 'concern' : '' },
-      el('td', {}, `${criterion.number}. ${criterion.name}`),
-      el('td', { className: 'num' }, s.score === null ? 'N/A' : `${s.score} / 5`),
-    );
+    const pick = el('button', { type: 'button', className: 'link-button criterion-pick', 'aria-controls': detailId, onclick: () => choose(s) },
+      `${criterion.number}. ${criterion.name}`);
+    return { s, pick, row: el('tr', { className: isConcern(s) ? 'concern' : '' }, el('td', {}, pick), el('td', { className: 'num' }, scoreLabel(s))) };
   });
-  const details = evaluation.assessment.scores.map((s) => {
-    const criterion = criterionByKey[s.criterion];
-    return el('div', { className: `criterion${s.score !== null && s.score < 3 ? ' concern' : ''}` },
-      el('h5', {}, `${criterion.number}. ${criterion.name}: ${s.score === null ? 'N/A' : `${s.score} / 5`}`),
-      s.evidence ? el('p', {}, el('span', { className: 'label' }, 'Evidence: '), el('q', { className: 'said' }, s.evidence)) : null,
-      el('p', {}, el('span', { className: 'label' }, s.score === null ? 'Why N/A: ' : 'Why: '), said(s.explanation)),
-      renderOffence(s.offence_sources),
-      criterionDetails(criterion, s.score),
-    );
-  });
-  return el('div', {},
-    el('div', { className: 'table-wrap', 'data-tour': 'scores' },
-      el('table', { className: 'overview' },
-        el('thead', {}, el('tr', {}, el('th', {}, 'Criterion'), el('th', {}, 'Score'))),
-        el('tbody', {}, overview),
+  // Updated in place rather than by render(), so the button keeps focus.
+  function choose(chosen) {
+    post.openCriterion = chosen.criterion;
+    for (const { s, pick, row } of rows) {
+      pick.setAttribute('aria-pressed', String(s === chosen));
+      row.classList.toggle('open', s === chosen);
+    }
+    detail.replaceChildren(renderCriterion(chosen));
+  }
+  choose(scores.find((s) => s.criterion === post.openCriterion) || scores[0]);
+  return evalPart('checklist', 'Rubric Scores', null,
+    el('p', { className: 'muted' }, 'Choose a Criterion to see its Evidence and why it scored as it did.'),
+    el('div', { className: 'scores-split', 'data-tour': 'scores' },
+      el('div', { className: 'table-wrap' },
+        el('table', { className: 'overview' },
+          el('thead', {}, el('tr', {}, el('th', {}, 'Criterion'), el('th', {}, 'Score'))),
+          el('tbody', {}, rows.map((r) => r.row)),
+        ),
       ),
+      detail,
     ),
-    details,
   );
 }
 
@@ -893,8 +930,7 @@ function orderedReactions(evaluation) {
 }
 
 function renderReactions(evaluation) {
-  return el('section', { 'data-tour': 'reactions' },
-    el('h4', {}, 'Persona Reactions'),
+  return evalPart('person', 'Persona Reactions', 'reactions',
     el('p', { className: 'muted' }, COPY.simulated),
     isCreator() ? el('p', { className: 'muted' }, 'Listed with the Personas who lead your top audiences first.') : null,
     el('ul', { className: 'reactions' }, orderedReactions(evaluation).map((r) =>
@@ -916,8 +952,7 @@ function originalText(post, evaluation) {
 function renderRewrite(post, evaluation) {
   if (evaluation.gentler_rewrite) {
     const rw = evaluation.gentler_rewrite;
-    return el('section', { 'data-tour': 'rewrite' },
-      el('h4', {}, 'Gentler Rewrite'),
+    return evalPart('pen', 'Gentler Rewrite', 'rewrite',
       el('div', { className: 'pair' },
         el('div', {}, el('p', { className: 'label' }, 'Original'), el('p', { className: 'pre said' }, originalText(post, evaluation))),
         el('div', {}, el('p', { className: 'label' }, COPY.suggestion), el('p', { className: 'pre said' }, rw.rewrite)),
@@ -929,7 +964,7 @@ function renderRewrite(post, evaluation) {
   if (evaluation.rewrite_mode === 'offer' && post.status === 'done') {
     const running = post.rewriteStatus === 'running';
     const failed = post.rewriteStatus !== 'idle' && !running;
-    return el('section', { 'data-tour': 'rewrite' },
+    return evalPart('pen', null, 'rewrite',
       el('button', { type: 'button', onclick: () => onSuggestRewrite(post), disabled: state.busy || !state.sample }, running ? 'Writing a gentler version…' : 'Suggest a gentler version'),
       failed ? el('p', { className: 'error' }, errorText(post.rewriteStatus)) : null,
     );
@@ -939,8 +974,7 @@ function renderRewrite(post, evaluation) {
 
 function renderQuestions(evaluation) {
   if (!evaluation.discussion_questions) return el('p', { className: 'muted', 'data-tour': 'questions' }, 'Writing Discussion Questions…');
-  return el('section', { 'data-tour': 'questions' },
-    el('h4', {}, 'Discussion Questions'),
+  return evalPart('bubbles', 'Discussion Questions', 'questions',
     el('ol', {}, evaluation.discussion_questions.questions.map((q) =>
       el('li', {}, said(q.text), q.persona ? ` (${personaByKey[q.persona].name})` : null),
     )),
@@ -957,8 +991,7 @@ function renderEvaluation(post) {
     flag ? el('div', { className: 'flag' },
       el('strong', {}, 'Soundness Flag: '), el('q', { className: 'said' }, flag.line), said(` ${flag.why}`),
       el('p', { className: 'muted' }, COPY.soundnessNote)) : null,
-    el('h4', {}, 'Rubric Scores'),
-    renderScores(ev),
+    renderScores(post, ev),
     renderReactions(ev),
     renderRewrite(post, ev),
     renderQuestions(ev),

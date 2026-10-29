@@ -84,8 +84,7 @@ const PAGE_CSS = readFileSync(join(SRC, 'page.css'), 'utf8');
 // and shown as a background (the images are decorative), so a second use costs nothing.
 const ICONS = {
   checklist: 'icon-checklist.png', person: 'icon-person.png', pen: 'icon-pen.png', bubbles: 'icon-bubbles.png', mailbox: 'icon-mailbox.png',
-  creator: 'home-creator.png', individual: 'home-individual.png', leader: 'home-leader.png',
-  audiences: 'icon-audiences.png',
+  creator: 'home-creator.png', individual: 'home-individual.png', leader: 'home-leader.png', audiences: 'icon-audiences.png',
 };
 const ICON_CSS = `:root { ${Object.entries(ICONS).map(([n, file]) => `--icon-${n}: url("${imgData(file)}");`).join(' ')} }\n`
   + Object.keys(ICONS).map((n) => `.icon-${n} { background-image: var(--icon-${n}); }`).join('\n');
@@ -413,9 +412,8 @@ ${INTRO_HTML}
         </div>
         </div>
         <div class="prefs-audiences">
-          <span class="prefs-audiences-icon icon-audiences" aria-hidden="true"></span>
           <fieldset class="audience-rank">
-            <legend>The audiences you want to reach, most important first</legend>
+            <legend><span class="prefs-audiences-icon icon-audiences" aria-hidden="true"></span><span>The audiences you want to reach, most important first</span></legend>
             <ol id="pref-audiences"></ol>
           </fieldset>
           <div class="row"><button type="submit" id="prefs-save">Save order</button><span id="prefs-status" class="muted" aria-live="polite"></span></div>

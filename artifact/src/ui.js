@@ -1209,7 +1209,7 @@ function renderHowItWorks() {
     )));
   $('how-personas').replaceChildren(...CONTENT.personaSet.personas.map((p) =>
     el('details', { className: 'criterion' },
-      el('summary', {}, p.name, ' ', simulatedTag()),
+      el('summary', {}, p.name),
       el('p', {}, el('em', {}, p.summary)),
       renderPersona(p),
     )));

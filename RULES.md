@@ -15,24 +15,25 @@
 
 ## Stack rules
 
-The stack is Next.js, TypeScript, Vercel, Supabase, and the Claude API. Versions are pinned in
+The stack is Next.js, TypeScript, Vercel and Supabase for the Web App, and the Claude Artifact
+runtime for the Demo Artifact. Versions are pinned in
 `ARCHITECTURE.md` § Stack, and `package.json` must match them once it exists.
 
 - **TypeScript, strict mode.** No `any` at module boundaries.
-- **Claude calls run only on the server**, in route handlers or server actions. Client
-  components never import the Anthropic SDK. The one sanctioned exception is the Demo
-  Artifact, which calls Claude in the page through `sample()` (`ARCHITECTURE.md` AD-7, AD-12).
+- **Claude is called only by the Demo Artifact**, in the page through `sample()` on the viewer's
+  own plan (`ARCHITECTURE.md` AD-7, AD-12). The Web App makes no model call and never imports the
+  Anthropic SDK; a Review reaches it only as an uploaded Review File (AD-18).
 - **Prompts are data, not inline strings.** Persona definitions and rubric text live in their
   own files or tables so they can be versioned and revised without touching call sites.
 - **Model IDs live in one place:** `config/models.json` (default `claude-opus-5-5`, plus prices),
-  read by both surfaces (`ARCHITECTURE.md` AD-7). Use the `claude-api` skill rather than memory
+  inlined into the Demo Artifact (`ARCHITECTURE.md` AD-7). Use the `claude-api` skill rather than memory
   when changing it.
 - **Artifact (demo):** a single self-contained page that follows the `artifact-design`
   contract. Load `artifact-capabilities` before adding any runtime behaviour.
 
 ## Security rules
 
-- **Secrets:** the Claude API key, the Supabase secret key (`sb_secret_…`, env `SUPABASE_SECRET_KEY`) and, post-MVP,
+- **Secrets:** the Supabase secret key (`sb_secret_…`, env `SUPABASE_SECRET_KEY`) and, post-MVP,
   the Instagram app secret and token key (`INSTAGRAM_APP_SECRET`, `INSTAGRAM_TOKEN_KEY`; AD-17) are server-side
   environment variables only. They never go in client bundles, the artifact, the repo, or
   logs. `.env*` stays in `.gitignore`.

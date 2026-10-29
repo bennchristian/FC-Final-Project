@@ -3,12 +3,12 @@ name: 'Living Letter'
 type: architecture-spine
 purpose: build-substrate
 altitude: initiative
-paradigm: 'Functional core, imperative shell — one shared data layer (content, conformance vectors, model config), two thin shells (Demo Artifact, Web App)'
-scope: 'Both MVP surfaces: the Demo Artifact (Fri 2026-10-23) and the Web App (week of 2026-10-26)'
+paradigm: 'Functional core, imperative shell — one shared data layer (content, conformance vectors, model config), two thin shells (Demo Artifact runs Reviews; Web App stores and shows them)'
+scope: 'Both MVP surfaces: the Demo Artifact (Fri 2026-10-23) and the Web App companion (re-scoped 2026-10-29)'
 status: final
 created: '2026-10-21'
-updated: '2026-10-21'
-binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, FR-11, FR-12, FR-13, FR-14, FR-15, FR-16, FR-16a, FR-17, FR-18, FR-19, FR-20, FR-21, FR-22, FR-23, OQ-5]
+updated: '2026-10-30'
+binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, FR-11, FR-12, FR-13, FR-14, FR-15, FR-16, FR-16a, FR-17, FR-18, FR-19, FR-20, FR-21, FR-22, FR-23, FR-24, FR-25, FR-26, OQ-5]
 sources: [PRD.md, RULES.md, _bmad-output/planning-artifacts/prds/prd-FC-Final-Project-2026-10-21/addendum.md, bmad-ux shared note ux-facts-for-architecture.md]
 companions: [SCHEMA.md]
 ---
@@ -19,7 +19,7 @@ Promoted 2026-10-21 from the `bmad-architecture` run [`_bmad-output/planning-art
 
 ## Design Paradigm
 
-**Functional core, imperative shell.** Judgement lives in versioned data (`content/`). Arithmetic, validation, prompt rendering, ordering and redaction are pure functions. Each surface is a thin shell that does I/O: it calls Claude, validates the result, persists it (Web App only) and renders it.
+**Functional core, imperative shell.** Judgement lives in versioned data (`content/`). Arithmetic, validation, prompt rendering, ordering and redaction are pure functions. Each surface is a thin shell that does I/O. The Demo Artifact calls Claude on the viewer's plan, validates the result and renders it. The Web App never calls a model (AD-18): it validates an uploaded Review File, stores it and renders it.
 
 The two surfaces share **data, never code**:
 - `content/`
@@ -31,12 +31,12 @@ Parity between the two shells is enforced by running the same conformance vector
 
 | Layer | Demo Artifact | Web App | May depend on |
 |---|---|---|---|
-| Shared data | inlined at build | `content/` → version tables; `config/`, `conformance/` imported | nothing |
+| Shared data | inlined at build | `content/`, `conformance/` imported at build | nothing |
 | Core (pure) | `artifact/src/core.js` | `src/domain/` | shared data shapes |
-| Shell: model access | `sample` capability | `src/server/claude/` (port + live/fake adapters) | core |
+| Shell: model access | `sample` capability | none (AD-18) | core |
 | Shell: persistence | page memory, plus Past Reviews in the viewer’s private `db` subtree (`artifact/src/past.js`) | `src/server/db/` (Supabase) | core |
-| Shell: orchestration | `artifact/src/pipeline.js` | `src/server/gate/`, `src/server/pipeline/` | core, model access, persistence |
-| UI | `artifact/src/ui.js` | `src/app/` (pages, `api/` Route Handlers, Server Actions), `src/components/`, `src/proxy.ts` | core; `src/app` also calls orchestration |
+| Shell: orchestration | `artifact/src/pipeline.js` | `src/server/import/` (Review File → validated row) | core, model access (Artifact), persistence |
+| UI | `artifact/src/ui.js` | `src/app/` (pages, Server Actions; no Route Handlers in the MVP), `src/components/`, `src/proxy.ts` | core; `src/app` also calls orchestration |
 
 ```mermaid
 flowchart LR
@@ -45,21 +45,20 @@ flowchart LR
     V["conformance/ (vectors, prompt fixtures)"]
     M["config/models.json"]
   end
-  subgraph web["Web App (Next.js)"]
-    APP["src/app (pages, api routes, actions)"] --> PIPE["src/server/gate + pipeline"]
+  subgraph web["Web App (Next.js, no model access)"]
+    APP["src/app (pages, Server Actions)"] --> IMP["src/server/import"]
     COMP["src/components"] --> DOM["src/domain (pure)"]
     APP --> DOM
-    PIPE --> DOM
-    PIPE --> CL["src/server/claude (port)"]
-    PIPE --> DB["src/server/db (Supabase)"]
+    IMP --> DOM
+    IMP --> DB["src/server/db (Supabase)"]
   end
   subgraph art["Demo Artifact (single HTML)"]
     UI["ui.js"] --> AP["pipeline.js"] --> AC["core.js (pure)"]
     AP --> S["sample capability"]
   end
-  C -. "publish:content" .-> DB
+  UI -. "Review File (.md, saved by the viewer, uploaded)" .-> IMP
+  C -. "imported at build" .-> DOM
   C -. "inlined at build" .-> AC
-  M -. "imported" .-> CL
   M -. "inlined at build" .-> AP
   V -. "Vitest" .-> DOM
   V -. "node --test" .-> AC
@@ -84,17 +83,13 @@ flowchart LR
   - **Draft and locked ids:**
     - An id with no lock entry is a **draft**. It may be edited, it is never published to a database, and only a local Artifact build may inline it, with its label ending `-draft`.
     - An id becomes **locked** the first time it is inlined into a published Artifact or published to prod.
-    - A locked file is never edited. `artifact/build.mjs`, `publish:content` and the check command recompute every locked hash and fail on any mismatch.
-  - **Web App reads:** the Web App reads versions only from `rubric_version`, `persona_version` and `prompt_set`, which `npm run publish:content` fills. That script:
-    - reads the existing `(id, content_sha256)` rows;
-    - fails on any differing hash;
-    - then inserts every new row with plain `INSERT` in one transaction, never upsert.
-  - **Immutability:** a database trigger rejects UPDATE, DELETE and TRUNCATE on all three tables.
+    - A locked file is never edited. `artifact/build.mjs` and the check command recompute every locked hash and fail on any mismatch.
+  - **Web App reads (amended 2026-10-30, AD-18):** the Web App imports the locked ids' files from `content/` at build and keeps every locked version, so a Saved Review made with an older version still renders. There are no version tables and no `publish:content`. Publishing a version is a new file plus a redeploy (FR-21).
   - **Latest:** "latest" means the highest `<n>` per name.
 
 ### AD-2 — Two-step Evaluation pipeline with a fixed input list per call [ADOPTED]
 
-- **Binds:** FR-4, FR-6, FR-8, FR-11, FR-12, FR-13, FR-14, FR-16, both surfaces
+- **Binds:** FR-4, FR-6, FR-8, FR-11, FR-12, FR-13, FR-14, FR-16, Demo Artifact (since 2026-10-30 the Web App calls no model, AD-18)
 - **Prevents:**
   - Persona Reactions feeding Rubric Scores (PRD §4.3);
   - doctrine-correcting rewrites (FR-6, FR-11);
@@ -105,7 +100,7 @@ flowchart LR
   - **Step 2, in parallel,** after step-1 derivation (AD-3): **Discuss** always runs. **Rewrite** runs when `rewrite_mode = auto`, or on the "Suggest a gentler version" action (`offer`).
   - **Review-level calls:**
     - **Outreach** (FR-13) runs on Others' Reviews only.
-    - **Profile Summary** (FR-14) runs per AD-3.
+    - **Profile Summary** (FR-14): no model call in the MVP. Both surfaces compute it in code (AD-3); the narrative call is after the MVP.
   - **Inputs.** This list is exhaustive. Anything not listed is never sent.
 
     | Call | Receives |
@@ -142,8 +137,8 @@ flowchart LR
     - The default order is the order of `personas[]`.
     - On an Own-Content Review, for each Target Audience in `foundation_snapshot` rank order, append its `lead_personas` not already listed. Then append the rest in default order.
     - Unknown keys are skipped. The order affects display only.
-  - **Profile Summary:**
-    - **Eligibility:** generated once, automatically, for a profile Review (`review.source_url` set) when every Post is terminal and at least 2 are `done`.
+  - **Profile Summary (amended 2026-10-30):** computed in code on render, never stored, never by the model, on both surfaces. Its input is the user's Saved Reviews whose three versions equal the latest locked id per name (AD-1): `review` rows on the Web App, Past Reviews in the Artifact.
+    - **Retired (2026-10-30):** the per-profile-Review eligibility rule (generated once, automatically, when every Post is terminal and at least 2 are `done`) and the model narrative. Both return with the bring-your-own-key Web App (PRD §6.4).
     - **`stats`, computed in code:**
       - `post_ids`
       - Criterion averages over *S*
@@ -151,22 +146,22 @@ flowchart LR
       - Posts below 3 per Criterion
       - Persona valence tallies
       - Strongest and weakest Post: highest and lowest mean of *S*. Ties go to the lower position. Posts with an empty *S* are excluded.
-    - **Model output:** only the narrative.
-  - **Storage:** `lands_well`, `rewrite_mode` and `stats` are computed once and stored. Renders never recompute them.
+  - **Storage:** `lands_well` and `rewrite_mode` are computed once and stored. Renders never recompute them.
+  - **Web App (2026-10-30, AD-18):** derived values are recomputed once, at import, only to check the uploaded ones; a mismatch rejects the file. Persona order for a creator follows the Web App profile's ranked audiences (FR-10). The Web App's Profile Summary is the code-computed summary only, as defined above; no model narrative.
 
 ### AD-4 — Every model output is validated at the shell boundary and rendered as text
 
 - **Binds:** both surfaces
 - **Prevents:** malformed, partial or markup-bearing output reaching the screen or the database, and the two validators accepting different outputs.
 - **Rule:**
-  - **Validation:** the rules in `SCHEMA.md` §4 bind both surfaces. Objects are strict, and unknown keys are rejected.
+  - **Validation:** the rules in `SCHEMA.md` §4 bind both surfaces. Objects are strict, and unknown keys are rejected. On the Web App they gate every Evaluation in an uploaded Review File (AD-18), since the file is untrusted.
     - The local validator is the real gate, because API structured outputs cannot express the counts or ranges.
     - The Artifact extracts JSON as the substring from the first `{` to the last `}`.
   - **Errors:**
     - Invalid output, or a `max_tokens` stop → `invalid_model_output`.
-    - A final refusal → `refused`, which is terminal. On the Web App that is `stop_reason: refusal` after fallback; on the Artifact, the `sample` rejection code `refused`.
+    - A final refusal → `refused`, which is terminal. On the Artifact it is the `sample` rejection code `refused`.
   - **Retries:**
-    - There are no automatic retries. The SDK runs with `maxRetries: 0`, and the Artifact never loops.
+    - There are no automatic retries. The Artifact never loops.
     - Try again is manual. On the Artifact it passes `cache: false`.
   - **Rendering:** model output, Post text and Source URLs render as text nodes only. A Source URL that passed the `https?://` check may render as a link with `rel="noopener noreferrer"`.
   - **Additive contracts:**
@@ -180,7 +175,7 @@ flowchart LR
 - **Prevents:**
   - user or model text acting as instructions;
   - follower or commenter names being stored or displayed;
-  - unbounded inputs blowing the spend cap.
+  - unbounded inputs blowing the viewer's usage or the Web App's import.
 - **Rule:**
   - **Data, not instructions:**
     - Everything derived from user input appears only after all instructions, as JSON inside a fixed tag: `<post>`, `<creator_foundation>`, `<assessment>`, `<reactions>` or `<evaluations>`. That covers Post text, transcripts, `post_transcript`, `self_presentation`, and every earlier model output.
@@ -193,10 +188,10 @@ flowchart LR
     - Bare names are an accepted residual risk.
   - **Screenshots are transient:**
     - The Artifact holds them in page memory. Past Reviews keep only their file names.
-    - The Web App receives them in the evaluate request and discards them after step 1.
-    - They are never written to Postgres, Supabase Storage, Vercel Blob or logs. A Post keeps only `image_count`.
+    - The Web App never receives them: a Review File carries only `screenshot_count` (AD-18).
+    - They are never written to Postgres, Supabase Storage, Vercel Blob or logs.
   - **Screenshots are never rendered as images** after selection. Intake shows file-name chips. "The original" beside a Gentler Rewrite is `pasted_text`, or else `post_transcript`.
-  - **Intake limits, on both surfaces:**
+  - **Intake limits (Artifact intake; the Web App enforces the Post, text and URL limits on Review Files, AD-18):**
     - ≤ 10 Posts per Review.
     - ≤ 4 screenshots per Post. On the Artifact, `min(4, limits().images.maxCount)`.
     - Each screenshot is downscaled in the browser to ≤ 1568 px on the long edge as JPEG. This keeps the request within its byte budget; it is not a model limit.
@@ -209,17 +204,17 @@ flowchart LR
 - **Binds:** FR-7, FR-15, FR-19, FR-21, both surfaces
 - **Prevents:** saved Evaluations with unknown or mixed versions, labels naming a model that never answered, and cross-version score comparison.
 - **Rule:**
-  - **Version pins:** a Review pins `rubric_version_id`, `persona_version_id` and `prompt_set_id`, the latest triple, read in one statement at creation. Every Evaluation carries the same triple, enforced by a composite foreign key.
-  - **Model provenance:** recorded per call as the answering model: `response.model` on the Web App, `modelApplied` on the Artifact. It is never the requested constant.
+  - **Version pins:** a Review pins its rubric, persona and prompt-set versions, the latest triple when it is created in the Artifact. Every Evaluation carries the same triple. On the Web App, the triple comes from the Review File and is checked against the lock file at import (AD-18).
+  - **Model provenance:** recorded per call as the answering model: `modelApplied` on the Artifact. It is never the requested constant.
     - An Evaluation stores `models {assess, react, discuss, rewrite?}`.
   - **Model picker:** the Artifact locks the picker once a Review has Posts.
-  - **Creator Foundation:** an Own-Content Review stores `foundation_snapshot` at creation.
+  - **Creator Foundation:** an Own-Content Review stores `foundation_snapshot` at creation (after the MVP). The Artifact's Saved Reviews keep a `foundation` copy; a Review File carries none, so Web App Reviews use the live profile (FR-15).
   - **Label:** none shown (FR-7, changed 2026-10-29 by Bennett). The versions and models stay in stored data: Saved Reviews records and a saved file's JSON appendix.
   - **Comparison:** scores are compared only within one Rubric Version.
 
 ### AD-7 — Claude access boundary; one source of model ids
 
-- **Binds:** both surfaces, RULES.md stack rules
+- **Binds:** Demo Artifact, RULES.md stack rules. The Web App rules below are retired since 2026-10-30 (AD-18) and kept for the bring-your-own-key version (PRD §6.4), which needs a new decision.
 - **Prevents:** keys or the SDK reaching client bundles, model ids scattered across files, real spend during development, and URL-reading tools.
 - **Rule:**
   - **Model ids and prices:** `config/models.json` is the only place a model id or a price appears. It holds:
@@ -244,9 +239,11 @@ flowchart LR
   - **Artifact:** Claude is called only through `sample()`, not `sample.json`, so `modelApplied` is returned. The call uses the picked model, with its tier as the fallback.
   - **No tools:** no call on either surface enables any tool: no web fetch, no web search, no server or page tools.
 
-### AD-8 — Spend control: one gate, a ledger, a backstop (resolves FR-23) [ADOPTED]
+### AD-8 — Spend control: one gate, a ledger, a backstop (resolves FR-23) [RETIRED 2026-10-30, superseded by AD-18]
 
-- **Binds:** FR-18, FR-23, Web App
+> **Retired:** the Web App makes no Claude calls (AD-18) and FR-23 is retired, so there is no spend to gate. The rule below is kept for history only and binds nothing.
+
+- **Binds (historic):** FR-18, FR-23, Web App
 - **Prevents:** any Web App Review running without Bennett's permission, unbounded spend per account or per Review, and an under-counting ledger.
 - **Rule:**
   - **One gate per unit of work.** A unit is Review creation, one evaluate, one on-demand Rewrite, one Outreach Plan or one Profile Summary. The gate runs in this order:
@@ -280,27 +277,25 @@ flowchart LR
 ### AD-9 — Data access: verified user, owned targets, server-only atomic writes
 
 - **Binds:** FR-15, FR-18, FR-19, SCHEMA.md RLS, Web App
-- **Prevents:** forged identities, cross-user writes through the secret key, cap bypass via direct REST calls, and half-written Reviews or Evaluations.
+- **Prevents:** forged identities, cross-user writes through the secret key, and direct REST writes that skip validation.
 - **Rule:**
   - **Identity:**
     - Server code derives the user only from `supabase.auth.getClaims()`. Lint bans `getSession(` in `src/`.
-    - Every Route Handler and Server Action re-verifies. None relies on the proxy matcher.
+    - Every Server Action (and any later Route Handler) re-verifies. None relies on the proxy matcher.
   - **Browser:** uses Supabase only for the auth session. It never queries tables.
-  - **Reads:** go through the user-scoped client under RLS, which returns own rows only. The exception is `usage_event`, which only the gate reads, with the secret key.
-  - **Writes:**
-    - Every write to every table, including `creator_foundation`, goes through `src/server/db/` with the secret key, after the gate and Zod validation.
-    - Every mutation of an existing row first loads its target through the user-scoped client, or carries `user_id = <verified uid>` in its `WHERE`. A miss returns `not_found`.
-  - **Atomic writes:** each multi-row write is one SQL function, executable only by `service_role`:
-    - `create_review` takes an advisory lock per user, checks the daily cap, reads the latest version triple, and inserts the Review, its Posts and the `review_created` row. Posts are inserted only with their Review.
-    - `record_evaluation` inserts the Evaluation and sets `post_transcript` and `status = done`.
+  - **Reads:** go through the user-scoped client under RLS, which returns own rows only.
+  - **Writes (amended 2026-10-30, AD-18):**
+    - There are three writes, each a Server Action through `src/server/db/` with the secret key after Zod validation: import a Review File (one `review` insert, after AD-18's checks), save the profile (upsert of the user's own `profile` row), and delete a Review.
+    - Every write carries `user_id = <verified uid>`. A delete with no matching row returns `not_found`.
+    - Each write is a single-row statement, so no SQL functions are needed.
   - **Deletes:**
-    - A user deletes their own Reviews, which cascades.
-    - Account deletion means Bennett deletes the auth user, which cascades. The ledger keeps uuids only.
-  - **RLS:** every table has RLS and explicit policies (`SCHEMA.md` §5). `usage_event` has a restrictive deny-all policy.
+    - A user deletes their own Reviews.
+    - Account deletion means Bennett deletes the auth user, which cascades.
+  - **RLS:** every table has RLS and explicit policies (`SCHEMA.md` §5).
 
 ### AD-10 — The Post is the unit of work
 
-- **Binds:** FR-1, FR-11, NFR latency, both surfaces
+- **Binds:** FR-1, FR-11, NFR latency, Demo Artifact. The Web App rules below (Route Handlers, multipart, NDJSON, claims, `record_evaluation`) are retired since 2026-10-30: the Web App runs no Reviews (AD-18)
 - **Prevents:**
   - request bodies exceeding transport limits;
   - double-paid or stuck evaluations;
@@ -329,17 +324,18 @@ flowchart LR
   - **On-demand Rewrite:** claims atomically. It requires `rewrite_mode = offer`, no rewrite yet, and no fresh request.
   - **Reopened Review:** `done` Posts are read-only; `pending` and `failed` Posts can be run.
 
-### AD-11 — Sign-in is invite-only [ADOPTED]
+### AD-11 — Sign-in is open email sign-up [ADOPTED, amended 2026-10-30]
 
 - **Binds:** FR-18, Web App
-- **Prevents:** strangers creating accounts on an unshared but public URL, and silently expiring sessions.
+- **Prevents:** unconfirmed or throwaway addresses holding accounts, sign-up emails failing under the built-in mail limit, and silently expiring sessions.
 - **Rule:**
-  - **Accounts:**
-    - Email + password, with public sign-up disabled.
-    - Bennett creates each account in the Supabase dashboard ("Auto Confirm User") and resets passwords there. No email is sent.
-    - No account exists for minors.
+  - **Accounts (Bennett, 2026-10-29; replaces invite-only accounts):**
+    - Anyone can sign up with email + password through Supabase Auth. "Confirm email" is on: an account is usable only after its address is confirmed.
+    - Password reset is by email.
+    - Auth email goes through a custom SMTP provider set in each project's Auth settings, because Supabase's built-in email is rate-limited and meant for testing only. The provider's credentials live only in the Supabase dashboard, never in the repo or Vercel.
+    - The confirmation and reset links redirect only to the site URL and the redirect URLs listed in that project's Auth settings (`dev`: localhost; `prod`: the Vercel production URL).
   - **Sessions:** session cookies are refreshed in `src/proxy.ts`, Next 16's replacement for middleware, through `@supabase/ssr` `createServerClient` + `getClaims()`. Sign-out clears them.
-  - **Before first use:** Bennett confirms on the prod project that a dashboard-created user can sign in while sign-ups are off.
+  - **Before first use:** Bennett confirms on the prod project that a new sign-up receives the confirmation email and can sign in only after confirming.
 
 ### AD-12 — The Demo Artifact is one self-contained page that keeps only the viewer’s own Past Reviews [ADOPTED]
 
@@ -353,6 +349,7 @@ flowchart LR
   - **Capabilities:** exactly `{sample: {images: true}, downloads: true, mcp: {servers: [{server: "Supadata", tools: ["supadata_metadata", "supadata_transcript", "supadata_check_transcript_status"]}]}, db: {}, user: {}}`. `downloads` was added 2026-10-21 by Bennett so a viewer can keep a Review; `mcp` was added 2026-10-26 by Bennett for reel transcripts, and `supadata_metadata` on 2026-10-27 for captions and the post type (AD-13); `db` and `user` were added 2026-10-26 by Bennett for Past Reviews.
   - **Persistence:** Reviews, Posts and screenshots live in page memory while the page is open. Each sent Review is also saved to Past Reviews (2026-10-26, Bennett): the viewer’s private `db` subtree `data/users/<id>/`, readable by nobody else, the owner included (shapes in `SCHEMA.md` §6). Saves happen after a send, a Try again, a rewrite or an Outreach Plan, one write at a time. Screenshots are never stored, only their names. With no `db` or no signed-in viewer the page says so and keeps nothing. No browser storage. **Profile (2026-10-28):** one more private document, `data/users/<id>/profile` (role, Creator preferences; `artifact/src/profile.js`), read once at load and written only when the viewer saves; the Profile Summary is computed in the page from the saved Reviews' Posts, never by the model.
   - **Export:** the viewer may copy the Review as Markdown, or save it as a `.md` file through `downloads.save` after confirming. The saved file adds a raw JSON appendix. Screenshots are never included.
+  - **Handoff to the Web App (2026-10-30, AD-18):** the saved file is the Review File, the only way a Review reaches the Web App. Its JSON appendix (`reviewToMarkdown` in `artifact/src/export.js`; shape in `SCHEMA.md` §6) is a contract between the two surfaces: changes are additive only, and the Web App validator and the conformance vectors change in the same commit.
   - **Owner copy editor (owner-only authoring aid, 2026-10-26, Bennett):** Shift+E (ignored while typing) shows a hidden bar (`artifact/src/editor.js`). In edit mode, any element with its own text in the intro and `main` can be rewritten, moved and restyled; page clicks are suppressed except page navigation (`[data-nav]`, not Start reviewing), and every `<details>` is held open. "Save edits" hands over `copy-edits.json` through the existing `downloads` (clipboard fallback); the editor itself stores nothing and makes no network call. Bennett commits it as `artifact/copy-edits.json`; `build.mjs` checks it (`artifact/src/copy-edits.js`) and inlines it as `COPY_EDITS`, and the page applies it on load with edit HTML sanitized to an inline-formatting allowlist. Edits match a box by its original text plus occurrence; an edit whose text changed is reported as no longer matching and kept in the next export. How it works edits to `content/` text are a display-only overlay (Bennett, 2026-10-26): Claude still scores with the locked versions, an accepted exception to AD-16's "the page always matches the scoring text". The Review results (`#posts`, `#outreach-slot`) are re-scanned after every render: label edits are saved as `live` edits keyed by text alone and applied to every Post; text `ui.js` marks `.said` (Claude's output or what the viewer pasted) can be retyped on screen but is never saved. Never editable: status and error lines.
   - **Sample Review and guided demo (FR-24, 2026-10-29, Bennett):** the optional `artifact/sample-review.json` is the JSON appendix of a Review Bennett saved in the live Artifact: the public reel "Should a Christian attend a gay wedding?", with its link `https://www.instagram.com/p/DcRYltnvb77/` (PRD §7.2 exception). `build.mjs` checks it with `checkSampleReview` (`artifact/src/sample.js`: at least one done Post, no screenshots, profile URL or @handle, a Post Source URL that is null or an Instagram post link (`isInstagramPostLink`), versions equal to the locked labels, every Evaluation and any Outreach Plan passing the `core.js` validators) and inlines it as `SAMPLE_REVIEW`, or `null` when absent; the button shows only when the first Post has a link. "Try the demo" (the intro letter's third choice) dispatches `ll:try-demo`; `ui.js` turns the demo on (`state.demo`) unless the Review already holds Posts or a run is busy, and the intro does the Learn more exit onto Home (when declined, it is plain Begin review onto the Review page), sets `<html data-demo="started">` and dispatches `ll:demo-started`. `artifact/src/tour.js` (an IIFE inlined after `ui.js`) then shows coach cards anchored to the real pages and controls, in order: Home (`.home-hero`, `.home-who`, `.home-overview`), Your profile (`.profile-account`, `.role-cards`, `#creator-prefs`), How it works (`.how-steps`, `#how-panel-scoring`, `#how-panel-personas`; a card switches the `how-tab` radio itself), the Review page (`.field-select`, the first `fieldset.either`, `#link-field`, `#evaluate-all`), the Results (`#overall`, `[data-tour=summary|scores|reactions|rewrite|questions]`), `#mailbox .next-card` and `#past-list .past-item:first-child`. It moves between pages through the masthead links (`#nav-home`, `#nav-profile`, `#nav-how`, `#nav-review`), outlines the target and fills in the sample link. A waited-for click moves the tour on only after that click has finished, so a page move cannot re-render the role radios before their change event saves the role. **Replay:** while the demo is on, the Review is empty and the form holds exactly the sample link and nothing else, Send (`onEvaluateAll`) never calls `addFromForm`, Claude or Supadata: it plays `sendLetter()`, shows the Post "Reviewing…" for 1.2 s, puts back the saved Evaluation and the optional Outreach Plan, and calls `saveReview()` like a live run, so the demo Review is saved to Past Reviews with its link. Anything else is a normal Send. A Post reopened from Past Reviews that equals a sample Post (`isSamplePost`) keeps the fixed sample notice (evaluated ahead of time, none of the viewer's Claude usage). Events: `ui.js` fires `ll:demo-replaying`, `ll:demo-replayed` (with `canSave`, `saved`), `ll:demo-ended` (Clear Review), `ll:view` (every `showView`) and `ll:past-opened`; `tour.js` answers with `ll:tour-ended` (End tour or the last card), which turns the demo off and removes `data-demo`. Steps that wait for a click offer Next when there is no `db` or no signed-in viewer. No storage, no network, no live call.
   - **Network:**
@@ -406,36 +403,37 @@ flowchart LR
 
   - **Rule markers:** each rule is marked `<!-- rule:<id> -->`. `manifest.json` lists the required markers per file. `build.mjs` and the test suite fail when one is missing.
   - **Fixed UI copy:** these strings are constants on both surfaces, never model output. `bmad-ux` owns the wording.
-    - a "Simulated perspective" label wherever Persona content appears: reaction cards, Discussion Questions and Talking Points that cite a Persona, and Profile Summary Persona rows;
+    - one line under the Persona Reactions heading, "Simulated perspectives, not real people’s opinions.", and no per-item tag (FR-9, changed 2026-10-29);
     - the FR-2 notice that links can't be read;
     - the FR-6 note "a prompt for discussion with a leader, not a ruling";
     - the FR-11 "Suggestion" label;
     - the FR-17 reminder;
+    - the FR-25 caveat on the Web App's Run a Review page (wording in PRD §4.13, owned by Bennett);
     - the Bonhoeffer line, only as "commonly attributed to Bonhoeffer" (§7.6).
   - **No outbound contact:** no code sends anything on a User's behalf. The Outreach Message has a Copy action only.
 
-### AD-15 — Environments and operations [ADOPTED]
+### AD-15 — Environments and operations [ADOPTED, amended 2026-10-30]
 
-- **Binds:** Web App, `publish:content`, migrations
-- **Prevents:** development writes polluting permanent production tables, Preview builds holding live keys, production serving fixtures, and logs leaking Post text.
+- **Binds:** Web App, migrations
+- **Prevents:** development writes polluting production, Preview builds holding secrets, and logs leaking Post text.
 - **Rule:**
   - **Supabase:** two free projects.
-    - `dev`: local development, agents and tests. `.env.local` holds dev keys and `CLAUDE_ADAPTER=fake`, and no `ANTHROPIC_API_KEY`.
+    - `dev`: local development, agents and tests. `.env.local` holds the dev keys only.
     - `prod`: Vercel Production only.
   - **Database commands:**
-    - `supabase db push` and `publish:content` target `dev` by default.
-    - They reach `prod` only through an explicit `--prod` (or prod link), run by Bennett or with his OK in chat.
+    - `supabase db push` targets `dev` by default.
+    - It reaches `prod` only through an explicit prod link, run by Bennett or with his OK in chat.
     - A migration reaches `prod` before the code that needs it reaches `main`.
   - **Vercel:**
     - Production deploys from `main`.
-    - `ANTHROPIC_API_KEY`, `SUPABASE_SECRET_KEY`, `REVIEWS_ENABLED` and `CLAUDE_ADAPTER=live` are set for Production only. Preview gets no secrets.
-    - The server refuses to start when `VERCEL_ENV=production` and `CLAUDE_ADAPTER` is not `live`.
+    - `SUPABASE_SECRET_KEY` is set for Production only. Preview gets no secrets.
+    - No Anthropic key exists in any environment (AD-18).
     - `package.json` sets `engines.node` to `24.x`.
     - The plan is Hobby (a personal or course project).
-  - **Supabase Free:** it pauses after a week of inactivity and has no automatic backups. Before any demo, Bennett restores `prod` and takes `supabase db dump`. Version tables can be rebuilt from `content/`; saved Reviews cannot.
+  - **Supabase Free:** it pauses after a week of inactivity and has no automatic backups. Before any demo, Bennett restores `prod` and takes `supabase db dump`. Saved Reviews cannot be rebuilt; the viewer's Review Files can be uploaded again.
   - **Logging:**
-    - Every Route Handler and Server Action runs inside one error boundary (`src/server/log.ts`).
-    - It logs only `{code, step, ids, err.name}`, never `err.message`, causes, Zod issues, SDK bodies, Post text or model prose.
+    - Every Server Action runs inside one error boundary (`src/server/log.ts`).
+    - It logs only `{code, step, ids, err.name}`, never `err.message`, causes, Zod issues, Post text or model prose.
     - ESLint `no-console` applies outside `log.ts`.
 
 ### AD-16 — Two shells, one behaviour: rendering and conformance are data
@@ -447,8 +445,7 @@ flowchart LR
     - Each `prompts@n/<step>.md` is a complete template. Its only variable parts are the `{{name}}` placeholders listed in `manifest.json`: `{{guardrails}}`, `{{criteria}}`, `{{personas}}`, `{{foundation}}`, `{{post}}`, `{{assessment}}`, `{{reactions}}`, `{{evaluations}}`, `{{stats}}`.
     - Rendering is literal substitution of the escaped, tagged data (AD-5).
     - **Canonical JSON:** keys in source-file order, 2-space indent, LF. `{{personas}}` holds `personas[]` only.
-    - **Turn layout:** both surfaces send the rendered text as one user turn, with no system prompt. The Web App adds the JSON Schema through `output_config.format`, and its cache breakpoint ends after the last static section.
-    - The Web App renders from the version tables' `content_text`, never from re-serialised `jsonb`.
+    - **Turn layout:** the Artifact sends the rendered text as one user turn, with no system prompt.
   - **`conformance/` (repo root):** vectors as data, covering:
     - thresholds and derivation;
     - valid and invalid outputs per call;
@@ -457,11 +454,11 @@ flowchart LR
     - redaction;
     - intake limits;
     - rendered-prompt byte fixtures per step.
+  - **Review File vectors (2026-10-30, AD-18):** a valid file, a tampered score, a derived value that does not match, an unknown version, an extra key, a screenshot payload and an oversize file.
   - **Runners:**
     - `node --test artifact/test/` runs the vectors against `artifact/src/core.js`, from Thursday.
-    - Vitest runs them against `src/domain/`, from week 2.
+    - Vitest runs them against `src/domain/`, from week 2: validation, derivation, persona order, redaction, intake limits and the Review File vectors. The rendered-prompt fixtures are Artifact-only, since the Web App renders no prompts.
     - Both are in the check command.
-    - The fake adapter's fixtures are conformance-valid outputs.
 
 ### AD-17 — A Creator's own Instagram account is read only through the official API, on the server [PROPOSED 2026-10-28, Post-MVP]
 
@@ -482,6 +479,29 @@ flowchart LR
     - They are never stored. The per-Post cap is `MAX_IMAGES_PER_POST`.
   - **Config:** `INSTAGRAM_APP_ID` and `INSTAGRAM_APP_SECRET` (server-only), plus the token-encryption key `INSTAGRAM_TOKEN_KEY`, live in Vercel env (AD-15). Development uses the app in Development mode, with Bennett's accounts as testers.
   - **Scope:** personal accounts, other people's accounts and Business Discovery are out (PRD §6.3).
+  - **Note (2026-10-30):** written before AD-18. It needs the bring-your-own-key Web App (PRD §6.4) before it can evaluate anything, and is revisited with that decision.
+
+### AD-18 — The Web App runs no Reviews; a Review enters only as a Review File [ADOPTED 2026-10-30]
+
+- **Binds:** FR-10, FR-14, FR-15, FR-18, FR-19, FR-25, FR-26, PRD §4.13, Web App
+- **Prevents:** any Web App spend on Claude, an Anthropic key or SDK in the Web App, and unvalidated or tampered Review data reaching the database or the screen.
+- **Rule:**
+  - **No model access:** no Web App module imports `@anthropic-ai/sdk` or calls any model. ESLint `no-restricted-imports` forbids the SDK everywhere in `src/`. Reviews run only in the Demo Artifact, on the viewer's own Claude plan (AD-12).
+  - **Run a Review (FR-25):** a page links to the Artifact URL (`NEXT_PUBLIC_ARTIFACT_URL`) in a new tab and passes nothing to it. Its caveat is fixed UI copy (AD-14), never generated.
+  - **Import (FR-26):** one Server Action, `importReviewFile`, behind the verified user (AD-9):
+    1. Reject a file over 2 MB (`payload_too_large`).
+    2. Take the last fenced `json` block after the `## Raw data (JSON)` heading. None, or unparsable → `invalid_review_file`.
+    3. Shape-validate the appendix strictly (`SCHEMA.md` §6, Review File). Unknown keys are rejected.
+    4. `versions` must name locked ids in `content/published.lock.json` → otherwise `unknown_versions`.
+    5. Apply the AD-5 intake limits. Each Post carries `screenshot_count` only; any image data → `invalid_review_file`.
+    6. Every `done` Post's `evaluation` passes `SCHEMA.md` §4.8 for its pinned versions, with the AD-3 overrides applied as an Others' Review (`checkAssess(…, 'others')`) (AD-4). A Post that is not `done` keeps `evaluation: null`; whatever the file held there is dropped. `outreach`, when present, is `{status: 'done', model, output}` with `output` passing §4.5.
+    7. Recompute `lands_well` and `rewrite_mode` from the scores (AD-3). A mismatch → `invalid_review_file`. `rewrite_mode = auto` requires a `gentler_rewrite`; `none` and `not_assessable` require none.
+    - Any AD-5 limit breach, including more than 10 Posts → `invalid_review_file`.
+    8. Run `redactHandles` over every model-output string (AD-5).
+    9. Insert one `review` row. Any failure stores nothing.
+  - **Read-only:** a Saved Review is never re-run, rewritten or regenerated on the Web App. Rendering uses the pinned versions' `content/` text, and every string renders as text (AD-4).
+  - **Profile:** the Web App's `profile` mirrors the Artifact's profile fields. The two are never synced, because the Artifact cannot reach the Web App. Persona order (FR-10) and the code-only Profile Summary (FR-14) on the Web App use the Web App's profile.
+  - **Cross-surface contract:** the Review File's appendix shape is owned by `artifact/src/export.js` and recorded in `SCHEMA.md` §6. A change is additive only, and the Web App validator and the Review File vectors (AD-16) change in the same commit.
 
 ## Consistency Conventions
 
@@ -489,11 +509,11 @@ flowchart LR
 | --- | --- |
 | Domain naming | Use PRD Glossary terms verbatim: Review, Post, Unpublished Post, Evaluation, Rubric Version, Criterion, Rubric Score, Evidence, Persona Version, Persona Reaction, Felt Response, Offence Source, Gentler Rewrite, Soundness Flag, Discussion Questions, Ministry Outreach Plan, Outreach Message, Talking Point, Profile Summary, Creator Foundation, Target Audience, Draft Checkpoint, Others' Review, Own-Content Review, Source URL. DB tables are snake_case singular; TS types are PascalCase. Never "verdict", never "artifact" for model output, never "the non-believer" as one type |
 | Content keys | snake_case slugs fixed by their version file. Persona keys: `seeker`, `drifter`, `neighbor_other_faith`, `exvangelical`, `skeptic`, `progressive`, `emboldened_believer`. Target Audience keys: `curious`, `dechurched`, `other_faiths`, `secular`, `believers`. Criterion keys follow the same style (e.g. `outsider_clarity`). Version ids are `<name>@<n>` |
-| IDs, time, money | Row ids are `uuid` (`gen_random_uuid()`). Times are `timestamptz` UTC, with ISO 8601 in JSON. Money is `numeric(10,6)` USD, priced from `config/models.json` |
-| Server error shape | `{ "error": { "code": string, "message": string, "retry_at"?: string } }`. Codes: `unauthenticated`, `invalid_request`, `too_many_posts`, `payload_too_large`, `not_found`, `conflict`, `foundation_required`, `reviews_paused`, `monthly_cap_reached`, `daily_cap_reached`, `invalid_model_output`, `refused`, `rate_limited` (Artifact), `upstream_error`. `message` is fixed copy, never model or user text |
-| Config (Web App env) | Server only: `ANTHROPIC_API_KEY`, `SUPABASE_SECRET_KEY` (`sb_secret_…`). Public: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (`sb_publishable_…`). `REVIEWS_ENABLED` (unset means false). `CLAUDE_ADAPTER` (`fake` by default; `live` in Production only) |
-| Scaffold (week 2) | `npx create-next-app@16.4.2 <empty temp dir> --ts --eslint --tailwind --app --src-dir --turbopack --import-alias "@/*" --no-react-compiler --no-cache-components --no-agents-md --no-agent-feedback --use-npm`. Then move the result into the repo root without overwriting `AGENTS.md`, `CLAUDE.md`, `README.md` or `.gitignore` (merge it, keeping `.env*` ignored). Add the scripts `typecheck` (`tsc --noEmit`) and `test` (`vitest run`), `engines.node: "24.x"`, and `@types/node` ^24. `vitest.config` aliases `server-only` to an empty module. `scripts/` never imports `src/server/` |
-| Lint (week 2) | `@typescript-eslint/no-explicit-any: error` in `src/`; a ban on `getSession(`; `no-console` outside `src/server/log.ts`; `no-restricted-imports` per AD-7 |
+| IDs, time, money | Row ids are `uuid` (`gen_random_uuid()`). Times are `timestamptz` UTC, with ISO 8601 in JSON |
+| Server error shape | `{ "error": { "code": string, "message": string } }`. Web App codes: `unauthenticated`, `invalid_request`, `payload_too_large`, `not_found`, `invalid_review_file`, `unknown_versions`. Artifact error states: `invalid_model_output`, `refused`, `rate_limited`, `upstream_error`. `message` is fixed copy, never model or user text |
+| Config (Web App env) | Server only: `SUPABASE_SECRET_KEY` (`sb_secret_…`). Public: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (`sb_publishable_…`), `NEXT_PUBLIC_ARTIFACT_URL`. No Anthropic key (AD-18). SMTP credentials live only in Supabase Auth settings (AD-11) |
+| Scaffold (week 2) | `npx create-next-app@16.4.2 <empty temp dir> --ts --eslint --tailwind --app --src-dir --turbopack --import-alias "@/*" --no-react-compiler --no-cache-components --no-agents-md --no-agent-feedback --use-npm`. Then move the result into the repo root without overwriting `AGENTS.md`, `CLAUDE.md`, `README.md`, `.gitignore` or `supabase/` (merge it, keeping `.env*` ignored). Add the scripts `typecheck` (`tsc --noEmit`) and `test` (`vitest run`), `engines.node: "24.x"`, and `@types/node` ^24. `vitest.config` aliases `server-only` to an empty module |
+| Lint (week 2) | `@typescript-eslint/no-explicit-any: error` in `src/`; a ban on `getSession(`; `no-console` outside `src/server/log.ts`; `no-restricted-imports` bans `@anthropic-ai/sdk` in `src/` (AD-18) and `@/server/*` in `src/components/` |
 | Check command | Thursday (no `package.json` yet): `node --test artifact/test/ && node artifact/build.mjs`. From week 2: `npm run lint && npm run typecheck && npm run test && npm run build && node --test artifact/test/ && node artifact/build.mjs` |
 
 ## Stack
@@ -507,7 +527,6 @@ flowchart LR
 | ESLint (end-of-life upstream; forced by eslint-config-next 16.4.2's plugin peers; dev-only) | 9.39.5 |
 | eslint-config-next | 16.4.2 |
 | Tailwind CSS (create-next-app default; tokens owned by DESIGN.md) | 4.3.3 |
-| @anthropic-ai/sdk | 0.137.0 |
 | @supabase/supabase-js | 2.118.0 |
 | @supabase/ssr | 0.12.7 |
 | Supabase CLI (migrations, `db dump`) | 2.121.0 |
@@ -516,9 +535,8 @@ flowchart LR
 | vite (vitest peer) | 8.3.5 |
 | @types/node | 24.19.2 |
 | server-only | 0.0.1 |
-| Claude model (default, both surfaces) | claude-opus-5-5 |
-| Server-side fallback beta header | server-side-fallback-2026-07-01 |
-| Artifact runtime contract (`sample`) | 0.2.88 |
+| Claude model (default, Demo Artifact) | claude-opus-5-5 |
+| Artifact runtime contract | latest (0.2.91 as of version 40; AD-12, AD-13) |
 | Hosting | Vercel Hobby; Supabase Free × 2 (`dev`, `prod`) |
 
 ## Structural Seed
@@ -529,31 +547,25 @@ flowchart TB
     DA["Demo Artifact page"] -->|"sample(), viewer-paid"| CLA["Claude (viewer plan)"]
   end
   subgraph vercel["Vercel Production (from main)"]
-    NX["Next.js: pages, api Route Handlers, Server Actions, proxy.ts"]
+    NX["Next.js: pages, Server Actions, proxy.ts (no model access)"]
   end
-  BR["Browser (invited user)"] -->|"evaluate per Post (multipart, NDJSON)"| NX
-  BR -->|"auth cookies"| SA["Supabase Auth (prod)"]
+  DA -->|"Save Review as file (viewer's download)"| FILE["Review File (.md + JSON appendix)"]
+  BR["Browser (signed-in user)"] -->|"uploads Review File"| NX
+  FILE -.-> BR
+  NX -->|"link, new tab"| DA
+  BR -->|"auth cookies"| SA["Supabase Auth (prod, email sign-up, custom SMTP)"]
   NX -->|"user-scoped reads (RLS)"| PG[("Supabase prod Postgres")]
-  NX -->|"secret-key writes and SQL functions"| PG
-  NX -->|"live adapter, gated"| API["Claude API (dedicated workspace, 30 USD limit)"]
-  DEV["Local dev, agents, tests"] -->|"fake adapter"| PGD[("Supabase dev Postgres")]
+  NX -->|"secret-key single-row writes"| PG
+  DEV["Local dev, agents, tests"] --> PGD[("Supabase dev Postgres")]
   REPO["GitHub repo"] -->|"git push main"| vercel
-  REPO -->|"db push and publish:content (default)"| PGD
-  REPO -->|"--prod, Bennett only"| PG
+  REPO -->|"db push (default)"| PGD
+  REPO -->|"prod link, Bennett only"| PG
 ```
 
 ```mermaid
 erDiagram
-  RUBRIC_VERSION ||--o{ REVIEW : "pinned by"
-  PERSONA_VERSION ||--o{ REVIEW : "pinned by"
-  PROMPT_SET ||--o{ REVIEW : "pinned by"
-  REVIEW ||--|{ POST : contains
-  POST ||--o| EVALUATION : "evaluated as"
-  REVIEW ||--o{ EVALUATION : "same versions (composite FK)"
-  REVIEW ||--o{ OUTREACH_PLAN : "may have"
-  REVIEW ||--o{ PROFILE_SUMMARY : "may have"
-  CREATOR_FOUNDATION ||..o{ REVIEW : "snapshotted into"
-  REVIEW ||..o{ USAGE_EVENT : "logical only, no FK"
+  AUTH_USER ||--o| PROFILE : has
+  AUTH_USER ||--o{ REVIEW : "uploads (one row per Review File)"
 ```
 
 ```text
@@ -566,13 +578,12 @@ FC-Final-Project/
     src/core.js pipeline.js ui.js
     test/                    #   node --test against conformance/
     build.mjs                #   → dist/witness-review.html (git-ignored)
-  src/                       # Web App (Next.js 16)
+  src/                       # Web App (Next.js 16), no model access (AD-18)
     proxy.ts                 #   AD-11 session refresh
-    app/                     #   pages; api/ Route Handlers (AD-10); Server Actions
+    app/                     #   pages; Server Actions (import, profile, delete)
     components/
-    domain/                  #   pure: contracts, derive, render, order, redact, cost
-    server/                  #   server-only: claude/, db/, gate/, pipeline/, log.ts
-  scripts/publish-content.ts # AD-1/AD-15: dev by default, --prod by Bennett
+    domain/                  #   pure: contracts, review-file, derive, order, redact, summary
+    server/                  #   server-only: import/, db/, log.ts
   supabase/migrations/       # SCHEMA.md; append-only once applied
 ```
 
@@ -580,46 +591,47 @@ FC-Final-Project/
 
 | Capability / Area | Surface | Lives in | Governed by |
 | --- | --- | --- | --- |
-| FR-1 Paste + screenshots + transcript | F + W2 | intake UI on both; browser downscale | AD-5, AD-10 |
-| FR-2 Source URL (display only) | F + W2 | Review/Post fields; UI | AD-4, AD-13, AD-14 |
+| FR-1 Paste + screenshots + transcript | F | Artifact intake; browser downscale | AD-5, AD-10 |
+| FR-2 Source URL (display only) | F (shown on W2) | Post fields; UI | AD-4, AD-13, AD-14 |
 | FR-3 TikTok pre-fill | dropped | — | AD-13 |
 | FR-3a Instagram reel and TikTok video read | F only | `artifact/src/reel.js`; `isReadablePostLink` in `core.js` | AD-12, AD-13 |
 | FR-4/5/6 Scores, lands well, Soundness Flag | F + W2 | Assess; `core.js` / `src/domain` derive | AD-2, AD-3, AD-4, AD-14 |
-| FR-7 / FR-20 / FR-21 Versions | F + W2 (FR-21 W2) | `content/`, lock file, version tables, publish script | AD-1, AD-6, AD-15 |
+| FR-7 / FR-20 / FR-21 Versions | F + W2 (FR-21 W2) | `content/`, lock file; Web App imports `content/` at build | AD-1, AD-6, AD-18 |
 | FR-8/9 Persona Reactions, simulated label | F + W2 | React; UI | AD-2, AD-14 |
-| FR-10 Persona order by Target Audience | W2 | `persona-set@n.json` `target_audiences[].lead_personas`; order function | AD-3 |
-| FR-11 Gentler Rewrite | F + W2 | Rewrite; `/api/evaluations/[id]/rewrite` | AD-2, AD-3, AD-10, AD-14 |
-| FR-12 Discussion Questions | F + W2 | Discuss | AD-2, AD-14 |
-| FR-13 Ministry Outreach Plan | F + W2 | Outreach (`artifact/src/pipeline.js`; `/api/reviews/[id]/outreach`) | AD-2, AD-8, AD-12, AD-14 |
-| FR-14 Profile Summary | W2 | `src/domain` stats + Profile Summary call | AD-2, AD-3 |
-| FR-15/16 Creator Foundation, Own-Content, Draft Checkpoint, Criterion 10 | W2 | `creator_foundation`; `review.kind`, `is_draft_checkpoint` | AD-3, AD-6, AD-9 |
+| FR-10 Persona order by Target Audience | F + W2 | `persona-set@n.json` `target_audiences[].lead_personas`; order function; Web App `profile.audiences` | AD-3, AD-18 |
+| FR-11 Gentler Rewrite | F (shown on W2) | Rewrite in the Artifact | AD-2, AD-3, AD-10, AD-14 |
+| FR-12 Discussion Questions | F (shown on W2) | Discuss in the Artifact | AD-2, AD-14 |
+| FR-13 Ministry Outreach Plan | F (shown on W2) | Outreach (`artifact/src/pipeline.js`) | AD-2, AD-12, AD-14 |
+| FR-14 Profile Summary | F + W2 | code only: `artifact/src/profile.js`; `src/domain` summary | AD-3, AD-18 |
+| FR-15 Creator Foundation | F + W2 | Artifact `data/users/<id>/profile`; Web App `profile` | AD-9, AD-12, AD-18 |
+| FR-16 Own-Content, Draft Checkpoint, Criterion 10 | after MVP | — (needs Reviews on the Web App, PRD §6.4) | — |
 | FR-16a Connected Account | Post-MVP | `instagram_connection`; `/api/instagram/*` | AD-5, AD-9, AD-13, AD-15, AD-17 |
 | FR-17 "Lands anywhere" reminder | F + W2 | fixed UI copy | AD-14 |
-| FR-18 Accounts | W2 | Supabase Auth, `src/proxy.ts` | AD-9, AD-11 |
-| FR-19 Saved Reviews | W2 | `review` and its children, reopened | AD-5, AD-6, AD-9, AD-10 |
+| FR-18 Accounts | W2 | Supabase Auth (email sign-up, custom SMTP), `src/proxy.ts` | AD-9, AD-11 |
+| FR-19 Saved Reviews | W2 | `review` rows, reopened read-only | AD-5, AD-6, AD-9, AD-18 |
+| FR-25 Run a Review in the Artifact | W2 | Run a Review page, `NEXT_PUBLIC_ARTIFACT_URL` | AD-14, AD-18 |
+| FR-26 Add a Review from its Review File | W2 | `importReviewFile`; `src/domain` review-file validator | AD-4, AD-5, AD-18 |
 | FR-22 Roadmap tab | F only | static Artifact tab | AD-12 |
 | FR-24 Try the demo | F only | `artifact/src/sample.js`, `artifact/sample-review.json`, `artifact/src/tour.js`; intro button | AD-12 |
-| FR-23 Caps | W2 | `src/server/gate/`, `usage_event` | AD-8 |
-| NFR latency / secrets / RLS | both | — | AD-10 / AD-7, AD-15 / AD-9 |
-| OQ-5 | both | screenshots (AD-5), caps (AD-8), Artifact calls (AD-12) | — |
+| FR-23 Caps | retired | — | AD-8 (retired) |
+| NFR latency (F) / secrets / RLS (W2) | both | — | AD-10 / AD-15, AD-18 / AD-9 |
+| OQ-5 | both | screenshots (AD-5), Artifact calls (AD-12); caps retired with AD-8 | — |
 
 ## Deferred
 
 - **Latency levers (PRD §8, 60 s per Post), measured Thursday 2026-10-22 on real Posts.**
   - Rendering per round is already decided (AD-10).
-  - Candidate levers: Web App step-2 effort `low`; on the Artifact, step 2 on a lower-tier model.
-  - Any change amends AD-10 for both surfaces. The planner makes it with Bennett, never inside one surface's build.
-- **Cap reservation under concurrency:**
-  - Admitted units can overshoot the $25 cap. The worst case is 2 in-flight Posts × the per-Post worst case under the AD-5 input limits, per account.
-  - The workspace limit is the hard stop.
-  - Revisit if the link is shared widely.
+  - Candidate lever: on the Artifact, step 2 on a lower-tier model.
+  - Any change amends AD-10. The planner makes it with Bennett, never inside one surface's build.
+- **Bring-your-own-key Reviews on the Web App (PRD §6.4):** each person's Anthropic key, used only in their browser. Needs a new AD that replaces AD-7's and AD-10's retired Web App rules; brings back FR-16 and Criterion 10.
+- **Who can open the Artifact (PRD OQ-7):** it is shared with the IFI organisation. Bennett tests an outside account before the Web App link goes beyond IFI.
 - **Stored screenshots** (crop or redaction): rejected for MVP by AD-5. Revisit only with a guarantee for PRD §7.2.
-- **Google OAuth, magic-link sign-in, custom SMTP:** not needed while sign-in is invite-only.
+- **Google OAuth, magic-link sign-in:** not needed; email sign-up covers FR-18 (AD-11).
 - **Staging, observability beyond Vercel logs, paid backups:** not needed for an unshared demo. Pre-demo `db dump` per AD-15.
 - **Database tests (pgTAP for triggers and RLS):** they need a Supabase test target. Revisit once the `dev` project exists.
 - **Richer Outreach and Profile Summary lenses** (addendum §D: the design-thinking shape, Keller's postures, the attractional pattern): each enters as a new `prompts@n`, not as code.
 - **A Target Audience mapping change** ships as a new `persona-set@n` with unchanged Personas. A separate audiences file would avoid that churn; revisit if it happens.
-- **SM-2 re-runs:** on the Artifact, use `cache: false`. On the Web App, they need a live adapter and Bennett's OK.
+- **SM-2 re-runs:** on the Artifact, use `cache: false`.
 - **Projector legibility bound (OQ-6, second half):** owned by `bmad-ux`. Binds both UI layers before the Friday recording.
 - **OQ-1 prevalence weighting, OQ-2 soundness standard:** product questions, owned by Bennett.
 - **Artifact UI framework and visual system:** decided at build by `artifact-design`, with `DESIGN.md`.

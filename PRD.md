@@ -2,7 +2,7 @@
 title: "PRD: Living Letter"
 status: final
 created: 2026-10-21
-updated: 2026-10-26
+updated: 2026-10-30
 ---
 
 # PRD: Living Letter
@@ -10,7 +10,7 @@ updated: 2026-10-26
 
 ## 0. Document Purpose
 
-This PRD is the scope contract for Bennett's Frontier Commons final project. It is written for Bennett (owner), for the downstream BMAD workflows (`bmad-architecture`, `bmad-ux`, `bmad-create-epics-and-stories`), and for any agent implementing a brief. Vocabulary is fixed by the Glossary (§3); features are grouped in §4 with globally numbered requirements (FR-1…FR-N); every requirement is tagged with the delivery it belongs to: **[F]** for the Friday demo Artifact, **[W2]** for the week-2 web app; FR-22 is Demo-Artifact-only. Drafting assumptions were confirmed by Bennett on 2026-10-21 (§12). Technical detail, research evidence, and rejected alternatives live in [`addendum.md`](_bmad-output/planning-artifacts/prds/prd-FC-Final-Project-2026-10-21/addendum.md). Inputs: `docs/brief.md`, Bennett's discovery answers (logged in `_bmad-output/planning-artifacts/prds/prd-FC-Final-Project-2026-10-21/.memlog.md`), and three research digests in `_bmad-output/planning-artifacts/prds/prd-FC-Final-Project-2026-10-21/` (`research-feasibility-comparables.md`, `research-frameworks-personas.md`, `reconcile-culture-and-ministry-design.md`).
+This PRD is the scope contract for Bennett's Frontier Commons final project. It is written for Bennett (owner), for the downstream BMAD workflows (`bmad-architecture`, `bmad-ux`, `bmad-create-epics-and-stories`), and for any agent implementing a brief. Vocabulary is fixed by the Glossary (§3); features are grouped in §4 with globally numbered requirements (FR-1…FR-N); every requirement is tagged with the delivery it belongs to: **[F]** for the Friday demo Artifact, **[W2]** for the week-2 web app (since 2026-10-29 a companion that stores and shows Reviews run in the Demo Artifact, §4.13); FR-22 is Demo-Artifact-only. Drafting assumptions were confirmed by Bennett on 2026-10-21 (§12). Technical detail, research evidence, and rejected alternatives live in [`addendum.md`](_bmad-output/planning-artifacts/prds/prd-FC-Final-Project-2026-10-21/addendum.md). Inputs: `docs/brief.md`, Bennett's discovery answers (logged in `_bmad-output/planning-artifacts/prds/prd-FC-Final-Project-2026-10-21/.memlog.md`), and three research digests in `_bmad-output/planning-artifacts/prds/prd-FC-Final-Project-2026-10-21/` (`research-feasibility-comparables.md`, `research-frameworks-personas.md`, `reconcile-culture-and-ministry-design.md`).
 
 ## 1. Vision
 
@@ -90,7 +90,7 @@ The first use is formation, not correction: a youth leader puts other people's p
 - **Target Audience** — Who a creator intends a post for (e.g. evangelise non-believers, build up existing Christians).
 - **Draft Checkpoint** — An Own-Content Review of an Unpublished Post [W2].
 - **User** — Anyone operating the tool: a **Leader** (UJ-1), a **Creator** (UJ-2, including ministry social-media staff), or an **Introducer** (UJ-3). **Maintainer** — Bennett (UJ-4).
-- **Demo Artifact** — The Claude Artifact delivered for Friday 2026-10-23. **Web App** — the Next.js/Vercel/Supabase prototype for the week of 2026-10-26.
+- **Demo Artifact** — The Claude Artifact delivered for Friday 2026-10-23. **Web App** — the Next.js/Vercel/Supabase companion site: sign-in, profile, Saved Reviews and Profile Summary. It runs no Reviews: they run in the Demo Artifact on the viewer's own Claude plan and come in as a Review File (§4.13). **Review File** — the `.md` file the Demo Artifact saves through Save Review as file, whose JSON appendix holds the Review's data.
 - **Interview Plan** — Questions for real non-believers, creators, or ministries, and where their answers feed new versions. Produced outside the product.
 
 *Avoid:* "cultural artifact" (collides with Demo Artifact); "the non-believer" as a single type; "verdict" for anything the tool produces.
@@ -147,7 +147,7 @@ The link field is for video Posts; static Posts are added as screenshots or past
 | 7 | Love Made Visible | shows love in action toward real people, not only in words |
 | 8 | Invitation & Dialogue | leaves a door open and invites questions, without pressure |
 | 9 | Clear Conviction | states plainly what it believes and gives a clear answer (scores clarity, not correctness) |
-| 10 | Self-Presentation Alignment | matches how the Creator says they want to come across (Own-Content Reviews only; N/A otherwise) [W2] |
+| 10 | Self-Presentation Alignment | matches how the Creator says they want to come across (Own-Content Reviews only; N/A otherwise) [after MVP: needs an Own-Content Review, §6.4] |
 
 #### FR-4: Score each Criterion with Evidence [F]
 The system scores every Criterion of the current Rubric Version for each Post, 1–5 or N/A, each with Evidence.
@@ -198,7 +198,7 @@ For each Post, the system produces one Persona Reaction for each Persona in the 
 Persona Reactions are visibly labelled as simulated perspectives, never presented as real people's opinions. One plain line under the Persona Reactions heading says so; individual reactions, Discussion Questions, Talking Points and Profile Summary rows carry no per-item tag (changed 2026-10-29 by Bennett: the tags added clutter, not clarity).
 
 #### FR-10: Order Personas by Target Audience [W2]
-On an Own-Content Review, the Personas most relevant to the Creator's top-ranked Target Audience are shown first.
+When the signed-in User's profile role is creator, the Web App shows a saved Review's Personas with those most relevant to their top-ranked Target Audience first, as the Demo Artifact does (§4.11 profile). *(Changed 2026-10-29 from Own-Content Reviews only: the Web App runs no Reviews, §4.13.)*
 - Ordering changes display only; scoring is unchanged.
 
 ### 4.4 Gentler Rewrite
@@ -231,12 +231,13 @@ An Introducer can request a Ministry Outreach Plan for a Review. Realizes UJ-3.
 ### 4.7 Profile Summary [W2]
 
 #### FR-14: Summarise a profile Review [W2]
-For a Review whose Posts come from one profile, the system produces a Profile Summary:
+For a creator, the Web App computes a Profile Summary in code, never by the model, across their Saved Reviews at the current versions, matching the Demo Artifact's summary (§4.11):
 - each Criterion's average across the Posts;
-- recurring patterns, quantified (e.g. "7 of 10 posts use unexplained church terms");
 - which Personas consistently react well or badly;
 - the strongest and weakest Posts;
-- the top 2–3 changes likely to help most.
+- the top 2–3 changes likely to help most (the Criteria with most concerns).
+
+*(Changed 2026-10-29: the model-written narrative and quantified recurring patterns move to after the MVP, §6.4, because the Web App makes no Claude calls.)*
 
 ### 4.8 Creator Foundation and Own-Content Review
 
@@ -245,9 +246,11 @@ For a Review whose Posts come from one profile, the system produces a Profile Su
 #### FR-15: Set up a Creator Foundation [W2]
 A Creator can record how they want to come across and rank their Target Audiences.
 - The Creator can edit the Foundation later; each Review records the Foundation as it was at the time.
+- On the Web App the Foundation is part of the profile: role (creator, leader or individual), how they want to come across, their theology, tradition and convictions, and the ranked Target Audiences, the same fields as the Demo Artifact's profile (§4.11). The two profiles are kept separately, because the Artifact cannot read the Web App's, so a creator fills in both; the Web App's profile page says so. A Review File carries no Foundation, so Web App Reviews record none: Persona order uses the live profile (`ARCHITECTURE.md` AD-18).
 
-#### FR-16: Run an Own-Content Review and Draft Checkpoint [W2]
+#### FR-16: Run an Own-Content Review and Draft Checkpoint [after MVP]
 A Creator can review their own published Posts or an Unpublished Post, receiving the full Evaluation including Criterion 10.
+- Moved 2026-10-29: Reviews run only in the Demo Artifact, which runs Others' Reviews, so Criterion 10 cannot be scored until Reviews run on the Web App (§6.4).
 
 #### FR-16a: Connect a Creator's own Instagram account [Post-MVP, added 2026-10-28 by Bennett]
 A signed-in Creator can connect their own Instagram professional (Business or Creator) account and pick Posts from it for an Own-Content Review instead of pasting or screenshotting them (`ARCHITECTURE.md` AD-17).
@@ -263,18 +266,16 @@ Every User sees a standing reminder that a post can land on anyone's page, so wi
 ### 4.9 Accounts and Saved Reviews [W2]
 
 #### FR-18: Private accounts [W2]
-Leaders, Creators, and Introducers can sign in to their own private account. Running a Review on the Web App requires sign-in.
+Leaders, Creators, and Introducers can sign in to their own private account. Adding, viewing and deleting Saved Reviews, and the profile, require sign-in. Running a Review needs no Web App account: it happens in the Demo Artifact (§4.13).
+- Anyone can create an account with their email address and a password, confirmed by email (Bennett, 2026-10-29; replaces invite-only accounts, `ARCHITECTURE.md` AD-11).
 - A User's Reviews are visible only to that User.
 - No teen needs an account: in UJ-1 the Leader operates the tool.
 
 #### FR-19: Saved Reviews [W2]
-A signed-in User can save a Review and reopen it later, unchanged, with its recorded versions.
+A signed-in User saves a Review by uploading its Review File (FR-26), and can reopen it later, unchanged, with its recorded versions, or delete it. A reopened Review is read-only: nothing on the Web App re-runs, rewrites or regenerates it.
 
-#### FR-23: Usage caps [W2]
-The Web App enforces explicit caps on Claude API usage, because every Review is paid for from Bennett's API account.
-- A per-account cap limits Reviews per day; a User who reaches it is told when they can run another.
-- A global monthly spend cap stops new Reviews when reached and shows a plain message.
-- Cap values are set in `bmad-architecture` once the model and cost per Review are known, and recorded in `ARCHITECTURE.md`.
+#### FR-23: Usage caps [retired]
+> **Retired 2026-10-29:** the Web App makes no Claude calls, so there is nothing to cap. Each Review runs on the viewer's own Claude plan in the Demo Artifact (§4.13).
 
 ### 4.10 Versioned Personas and Rubric
 
@@ -283,7 +284,7 @@ Rubric Versions and Persona Versions are never edited in place once any Evaluati
 
 #### FR-21: Maintainer publishes new versions [W2]
 The Maintainer can publish a new Rubric Version or Persona Version; new Reviews use the latest version, and saved Reviews keep theirs. Realizes UJ-4.
-- Publishing may be a file or database change by Bennett rather than an in-app editor.
+- Publishing is a new file in `content/` (`ARCHITECTURE.md` AD-1) and a redeploy, not an in-app editor. The Web App keeps every locked version, so Saved Reviews made with older versions still open.
 
 ### 4.11 Demo Roadmap Tab
 
@@ -295,7 +296,7 @@ The Demo Artifact has a separate tab listing what is planned but not yet built, 
 **Demo page flow and Past Reviews (added 2026-10-26 by Bennett).** After the intro, the Demo Artifact opens on a Home page (what Living Letter is, why, with cited statistics, who it is for, an overview of the outputs, and why it is called Living Letter), then a Review send page, a Results page and a How it works page. Review and Results sit beside a Mailbox whose Next… card offers Next post, Save Review as file, Copy review, View past reviews and Send feedback, which drafts the Ministry Outreach Plan and shows it in a popup letter: the Outreach Message to copy, then the Talking Points (2026-10-27; the plan is no longer a section of the Results). On wide screens the Review page is a letter in an open envelope, and Send for review shows the letter going into the envelope and the envelope into the Mailbox (2026-10-27). A profile icon opens the viewer’s profile: Past Reviews now; ranked target audiences and overall feedback across Posts stay planned for the Web App (Roadmap: Creator Foundation, Profile Summary). Each Review a viewer sends is saved to their own Past Reviews, which only that viewer can see. They can reopen or delete it. Screenshots are never saved (`ARCHITECTURE.md` AD-12).
 
 **Profile in the Demo Artifact (added 2026-10-28, approved in session by Evangeline for the team).** The profile page brings parts of FR-14, FR-15, FR-18 and FR-19 into the Demo Artifact, within what an Artifact can do:
-- **Sign-in:** the viewer is already signed in with their Claude account; the page says so and keeps everything in their private store. Google or email sign-in is a Web App matter (FR-18, AD-11 keeps invite-only email accounts).
+- **Sign-in:** the viewer is already signed in with their Claude account; the page says so and keeps everything in their private store. Email sign-up is a Web App matter (FR-18, AD-11).
 - **How you're using Living Letter:** the viewer picks one role (creator, leader or individual). This is new: the role decides what the profile shows.
 - **Facilitation guide (for leaders, added 2026-10-29 by Bennett):** a fixed, written plan for running a small-group session with Living Letter (before, during, ground rules, what to watch for), shown when the role is leader (UJ-1). Static copy; nothing is generated or saved.
 - **Creator preferences (FR-15, for creators):** how they want to come across, **their theology, tradition and main convictions**, such as a stance they hold strongly on sexuality, gender or marriage (new: free text, recorded only; it never changes scores), and the five Target Audiences in their order. Each saved Review keeps a copy of the preferences as they were (FR-15).
@@ -316,6 +317,24 @@ The Demo Artifact's first screen, the intro letter, offers "Try the demo" as a t
 - A visible notice shows while sample Posts are on screen: a sample Review of a public reel, evaluated ahead of time, that used none of the viewer's Claude usage. Try the demo never replaces a Review that already holds Posts (it is then plain Begin review). End tour, the last card or Clear Review ends the demo.
 - The "Add fictional example Posts" button is removed (Bennett, 2026-10-29).
 - Without a sample file, or when its first Post has no link, the build still passes and the button stays hidden.
+
+### 4.13 Web App Companion [W2]
+
+*Added 2026-10-29 by Bennett ("option 2"). Anthropic lets Claude.ai sign-in work only in its own products, so a third-party site cannot run a Review on a person's Claude account; it needs an API key that someone pays for.*
+
+**Description:** The Web App runs no Reviews. Reviews run in the Demo Artifact on the viewer's own Claude plan, which keeps the demo free for everyone, Bennett included. The Web App is where a signed-in User keeps their profile and their Saved Reviews. Realizes UJ-1, UJ-2, UJ-3.
+
+#### FR-25: Run a Review in the Artifact [W2]
+The Web App's "Run a Review" page links to the Demo Artifact and explains the round trip: run the Review there, choose Save Review as file, then add the file here (FR-26).
+- The page shows this caveat as fixed copy (wording owned by Bennett): "Reviews run in the Living Letter Artifact on your own Claude account, so this demo costs nothing to run. We hope to turn Living Letter into a full web app, but that needs each person to bring their own Anthropic API key, at about $0.25 per Post. Until then, this is how we keep the demo free."
+- The link opens the Artifact in a new tab. The Web App passes nothing to it.
+
+#### FR-26: Add a Review from its Review File [W2]
+A signed-in User can upload a Review File and have it saved as a Saved Review.
+- Only a file the Demo Artifact saved is accepted: its JSON appendix must pass every check the Artifact applies to model output (`SCHEMA.md` §4), and its versions must be locked versions in `content/`.
+- A file that fails is rejected with a plain message, and nothing is saved.
+- A Review File never holds screenshots, only their count. Handles other than the poster's are removed before saving (`ARCHITECTURE.md` AD-5).
+- Each upload is a new Saved Review; uploading the same file twice gives two.
 
 ## 5. Non-Goals (Explicit)
 
@@ -338,7 +357,7 @@ In: FR-1, FR-2, FR-4 to FR-9, FR-11 to FR-13, FR-17, FR-20, FR-22. **No cut line
 
 ### 6.2 Week of 2026-10-26 — Web App
 
-Live public link on Vercel. Everything in 6.1 except FR-22, plus FR-10, FR-14 to FR-16, FR-18, FR-19, FR-21, FR-23, and Criterion 10. Every week-2 requirement must ship. FR-3 was dropped on 2026-10-21 (AD-13).
+Live link on Vercel, as a companion to the Demo Artifact (changed 2026-10-29 by Bennett): FR-10, FR-14, FR-15, FR-18, FR-19, FR-21, FR-25 and FR-26. A Saved Review shows everything the Artifact produced (FR-4 to FR-9, FR-11 to FR-13, FR-17), read-only. FR-16, FR-23 and Criterion 10 are out (FR-23 retired; FR-16 and Criterion 10 after the MVP). Every week-2 requirement must ship. FR-3 was dropped on 2026-10-21 (AD-13).
 
 ### 6.3 Out of Scope for MVP
 
@@ -353,6 +372,7 @@ Live public link on Vercel. Everything in 6.1 except FR-22, plus FR-10, FR-14 to
 
 ### 6.4 After the MVP
 
+- **Reviews on the Web App, bring your own key.** Each person pastes their own Anthropic API key, used only in their browser, and pays about $0.25 per Post. That brings back FR-16, Criterion 10 and the model-written Profile Summary narrative. It needs a new architecture decision: AD-7, AD-8 and AD-10 were written for a key Bennett holds.
 - **FR-16a Connected Account.** Lands after the week-2 Web App, because it needs a Meta developer app that Bennett creates and, for anyone outside the app's roles, Meta's App Review. Alternative to weigh first: Ayrshare is already Meta-approved and returns carousel slide links for connected accounts, but costs $299 a month after a 28-day trial.
 
 ## 7. Constraints and Guardrails
@@ -381,8 +401,8 @@ The Bonhoeffer line Bennett cited ("Your life as a Christian should make non-bel
 
 ## 8. Cross-Cutting NFRs
 
-- **Latency:** a single-Post Evaluation returns within 60 seconds; a 10-Post Review shows Evaluations as they complete rather than all at the end.
-- **Secrets:** the Claude API key and Supabase service-role key stay server-side (Web App); the Demo Artifact holds no keys.
+- **Latency:** a single-Post Evaluation returns within 60 seconds; a 10-Post Review shows Evaluations as they complete rather than all at the end (Demo Artifact; the Web App runs no Reviews).
+- **Secrets:** the Web App holds no Claude key; its Supabase secret key stays server-side. The Demo Artifact holds no keys.
 - **Data protection:** every Supabase table has row-level security so Users see only their own Reviews.
 - **Readability on a shared screen:** Evaluations are legible on a projector or TV for a small group (UJ-1); the measurable bound is set in `bmad-ux` (OQ-6).
 
@@ -393,7 +413,7 @@ The Bonhoeffer line Bennett cited ("Your life as a Christian should make non-bel
 - **SM-2: Objective, evidence-based scoring.** Re-running the same Post with the same versions gives each Rubric Score within ±1 point, and 100% of non-N/A Rubric Scores cite Evidence. Validates FR-4, FR-7.
 
 **Secondary (week 2 onward)**
-- **SM-3: Real use.** At least 3 leaders, creators, or ministries Bennett knows run real Reviews on the Web App.
+- **SM-3: Real use.** At least 3 leaders, creators, or ministries Bennett knows run real Reviews in the Demo Artifact and keep them on the Web App.
 - **SM-4: Personas ring true.** In interviews, real non-believers recognise their Persona's reactions as plausible. Validates FR-8 and drives new Persona Versions.
 
 **Counter-metrics (do not optimise)**
@@ -409,6 +429,7 @@ The Bonhoeffer line Bennett cited ("Your life as a Christian should make non-bel
 | Thu 2026-10-22 | Demo Artifact built. Risk: one build day for 14 Friday requirements with no cut line. |
 | Fri 2026-10-23, before recording | **Nail down the tool's flow end to end**, then record the video with voice-over. |
 | Week of 2026-10-26 | Web App live on Vercel; `ARCHITECTURE.md` and `SCHEMA.md` final before code starts. |
+| Thu 2026-10-29 | Web App re-scoped to a companion (`_bmad-output/planning-artifacts/sprint-change-proposal-2026-10-29.md`); build starts once Node, Supabase `dev` and Vercel are ready. |
 
 ## 11. Open Questions (deferred)
 
@@ -416,8 +437,9 @@ The Bonhoeffer line Bennett cited ("Your life as a Christian should make non-bel
 2. **OQ-2. Soundness standard.** What standard defines "theologically sound", and should a rewrite ever correct doctrine? Owner: Bennett. Revisit after the Web App ships.
 3. **OQ-3. Interview Plans.** Questions for non-believers, creators, and ministries, and which Criteria or Personas each answer would revise. Owner: Bennett, in a separate Claude session. Revisit before SM-4 interviews.
 4. **OQ-4. Product name.** Resolved 2026-10-26: **Living Letter** (Bennett, with his design partner's brand guide; after 2 Corinthians 3:2–3). It replaces the earlier working title.
-5. **OQ-5. Storage and spend (to `bmad-architecture`).** How saved Reviews keep screenshots without persisting commenters' names or handles (§7.2); FR-23 cap values; how the Demo Artifact's in-page Claude calls are counted and limited. Owner: architecture session. Revisit before Web App code starts.
+5. **OQ-5. Storage and spend (to `bmad-architecture`).** *Resolved: screenshots by AD-5; caps retired with FR-23 and AD-8 (2026-10-29).* How saved Reviews keep screenshots without persisting commenters' names or handles (§7.2); FR-23 cap values; how the Demo Artifact's in-page Claude calls are counted and limited. Owner: architecture session. Revisit before Web App code starts.
 6. **OQ-6. Persona order and shared-screen legibility (to `bmad-ux`).** The rule mapping each Target Audience to a Persona order (FR-10), and a measurable legibility bound for projector use (§8). Owner: UX session.
+7. **OQ-7. Who can run a Review.** The Demo Artifact is shared with the IFI organisation. Can a claude.ai account outside it open the Artifact, run a Review and save the file? Owner: Bennett, tested with a non-IFI account before the Web App link is shared outside IFI. If not, the Web App is for IFI colleagues until the bring-your-own-key version (§6.4).
 
 ## 12. Assumptions Index
 

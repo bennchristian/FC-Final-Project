@@ -27,7 +27,7 @@ discussion questions, and an outreach plan for raising concerns with a poster. S
 
 ## 2. How to work on it
 
-- **Status (2026-10-21):** `PRD.md`, `ARCHITECTURE.md` and `SCHEMA.md` are final. Run folders:
+- **Status (2026-10-21; Web App re-scope 2026-10-30, see below):** `PRD.md`, `ARCHITECTURE.md` and `SCHEMA.md` are final. Run folders:
   `_bmad-output/planning-artifacts/prds/prd-FC-Final-Project-2026-10-21/` (addendum, research,
   decision log) and `_bmad-output/planning-artifacts/architecture/architecture-FC-Final-Project-2026-10-21/`
   (memlog, gate reviews). OQ-5 is resolved (AD-5, AD-8, AD-12). FR-3 is dropped: TikTok oEmbed
@@ -58,9 +58,9 @@ discussion questions, and an outreach plan for raising concerns with a poster. S
 - **Results cleanup (2026-10-29, live since version 47, on `main` after `8ddefd7`; spec `_bmad-output/implementation-artifacts/spec-results-display-cleanup.md`):** no versions line anywhere a person reads it: not in the results, the copied text or a saved file's text. They stay in Saved Reviews records and the JSON appendix (PRD FR-7 and AD-6 amended; `provenanceLabel` is gone). No "Concerns (N):" list: a Post with concerns has no summary line, on the page or in copied and saved text (since 2026-10-29, after version 47), so its Soundness Flag leads the results. The Review summary (`#overall`) sits under the Posts, so the results open on Post 1 (Bennett, 2026-10-29). The tour lands on "Your letter, read" (`letter`, the sample note) and shows the summary as "The whole Review" after Discussion Questions. Its per-Post summary card skips itself. Offence source is one line ("Jargon, Claim") with "Where do offence sources come from?" folded below it. The Gentler Rewrite highlights new or changed words in the Suggestion (`rewriteChanges` in `core.js`, a word-level diff; `mark.changed` in `page.css`). This replaces version 46's bold changed words (`a225434`, a second `rewriteChanges`): one function is kept, styled the way Bennett chose (highlight).
 - **Check command:** Thursday: `node --test artifact/test/ && node artifact/build.mjs`. Week 2: see
   `ARCHITECTURE.md` § Consistency Conventions.
-- **Web App rules:** Reviews ship switched off. Agents never make a live Claude call, never set
-  `CLAUDE_ADAPTER=live`, and never touch the `prod` Supabase project or run `publish:content --prod`
-  without Bennett's OK. Development uses the second free Supabase project, `dev` (AD-8, AD-15).
+- **Web App re-scoped (2026-10-30, Bennett; AD-18, PRD §4.13, `_bmad-output/planning-artifacts/sprint-change-proposal-2026-10-29.md`):** a third-party site can't use a person's Claude.ai sign-in, so the Web App runs no Reviews and holds no Anthropic key. Reviews run in the Artifact on the viewer's plan; the viewer saves the Review as a file and uploads it (FR-26). The Web App has open email sign-up (AD-11, custom SMTP), a profile (kept separately from the Artifact's), Saved Reviews, a code-only Profile Summary and a Run a Review page with Bennett's cost caveat (FR-25). FR-23 and AD-8 are retired; FR-16 and Criterion 10 wait for the bring-your-own-key version (PRD §6.4). SCHEMA is two tables, `profile` and `review`. The appendix in `artifact/src/export.js` is now a cross-surface contract: additive changes only. Open: OQ-7 (can people outside IFI open the Artifact?).
+- **Web App setup (2026-10-30):** Node 24.20.0, Supabase CLI 2.122.0 and Vercel CLI 65.3.1 are installed; `.env.local` holds working `dev` keys (secret rotated once after it was pasted into a chat); the repo is linked to `dev` only; `supabase/` was initialised. Still Bennett's: the `prod` project, an SMTP provider for email sign-up, and confirming the Vercel account (repo not imported until the app exists). Next: `bmad-build` for the Web App to AD-18.
+- **Web App rules:** agents never touch the `prod` Supabase project without Bennett's OK. Development uses the second free Supabase project, `dev` (AD-15).
 - Interview plans (PRD OQ-3) are done and approved: [`docs/interview-plans.md`](docs/interview-plans.md).
   They are research, not part of the product.
 - BMAD writes into dated folders under `_bmad-output/`. Promote the final document to the repo

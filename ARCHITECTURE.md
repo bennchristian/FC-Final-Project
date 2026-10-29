@@ -358,24 +358,23 @@ flowchart LR
   - **Network:**
     - Page script makes no fetch or XHR.
     - The only external loads are Google Fonts stylesheets and pinned CDN scripts that the `artifact-design` contract allows.
-    - No Source URL is ever fetched by the page. The one exception is AD-13's single-post read, which goes through the viewer's Supadata connector.
+    - No Source URL is ever fetched by the page. The one exception is AD-13's single-video read, which goes through the viewer's Supadata connector.
   - **Scope:** FR-1, FR-2, FR-4–FR-9, FR-11–FR-13, FR-17, FR-20 and FR-22. The Artifact runs Others' Reviews only, so own-content Criteria show N/A.
   - **Limits:** `limits()` is read at load. `rate_limited`, `not_granted` and `upstream_error` map to per-Post errors with a manual Try again.
   - **Use:** calls happen only on an explicit viewer action, on the viewer's own Claude usage. Built-in examples are fictional.
 
-### AD-13 — No URL is ever read, except one Instagram or TikTok post through Supadata [ADOPTED, amended 2026-10-26 and 2026-10-27]
+### AD-13 — No URL is ever read, except one Instagram reel or TikTok video through Supadata [ADOPTED, amended 2026-10-26 and 2026-10-28]
 
 - **Binds:** FR-2, FR-3, FR-3a
 - **Prevents:** any code path, script or model call reading a Post or profile from a URL.
 - **Rule:**
   - FR-3 is dropped. TikTok oEmbed returned no caption in the 2026-10-21 test.
-  - No surface, script or model call reads a URL, with one exception (FR-3a): in the Demo Artifact, when a Post's Source URL is a single Instagram post or reel or a single TikTok video or photo post (`isReadablePostLink` in `core.js`; reels are often shared as `/p/` links), `artifact/src/reel.js` sends that URL, and only that URL, to the viewer's Supadata connector:
-    - `supadata_metadata` first. Its `description` becomes the Post's text when none was pasted. Only a `type` of `image` or `carousel` counts as not a video.
-    - For a video, `supadata_transcript` (`text: true`; a `jobId` answer is polled at most 20 times). The result becomes the Post's video transcript.
-    - For a carousel or image post, the slide images cannot be read: the page's network is blocked, so it cannot download the image URLs that `supadata_metadata` returns, and `supadata_extract` refuses carousels (tested 2026-10-27). Unless screenshots or typed-out slide text were added (`needsSlides`), the viewer is asked for screenshots of the slides and the Post is not added.
-    - A metadata failure falls back to the transcript alone, except a permission answer (`approval_required`, `not_in_manifest`), which stops the read.
+  - No surface, script or model call reads a URL, with one exception (FR-3a): in the Demo Artifact, when a Post's Source URL is a single Instagram post or reel or a single TikTok video (`isReadablePostLink` in `core.js`; reels are often shared as `/p/` links), `artifact/src/reel.js` sends that URL, and only that URL, to the viewer's Supadata connector:
+    - `supadata_metadata` (`readCaption`). Its `description` becomes the Post's text when none was pasted. A failure skips the caption, except a permission answer (`approval_required`, `not_in_manifest`), which stops the read.
+    - `supadata_transcript` (`text: true`; a `jobId` answer is polled at most 20 times). The result becomes the Post's video transcript.
+  - Carousel slides are not read from a link: the page's network is blocked, so it cannot download the slide images, and `supadata_extract` refuses carousels (tested 2026-10-27). Static Posts come in as screenshots or pasted text.
   - The UI does not name Supadata. The page runs on the latest runtime contract, since `mcp` did not reach the page on 0.2.88.
-  - If the post cannot be read, the Post is still added when it has text or screenshots; otherwise the viewer is asked to paste the transcript or text.
+  - If the video cannot be read, the Post is still added when it has a caption, text or screenshots; otherwise the viewer is asked to paste the transcript or text.
   - A second exception, once AD-17 is adopted: the Web App reads a Creator's own Connected Account through the official Instagram API (FR-16a). It reads by media id, never by Source URL.
   - Source URLs are display-only and are never sent to a model. Profile URLs are never read.
 
@@ -583,7 +582,7 @@ FC-Final-Project/
 | FR-1 Paste + screenshots + transcript | F + W2 | intake UI on both; browser downscale | AD-5, AD-10 |
 | FR-2 Source URL (display only) | F + W2 | Review/Post fields; UI | AD-4, AD-13, AD-14 |
 | FR-3 TikTok pre-fill | dropped | — | AD-13 |
-| FR-3a Instagram and TikTok post read | F only | `artifact/src/reel.js`; `isReadablePostLink` in `core.js` | AD-12, AD-13 |
+| FR-3a Instagram reel and TikTok video read | F only | `artifact/src/reel.js`; `isReadablePostLink` in `core.js` | AD-12, AD-13 |
 | FR-4/5/6 Scores, lands well, Soundness Flag | F + W2 | Assess; `core.js` / `src/domain` derive | AD-2, AD-3, AD-4, AD-14 |
 | FR-7 / FR-20 / FR-21 Versions | F + W2 (FR-21 W2) | `content/`, lock file, version tables, publish script | AD-1, AD-6, AD-15 |
 | FR-8/9 Persona Reactions, simulated label | F + W2 | React; UI | AD-2, AD-14 |

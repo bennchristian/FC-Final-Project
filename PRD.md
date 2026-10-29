@@ -68,7 +68,7 @@ The first use is formation, not correction: a youth leader puts other people's p
 
 - **Post** — One piece of social-media content (caption or on-screen text, images, and for video a transcript), as supplied by the User. Usually public; in a Draft Checkpoint, an **Unpublished Post**. Belongs to one Review.
 - **Profile** — One social-media account (a person's or a ministry's). A profile Review is a set of Posts from one Profile that the User supplies; the tool never retrieves a Profile itself.
-- **Source URL** — The link a Post or profile came from. Recorded and displayed; never fetched except through a Permitted Retrieval route or a single Instagram or TikTok post read (FR-3a).
+- **Source URL** — The link a Post or profile came from. Recorded and displayed; never fetched except through a Permitted Retrieval route or a single Instagram reel or TikTok video read (FR-3a).
 - **Permitted Retrieval** — Reading Post content from a Source URL through a route the platform's terms allow. In MVP the only candidate is TikTok's public oEmbed endpoint [W2, conditional].
 - **Review** — One run of the tool over one or more Posts, producing one Evaluation per Post plus Review-level outputs. Records the Rubric Version and Persona Version used.
 - **Others' Review** — A Review of someone else's public Posts. **Own-Content Review** — a Review of the User's own published or draft Posts [W2].
@@ -111,7 +111,7 @@ A User can add one or more Posts to a Review, each as pasted text, one or more s
 A User can attach a Source URL to a Post or to the whole Review (a Profile's URL).
 - The Source URL is shown on the Evaluation and in the Ministry Outreach Plan.
 - Attaching a Source URL never triggers a fetch, except through FR-3 or FR-3a.
-- The UI states plainly that the tool reads only links to a single Instagram or TikTok post, and asks for paste or screenshots otherwise.
+- The UI states plainly that the tool reads only links to a single Instagram reel or TikTok video, and asks for paste or screenshots otherwise.
 
 #### FR-3: Permitted Retrieval for TikTok captions [W2, conditional — dropped]
 > **Dropped 2026-10-21:** a live oEmbed test on two real public videos returned no caption (`ARCHITECTURE.md` AD-13).
@@ -121,14 +121,12 @@ When the Source URL is a TikTok video, the Web App can pre-fill the Post's capti
 - The User can edit or replace the pre-filled caption.
 - No other platform is read from a URL in MVP.
 
-#### FR-3a: Instagram and TikTok post reading [F, added 2026-10-26 by Bennett; widened to TikTok and captions 2026-10-27 by Bennett]
-When a Post's Source URL is a single Instagram or TikTok post, the Demo Artifact reads it through the viewer's Supadata connector (`ARCHITECTURE.md` AD-13):
-- **Caption:** when no text was pasted, the post's caption is used as the Post's text.
-- **Video:** when no transcript was pasted, the video's spoken words are used as the Post's video transcript.
-- **Carousel or image post:** the words on the images cannot be read from the link, because the Artifact cannot download images. Unless screenshots or typed-out slide text were added, the User is asked for screenshots of the slides, and the Post is not added from its caption alone. Claude then reads the words on the screenshots (FR-1).
-- The caption is added as the Post's text without being shown first. The User sees it with the Evaluation.
+#### FR-3a: Instagram reel and TikTok video reading [F, added 2026-10-26 by Bennett; widened to TikTok videos and captions 2026-10-28 by Bennett]
+The link field is for video Posts; static Posts are added as screenshots or pasted text (FR-1). When a Post's Source URL is a single Instagram reel or TikTok video, the Demo Artifact reads it through the viewer's Supadata connector (`ARCHITECTURE.md` AD-13):
+- **Caption:** when no text was pasted, the video's caption is used as the Post's text. It is added without being shown first; the User sees it with the Evaluation.
+- **Transcript:** the video's spoken words are used as the Post's video transcript.
 - The UI does not name the service.
-- If the post cannot be read, a Post with text or screenshots is still added; otherwise the User is asked to paste the transcript or text.
+- If the video cannot be read, a Post with a caption, text or screenshots is still added; otherwise the User is asked to paste the transcript or text.
 
 **Out of Scope:** automatic retrieval of a whole profile; any Instagram retrieval; scraping; logged-in access.
 
@@ -297,7 +295,7 @@ The Demo Artifact has a separate tab listing what is planned but not yet built, 
 
 ## 5. Non-Goals (Explicit)
 
-- **Not a scraper.** No automatic collection of posts from Instagram, TikTok, or anywhere else beyond FR-3, the single-post read of FR-3a, and a Creator's own Connected Account (FR-16a).
+- **Not a scraper.** No automatic collection of posts from Instagram, TikTok, or anywhere else beyond FR-3, the single-video read of FR-3a, and a Creator's own Connected Account (FR-16a).
 - **Not a content generator.** The Gentler Rewrite revises a supplied Post; the tool does not write new posts or content calendars for ministries.
 - **Not a theological judge.** No doctrinal scoring or rulings on a ministry or person; the Soundness Flag is the limit.
 - **Not a messenger.** The tool never sends messages, comments, or DMs.

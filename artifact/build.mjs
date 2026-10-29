@@ -166,8 +166,8 @@ ${INTRO_HTML}
         </div>
         <div id="link-field">
           <label for="post-url" class="sr-only">Link to the Post</label>
-          <input type="url" id="post-url" maxlength="2048" placeholder="Instagram or TikTok post link">
-          <p class="muted">For an Instagram or TikTok post, the caption is read for you, and so are a video’s spoken words. For a carousel or image post, also add screenshots of the slides: the words on them can’t be read from the link. Any other link is only shown with the results.</p>
+          <input type="url" id="post-url" maxlength="2048" placeholder="Instagram reel or TikTok video link">
+          <p class="muted">For an Instagram reel or TikTok video, the link is all you need: its caption and spoken words are read for you. Any other link is only shown with the results.</p>
         </div>
         <div id="transcript-field" hidden>
           <label for="post-transcript" class="sr-only">Video transcript</label>
@@ -223,7 +223,7 @@ ${INTRO_HTML}
       <li><strong>Code applies the thresholds.</strong> Whether a Post is likely to land well, and whether it gets a rewrite, is worked out by code from the scores, not by the model.</li>
       <li><strong>Questions and rewrite.</strong> A third request writes Discussion Questions from the Post, its scores and the reactions. When a rewrite is needed, a fourth writes it. The rewrite never changes the Post’s beliefs.</li>
       <li><strong>Checks.</strong> Every answer is checked against a fixed format before it is shown. Comment sections are ignored, and any @handle other than the poster’s is removed.</li>
-      <li><strong>Nothing is kept.</strong> Posts and screenshots stay in this page only. Screenshots are never shown again or stored. Links are shown but never opened, except a link to one Instagram or TikTok post, which is used only to read its caption and a video’s spoken words.</li>
+      <li><strong>Nothing is kept.</strong> Posts and screenshots stay in this page only. Screenshots are never shown again or stored. Links are shown but never opened, except a link to an Instagram reel or TikTok video, which is used only to read its caption and spoken words.</li>
     </ol>
     <p>Every result shows the versions that produced it: the rubric, the Persona set, the prompts and the model. When the rubric or Personas are revised, they get a new version number, so old and new scores are never mixed.</p>
 

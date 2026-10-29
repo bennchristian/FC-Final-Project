@@ -1,7 +1,7 @@
-// Instagram and TikTok posts through the viewer's Supadata connector (`mcp` capability,
-// ARCHITECTURE.md AD-13). Only the post's link goes to Supadata. Claude gets the caption as
-// the Post's text and a video's spoken words as its transcript, exactly as if the User had
-// pasted them.
+// Instagram reels and TikTok videos through the viewer's Supadata connector (`mcp` capability,
+// ARCHITECTURE.md AD-13). Only the video's link goes to Supadata. Claude gets the caption as
+// the Post's text and the spoken words as its transcript, exactly as if the User had pasted
+// them.
 
 import { INTAKE_LIMITS } from './core.js';
 
@@ -21,21 +21,11 @@ function transcriptText(payload) {
   return '';
 }
 
-// The post's caption and whether it is a video. Supadata answers `{ type, description, ... }`
-// with `type` 'video', 'image' or 'carousel'. The words on an image or carousel's slides
-// are not in it, and the page cannot download the images (AD-13). Only an explicit image
-// or carousel counts as not a video, so an unknown type still gets its transcript.
-export async function readPostDetails(mcp, url) {
+// The video's caption, or '' when it has none. Supadata answers `{ description, ... }`.
+export async function readCaption(mcp, url) {
   const { payload } = await mcp.callTool(SUPADATA, 'supadata_metadata', { url });
   const caption = payload && typeof payload.description === 'string' ? payload.description.trim() : '';
-  const isVideo = !(payload && ['image', 'carousel'].includes(payload.type));
-  return { caption: caption.slice(0, INTAKE_LIMITS.maxPastedText), isVideo };
-}
-
-// A carousel or image post needs the words on its slides from the User: screenshots or
-// typed-out text. Its caption alone is not enough (PRD FR-3a).
-export function needsSlides(details, pastedText, imageCount) {
-  return Boolean(details && !details.isVideo && !imageCount && !pastedText.trim());
+  return caption.slice(0, INTAKE_LIMITS.maxPastedText);
 }
 
 // The video's spoken words, or a rejection `{ code }`: an `mcp` error code, `failed`

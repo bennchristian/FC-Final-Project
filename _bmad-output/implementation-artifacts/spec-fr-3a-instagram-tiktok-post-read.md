@@ -27,6 +27,7 @@ context: ['{project-root}/PRD.md', '{project-root}/ARCHITECTURE.md']
 - No republish (Bennett's instruction).
 - After review: `readPostDetails` counts only an explicit `image`/`carousel` type as not video; permission answers from the metadata call stop the read instead of falling back; typed-out slide text satisfies the slide request (`needsSlides`, tested); error copy no longer assumes a video; the always-true transcript guard was removed. PRD FR-3a and AD-13 amended to match.
 - Not committed: Bennett commits only when he asks (CLAUDE.md §4), which overrides this workflow's commit step.
+- **Narrowed 2026-10-28 by Bennett:** the link field is for video Posts only, and static Posts are added as screenshots or text, so the carousel handling (`needsSlides`, the slide-screenshot request, TikTok photo links) was removed. What remains: TikTok video links, and captions read through `readCaption`. The Intent above predates this narrowing; PRD FR-3a and AD-13 are current.
 
 ## Review Triage Log
 

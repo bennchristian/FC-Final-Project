@@ -4,7 +4,7 @@
 // `CONTENT` and `LABELS` are inlined by artifact/build.mjs.
 
 import { INTAKE_LIMITS, checkPostIntake, checkSourceUrl, canAddPost, provenanceLabel, isReadablePostLink } from './core.js';
-import { readPostDetails, needsSlides, transcribeReel } from './reel.js';
+import { readCaption, transcribeReel } from './reel.js';
 import { evaluatePost, requestRewrite, createOutreach } from './pipeline.js';
 import { reviewToMarkdown } from './export.js';
 
@@ -47,11 +47,6 @@ const REEL_ERROR_COPY = {
 const PERMISSION_CODES = ['approval_required', 'not_in_manifest', 'not_granted'];
 
 function reelErrorText(code) {
-  if (code === 'needs_slides') {
-    return state.maxImages
-      ? `This post is a carousel or image, and the words on its slides can’t be read from the link. Choose “Add screenshots” and add a screenshot of each slide (up to ${state.maxImages}), or choose “Paste the text” and type out the words on its slides.`
-      : 'This post is a carousel or image, and the words on its slides can’t be read from the link. Choose “Paste the text” and type out the words on its slides.';
-  }
   return REEL_ERROR_COPY[code] || 'This post could not be read here. Add its text, transcript or screenshots instead.';
 }
 
@@ -169,10 +164,9 @@ function addPost(fields) {
   state.outreach = null;
 }
 
-// Reads a linked post into `fields` (AD-13): its caption as the text when none was pasted,
-// and a video's transcript. A carousel or image post needs screenshots or typed-out slide
-// text, because the words on its slides cannot be read from the link. A failure to read
-// blocks the Post only when the link is all it has.
+// Reads a linked video into `fields` (AD-13): its caption as the text when none was pasted,
+// and its spoken words as the transcript. A caption that cannot be read is skipped. A failure
+// to read blocks the Post only when the link is all it has.
 async function readLinkedPost(fields, imageCount) {
   state.readingPost = true;
   $('intake-errors').textContent = '';
@@ -180,17 +174,13 @@ async function readLinkedPost(fields, imageCount) {
   render();
   try {
     if (!state.mcp) throw { code: 'not_granted' };
-    const details = await readPostDetails(state.mcp, fields.source_url).catch((e) => {
+    const caption = await readCaption(state.mcp, fields.source_url).catch((e) => {
       if (e && PERMISSION_CODES.includes(e.code)) throw e;
-      return null;
+      return '';
     });
-    if (needsSlides(details, fields.pasted_text, imageCount)) throw { code: 'needs_slides' };
-    if (details && !fields.pasted_text.trim()) fields.pasted_text = details.caption;
-    if (!details || details.isVideo) {
-      fields.video_transcript = await transcribeReel(state.mcp, fields.source_url);
-    }
+    if (!fields.pasted_text.trim()) fields.pasted_text = caption;
+    fields.video_transcript = await transcribeReel(state.mcp, fields.source_url);
   } catch (e) {
-    if (e && e.code === 'needs_slides') throw e;
     if (!(fields.pasted_text.trim() || fields.video_transcript.trim() || imageCount)) throw e;
   } finally {
     state.readingPost = false;

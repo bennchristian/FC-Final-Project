@@ -324,21 +324,21 @@ export function isInstagramPostLink(url) {
   return at !== -1 && at <= 1 && /^[A-Za-z0-9_-]+$/.test(segments[at + 1] || '');
 }
 
-// True for a link to one TikTok video or photo post (/@<handle>/video/<id>, /@<handle>/photo/<id>,
-// /v/<id>.html, /t/<code>, or a vm./vt. short link).
-export function isTikTokPostLink(url) {
+// True for a link to one TikTok video (/@<handle>/video/<id>, /v/<id>.html, /t/<code>, or a
+// vm./vt. short link).
+export function isTikTokVideoLink(url) {
   if (!url || checkSourceUrl(url).length) return false;
   const { hostname, pathname } = new URL(url);
   const segments = pathname.split('/').filter(Boolean);
   if (/^(vm|vt)\.tiktok\.com$/i.test(hostname)) return segments.length === 1 && /^[A-Za-z0-9]+$/.test(segments[0]);
   if (!/^(www\.|m\.)?tiktok\.com$/i.test(hostname)) return false;
   if (segments[0] === 't' || segments[0] === 'v') return segments.length === 2 && /^[A-Za-z0-9]+(\.html)?$/.test(segments[1]);
-  return segments.length === 3 && /^@[A-Za-z0-9_.]+$/.test(segments[0]) && ['video', 'photo'].includes(segments[1]) && /^\d+$/.test(segments[2]);
+  return segments.length === 3 && /^@[A-Za-z0-9_.]+$/.test(segments[0]) && segments[1] === 'video' && /^\d+$/.test(segments[2]);
 }
 
 // Only these links are ever read (AD-13).
 export function isReadablePostLink(url) {
-  return isInstagramPostLink(url) || isTikTokPostLink(url);
+  return isInstagramPostLink(url) || isTikTokVideoLink(url);
 }
 
 // A Post as entered: { pasted_text, video_transcript, image_count, source_url }.

@@ -106,7 +106,7 @@
         const did = ['sent a Post', 'read its results'];
         if (tour.role) did.push('chose who you are');
         if (tour.reopened) did.push('reopened the saved Review');
-        return `You ${did.slice(0, -1).join(', ')} and ${did[did.length - 1]}. To review your own Posts, choose Next post in the Mailbox, then Clear Review.`;
+        return `You ${did.slice(0, -1).join(', ')} and ${did[did.length - 1]}. To review your own Posts, choose Send another post in the Mailbox, then Clear Review.`;
       } },
   ];
 

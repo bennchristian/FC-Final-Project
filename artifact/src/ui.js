@@ -231,7 +231,6 @@ function syncFormModes() {
   $('transcript-field').hidden = video !== 'transcript';
   const content = contentMode();
   $('content-choices').hidden = state.maxImages === 0;
-  $('content-legend').textContent = state.maxImages ? 'Static posts' : 'Text';
   $('images-field').hidden = content !== 'images';
   $('text-field').hidden = content !== 'text';
 }

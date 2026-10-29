@@ -277,7 +277,6 @@ ${INTRO_HTML}
               <p id="intake-errors" class="error" aria-live="polite"></p>
               <div class="row letter-actions">
                 <button type="submit" id="add-post">Add Post</button>
-                <button type="button" id="add-examples">Add fictional example Posts</button>
                 <span id="post-count" class="muted"></span>
               </div>
             </form>

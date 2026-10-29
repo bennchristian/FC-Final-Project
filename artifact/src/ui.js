@@ -60,18 +60,6 @@ function reelErrorText(code) {
   return REEL_ERROR_COPY[code] || 'This reel could not be read here. Paste its video transcript instead.';
 }
 
-const FICTIONAL_EXAMPLES = [
-  {
-    pasted_text: 'Sunday recap \u{1F64C} We were SO blessed in the Word this week. Pastor broke down Rom 8:28 and the altar was FULL! If you’re not plugged into a life group yet, what are you waiting for?? Get connected, get covered. #blessed #CedarHollowFam',
-  },
-  {
-    pasted_text: 'Our nation is under judgment because it has turned its back on God. If you voted for the other side, you need to repent. Wake up, church. This culture HATES Christians and we will not stay silent!',
-  },
-  {
-    pasted_text: 'Last Saturday, 30 of our neighbours (most of whom don’t come to church) helped us repaint the elementary school on Cedar Street. We don’t have all the answers about life, but we believe Jesus cares about our street. Got questions about faith, or want to help next time? Message us. No pressure, and the coffee’s on us.',
-  },
-];
-
 // ---------- State (page memory only) ----------
 
 const state = {
@@ -290,13 +278,6 @@ async function addFromForm() {
   syncFormModes();
   render();
   return true;
-}
-
-function onAddExamples() {
-  for (const example of FICTIONAL_EXAMPLES) {
-    if (canAddPost(state.posts.length)) addPost(example);
-  }
-  render();
 }
 
 function onClearReview() {
@@ -1269,7 +1250,6 @@ function start() {
 
   $('post-form').addEventListener('submit', onAddPost);
   $('post-form').addEventListener('change', (e) => { if (e.target.type === 'radio') syncFormModes(); });
-  $('add-examples').addEventListener('click', onAddExamples);
   $('evaluate-all').addEventListener('click', onEvaluateAll);
   $('clear-review').addEventListener('click', onClearReview);
   $('copy-review').addEventListener('click', onCopyReview);

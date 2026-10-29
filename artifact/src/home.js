@@ -1,24 +1,35 @@
-// Home page motion (design partner, 2026-10-28). The first time Home is on screen, the envelope mark
-// draws itself and the hero text is typed in place, then "the only gospel people know" is underlined.
-// Once the underline is fully drawn, the devices beside the statistics drop in from above as soon as
-// half of them is in view, then hover gently.
-// With reduced motion none of it runs: everything is simply there. Decoration only: the text is in
-// the page from the start, so nothing depends on this running.
+// Home page motion (design partner, 2026-10-28). Each part plays only once the one before it has
+// finished, and (below the hero) once half of it is on screen:
+//   1. the hero: the envelope mark draws itself, the text is typed in place, then "the only gospel
+//      people know" is underlined;
+//   2. "Social media ministry is growing fast." is typed, then "fast" is underlined;
+//   3. the devices beside the statistics drop in from above, then hover;
+//   4. "Why…" and the Living Letter logo are typed, then the logo's envelope lines draw themselves.
+// Anything not yet played is hidden, so nothing shows and then vanishes to be typed. A part the
+// viewer has already scrolled past counts as seen. With reduced motion none of it runs.
+// Decoration only: the text is in the page from the start.
 
-const TYPING = [['.home-tagline', 22], ['.home-hero .home-what', 9], ['.home-lede', 3]];
-const UNDERLINE_MS = 900; // matches the underline transition in page.css
-const DEVICES_IN_VIEW = 0.5;
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const UNDERLINE_MS = 900; // matches the .home-underline transition in page.css
+const DEVICES_MS = 1300; // the last device's drop (page.css: 420ms delay + 0.9s)
+const IN_VIEW = 0.5;
+const DRAW = { duration: 450, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fill: 'forwards' };
 
 let homeMotion = 'off'; // off -> waiting -> played
-let heroTyped = false;
-let devicesInView = false;
+const seen = new Map(); // element -> { seen, wake }
 
 export function prepareHomeMotion() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  // Hidden until it plays, so the text does not show and then vanish to be typed.
-  document.getElementById('view-home').classList.add('home-hero-wait');
+  const view = document.getElementById('view-home');
+  for (const el of view.querySelectorAll('.home-hero > *, #home-why-title, #home-name-title')) el.classList.add('type-pending');
+  for (const el of view.querySelectorAll('.home-hero .home-underline, #home-why-title .home-underline')) el.classList.add('underline-pending');
+  // The strokes that draw themselves start undrawn.
+  for (const stroke of view.querySelectorAll('.home-seal > *, .home-name-title svg path')) {
+    Object.assign(stroke.style, { strokeDasharray: '1', strokeDashoffset: '1' });
+  }
+  view.querySelector('.home-devices').classList.add('devices-wait');
+  for (const selector of ['#home-why-title', '.home-devices', '#home-name-title']) watch(view.querySelector(selector));
   homeMotion = 'waiting';
-  watchDevices();
 }
 
 // Plays once, the first time Home is shown with the intro gone.
@@ -27,41 +38,95 @@ export async function playHomeMotion() {
   if (homeMotion !== 'waiting' || (intro && !intro.hidden)) return;
   homeMotion = 'played';
   const view = document.getElementById('view-home');
-  const seal = view.querySelector('.home-seal');
-  const strokes = [...seal.children];
-  for (const stroke of strokes) Object.assign(stroke.style, { strokeDasharray: '1', strokeDashoffset: '1' });
-  // Each block of text stays hidden until its own typing starts.
-  const blocks = TYPING.map(([selector, msPerChar]) => [view.querySelector(selector), msPerChar]);
-  for (const [el] of blocks) el.classList.add('type-pending');
-  view.classList.replace('home-hero-wait', 'home-hero-typing');
-  await Promise.all(strokes.map((stroke, i) => stroke.animate(
-    [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }],
-    { duration: 450, delay: i * 150, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fill: 'forwards' },
+  const $ = (selector) => view.querySelector(selector);
+
+  // 1. The hero.
+  const seal = $('.home-seal');
+  seal.classList.remove('type-pending');
+  await draw([...seal.children]);
+  for (const [selector, msPerChar] of [['.home-tagline', 22], ['.home-hero .home-what', 9], ['.home-lede', 3]]) {
+    await typeInPlace($(selector), msPerChar);
+  }
+  await underline($('.home-tagline .home-underline'));
+
+  // 2. "Social media ministry is growing fast."
+  await whenSeen($('#home-why-title'));
+  await typeInPlace($('#home-why-title'), 28);
+  await underline($('#home-why-title .home-underline'));
+
+  // 3. The devices.
+  await whenSeen($('.home-devices'));
+  $('.home-devices').classList.replace('devices-wait', 'devices-in');
+  await pause(DEVICES_MS);
+
+  // 4. "Why…" and the logo.
+  await whenSeen($('#home-name-title'));
+  await typeInPlace($('#home-name-title'), 70);
+  await draw([...$('.home-name-title svg').querySelectorAll('path')]);
+}
+
+function pause(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function draw(strokes) {
+  return Promise.all(strokes.map((stroke, i) => stroke.animate(
+    [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { ...DRAW, delay: i * 150 },
   ).finished.catch(() => undefined)));
-  for (const [el, msPerChar] of blocks) await typeInPlace(el, msPerChar);
-  // CSS draws the underline across "the only gospel people know" once the typing class goes;
-  // the devices wait until it is fully drawn.
-  view.classList.replace('home-hero-typing', 'home-hero-typed');
-  await new Promise((resolve) => setTimeout(resolve, UNDERLINE_MS));
-  heroTyped = true;
-  showDevices();
+}
+
+function underline(el) {
+  el.classList.remove('underline-pending');
+  return pause(UNDERLINE_MS);
+}
+
+// "Seen" once half of the element has been on screen, or once the viewer has scrolled past it.
+function watch(el) {
+  const state = { seen: false, wake: null };
+  seen.set(el, state);
+  if (!('IntersectionObserver' in window)) {
+    state.seen = true;
+    return;
+  }
+  const observer = new IntersectionObserver((entries) => {
+    const entry = entries[entries.length - 1];
+    const top = entry.rootBounds ? entry.rootBounds.top : 0;
+    const above = !entry.isIntersecting && entry.boundingClientRect.bottom <= top && entry.boundingClientRect.height > 0;
+    if ((entry.isIntersecting && entry.intersectionRatio >= IN_VIEW) || above) {
+      observer.disconnect();
+      state.seen = true;
+      if (state.wake) state.wake();
+    }
+  }, { threshold: [0, IN_VIEW] });
+  observer.observe(el);
+}
+
+function whenSeen(el) {
+  const state = seen.get(el);
+  if (!state || state.seen) return Promise.resolve();
+  return new Promise((resolve) => { state.wake = resolve; });
 }
 
 // Types an element's text where it stands: each text node becomes a shown part and a hidden
-// remainder that keeps its space, so nothing reflows while it types. A caret follows the last
-// character. The original text nodes are put back at the end.
+// remainder that keeps its space, so nothing reflows while it types. SVG text (the logo) gets
+// tspans. A caret follows the last character of HTML text. Screen-reader-only text is left as
+// it is. The original text nodes are put back at the end.
 function typeInPlace(el, msPerChar) {
   return new Promise((resolve) => {
-    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+      acceptNode: (node) => (node.data.trim() && !node.parentElement.closest('.sr-only') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT),
+    });
     const nodes = [];
-    for (let node = walker.nextNode(); node; node = walker.nextNode()) if (node.data) nodes.push(node);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) nodes.push(node);
     const parts = nodes.map((node) => {
-      const shown = document.createElement('span');
-      const rest = document.createElement('span');
-      rest.className = 'type-rest';
+      const svg = node.parentNode.namespaceURI === SVG_NS;
+      const make = () => (svg ? document.createElementNS(SVG_NS, 'tspan') : document.createElement('span'));
+      const shown = make();
+      const rest = make();
+      rest.setAttribute('class', 'type-rest');
       rest.textContent = node.data;
       node.replaceWith(shown, rest);
-      return { node, shown, rest, text: node.data };
+      return { node, shown, rest, svg, text: node.data };
     });
     // Its text is now all in hidden remainders, so the block can show without a flash.
     el.classList.remove('type-pending');
@@ -91,33 +156,10 @@ function typeInPlace(el, msPerChar) {
         return;
       }
       const typing = parts.find((part) => part.rest.textContent) || parts[parts.length - 1];
-      if (caret.nextSibling !== typing.rest) typing.rest.before(caret);
+      if (typing.svg) caret.remove();
+      else if (caret.nextSibling !== typing.rest) typing.rest.before(caret);
       requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
   });
-}
-
-// The devices wait, hidden, until the hero is typed and half of them is in view. The first report
-// counts as "in view" only if half is already showing (isIntersecting alone is true for a sliver).
-function watchDevices() {
-  const box = document.querySelector('.home-devices');
-  if (!box) return;
-  box.classList.add('devices-wait');
-  if (!('IntersectionObserver' in window)) {
-    devicesInView = true;
-    return;
-  }
-  const observer = new IntersectionObserver((entries) => {
-    if (entries.some((entry) => entry.isIntersecting && entry.intersectionRatio >= DEVICES_IN_VIEW)) {
-      observer.disconnect();
-      devicesInView = true;
-      showDevices();
-    }
-  }, { threshold: DEVICES_IN_VIEW });
-  observer.observe(box);
-}
-
-function showDevices() {
-  if (heroTyped && devicesInView) document.querySelector('.home-devices').classList.replace('devices-wait', 'devices-in');
 }

@@ -79,7 +79,7 @@ const PAGE_CSS = readFileSync(join(SRC, 'page.css'), 'utf8');
 // and shown as a background (the images are decorative), so a second use costs nothing.
 const ICONS = {
   checklist: 'icon-checklist.png', person: 'icon-person.png', pen: 'icon-pen.png', bubbles: 'icon-bubbles.png', mailbox: 'icon-mailbox.png',
-  creator: 'home-creator.png', individual: 'home-individual.png', leader: 'home-leader.png',
+  creator: 'home-creator.png', individual: 'home-individual.png', leader: 'home-leader.png', audiences: 'icon-audiences.png',
 };
 const ICON_CSS = `:root { ${Object.entries(ICONS).map(([n, file]) => `--icon-${n}: url("${imgData(file)}");`).join(' ')} }\n`
   + Object.keys(ICONS).map((n) => `.icon-${n} { background-image: var(--icon-${n}); }`).join('\n');
@@ -139,7 +139,7 @@ ${INTRO_HTML}
 
     <section class="home-band home-why" aria-labelledby="home-why-title">
       <div class="home-why-text">
-        <h2 id="home-why-title">Social media ministry is growing fast.</h2>
+        <h2 id="home-why-title">Social media ministry is growing <span class="home-underline">fast</span>.</h2>
         <p>Social media has become one of the main places faith is shared. Already in 2014, one in five Americans (20%) had shared their faith on social media in the past week, and nearly half (46%) had seen someone else do it.<sup><a href="#source-1">1</a></sup> By 2018, 28% of US Christians said they use social media to share their faith, and 58% of non-Christians said someone had shared their faith with them on Facebook.<sup><a href="#source-2">2</a></sup></p>
         <p>But the results sometimes backfire and harm how people see Christians and the faith. One in six US adults (17%) has unfollowed, blocked or muted someone because of the religious content they posted.<sup><a href="#source-3">3</a></sup> Among young adults outside the church, 87% called Christians judgmental and 85% called them hypocritical.<sup><a href="#source-4">4</a></sup></p>
         <p class="home-resolve">In our endeavour to sharpen one another and our witness, we’ve created this tool so we can learn to <span class="home-underline">represent Jesus better.</span></p>
@@ -185,7 +185,7 @@ ${INTRO_HTML}
         <svg viewBox="0 0 340 214" aria-hidden="true">
           <text x="6" y="104">Living</text>
           <text x="6" y="200">Letter</text>
-          <path d="M152 22 H332 V206 H232 M332 22 L252 68" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"/>
+          <path d="M152 22 H332 V206 H232 M332 22 L252 68" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square" pathLength="1"/>
         </svg>
       </h2>
       <div class="home-name-text">
@@ -382,6 +382,7 @@ ${INTRO_HTML}
       <h2 id="prefs-title">Creator preferences</h2>
       <p>How you want to come across, what you believe, and who you most want to reach. Your Reviews then list first the Personas who lead your top audiences. Scores never change.</p>
       <form id="prefs-form" class="prefs-form">
+        <div class="prefs-box">
         <div class="pref-field" data-field="come_across">
           <label for="pref-come-across">How you want to come across</label>
           <div class="pref-view" hidden>
@@ -404,11 +405,15 @@ ${INTRO_HTML}
             <div class="row"><button type="button" data-save="theology">Save</button><button type="button" class="link-button" data-cancel="theology">Cancel</button><span class="muted" id="pref-theology-status" aria-live="polite"></span></div>
           </div>
         </div>
-        <fieldset class="audience-rank">
-          <legend>The audiences you want to reach, most important first</legend>
-          <ol id="pref-audiences"></ol>
-        </fieldset>
-        <div class="row"><button type="submit" id="prefs-save">Save order</button><span id="prefs-status" class="muted" aria-live="polite"></span></div>
+        </div>
+        <div class="prefs-audiences">
+          <span class="prefs-audiences-icon icon-audiences" aria-hidden="true"></span>
+          <fieldset class="audience-rank">
+            <legend>The audiences you want to reach, most important first</legend>
+            <ol id="pref-audiences"></ol>
+          </fieldset>
+          <div class="row"><button type="submit" id="prefs-save">Save order</button><span id="prefs-status" class="muted" aria-live="polite"></span></div>
+        </div>
       </form>
     </section>
 

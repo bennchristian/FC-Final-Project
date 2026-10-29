@@ -41,3 +41,12 @@ test('the saved file adds a JSON appendix that parses back to the Review', () =>
   assert.deepEqual(json.versions, labels, 'versions stay in the data, never in the readable text');
   assert.ok(!md.split('## Raw data')[0].includes(labels.rubric));
 });
+
+test('a Post with concerns has no concerns list; its Soundness Flag leads the results', () => {
+  const flagged = { ...evaluation, assessment: { ...assessment, soundness_flag: { line: 'FLAGGED-LINE', why: 'Worth a leader’s view.' } } };
+  const md = reviewToMarkdown({ posts: [{ ...review.posts[0], evaluation: flagged }] }, content, labels, { exportedAt: '2026-10-21T12:00:00Z', includeJson: false });
+  assert.ok(!md.includes('Summary: concerns'));
+  assert.ok(!md.includes('**Summary'));
+  const flagAt = md.indexOf('**Soundness Flag:** “FLAGGED-LINE”');
+  assert.ok(flagAt > md.indexOf('## Post 1') && flagAt < md.indexOf('### Rubric Scores'));
+});

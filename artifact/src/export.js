@@ -36,14 +36,10 @@ function postSection({ position, post, evaluation, status }, content) {
     out.push('**Post text as read by Claude**', '', quote(evaluation.post_transcript), '');
   }
 
+  // Like the page, a Post with concerns gets no summary line: the Rubric Scores below show them.
   const scores = evaluation.assessment.scores;
   if (evaluation.rewrite_mode === 'not_assessable') out.push('**Summary:** nothing in this Post could be assessed.', '');
   else if (evaluation.lands_well) out.push('**Summary:** likely to land well. No concerns to raise.', '');
-  else {
-    out.push('**Summary: concerns**', '');
-    for (const s of scores.filter((x) => x.score !== null && x.score < 3)) out.push(`- ${criterion[s.criterion].name}`);
-    out.push('');
-  }
 
   const flag = evaluation.assessment.soundness_flag;
   if (flag) out.push(`**Soundness Flag:** “${flag.line}” ${flag.why} *(A prompt for discussion with a leader, not a ruling.)*`, '');

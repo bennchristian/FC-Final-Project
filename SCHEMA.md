@@ -23,6 +23,7 @@ Terms follow the PRD Glossary. AD-n references are to `ARCHITECTURE.md`.
 | `outreach_plan` | Ministry Outreach Plan | server only | Immutable (trigger); at most 3 per Review |
 | `profile_summary` | Profile Summary | server only | Immutable (trigger); at most 3 per Review |
 | `usage_event` | (spend ledger) | server only | Append-only (trigger); no FKs |
+| `instagram_connection` | Connected Account | server only | Replaced on reconnect and token refresh; deleted on disconnect. **Post-MVP** (FR-16a, AD-17): not in the first migration |
 
 ```mermaid
 erDiagram
@@ -183,6 +184,20 @@ erDiagram
 
 - **Indexes:** `(created_at)` and `(user_id, step, created_at)`.
 - **Trigger `forbid_ledger_change`:** raises on UPDATE, DELETE and TRUNCATE.
+
+### `instagram_connection` (Post-MVP: FR-16a, AD-17)
+
+| Column | Type | Constraint |
+|---|---|---|
+| `user_id` | `uuid` | PK, FK `auth.users(id)` on delete cascade. One Connected Account per user |
+| `ig_user_id` | `text` | not null; the Instagram professional account's id |
+| `username` | `text` | not null; `char_length ≤ 30`; shown to the owner as the Connected Account |
+| `token_ciphertext` | `text` | not null; the long-lived token, encrypted with `INSTAGRAM_TOKEN_KEY`. Never selected into a client response or a log |
+| `expires_at` | `timestamptz` | not null; the server refreshes the token before this |
+| `created_at` | `timestamptz` | not null default `now()` |
+| `updated_at` | `timestamptz` | not null default `now()` |
+
+- **Writes:** the OAuth callback upserts the row for the verified user; token refresh updates it; disconnect deletes it (AD-9).
 
 ### SQL functions (AD-9)
 
@@ -348,6 +363,7 @@ The secret key, used by server code only, bypasses RLS. Writes are server-only (
 | `rubric_version`, `persona_version`, `prompt_set` | none | select: `true` |
 | `creator_foundation`, `review`, `post`, `evaluation`, `outreach_plan`, `profile_summary` | none | select own |
 | `usage_event` | restrictive deny-all policy, plus `revoke all` | restrictive deny-all policy, plus `revoke all` |
+| `instagram_connection` (Post-MVP) | restrictive deny-all policy, plus `revoke all` | restrictive deny-all policy, plus `revoke all`. The owner sees their Connected Account's `username` only through a server response |
 
 Users never insert, update or delete through the Data API. Review deletion is a Server Action that deletes with `user_id = <verified uid>` (AD-9), and the cascade removes its children.
 
@@ -363,10 +379,11 @@ Users never insert, update or delete through the Data API. Review deletion is a 
   - `ANTHROPIC_API_KEY`, for a dedicated Anthropic workspace with a $30 monthly spend limit confirmed in the Console;
   - `SUPABASE_SECRET_KEY` (`sb_secret_…`);
   - `REVIEWS_ENABLED`, unset by default;
-  - `CLAUDE_ADAPTER=live`.
+  - `CLAUDE_ADAPTER=live`;
+  - Post-MVP (AD-17): `INSTAGRAM_APP_ID`, `INSTAGRAM_APP_SECRET` and `INSTAGRAM_TOKEN_KEY`.
 
   Public on every environment: `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (`sb_publishable_…`). Preview has no secrets.
-- **Local `.env.local`:** dev-project keys and `CLAUDE_ADAPTER=fake`. No Anthropic key.
+- **Local `.env.local`:** dev-project keys and `CLAUDE_ADAPTER=fake`. No Anthropic key. Post-MVP: the Instagram app's Development-mode credentials (AD-17).
 - **Constants in code:**
   - `src/server/claude/model.ts`: `CLAUDE_EFFORT`, `FALLBACK_BETA` and the per-step `max_tokens`.
   - `src/server/gate/`: `MONTHLY_SPEND_CAP_USD = 25`, `DAILY_REVIEW_CAP = 3`, `MAX_POSTS_PER_REVIEW = 10`, `MAX_IMAGES_PER_POST = 4`, `MAX_ATTEMPTS_PER_POST = 3` and `MAX_REGENERATIONS_PER_REVIEW = 3`.
@@ -378,7 +395,8 @@ Users never insert, update or delete through the Data API. Review deletion is a 
     - `data/users/<viewer id>/<review id>/posts/<position>`: `position`, `pasted_text`, `video_transcript`, `source_url`, `image_names`, `status`, `evaluation` (only when `done`) and `error`. Screenshots are never stored, only their file names (AD-5).
     - A Review whose `labels` differ from the page’s versions is listed but cannot be reopened (FR-20). Delete removes the Review and its Posts.
     - `data/users/<viewer id>/profile` (2026-10-28, `artifact/src/profile.js`): `role` (`creator` | `leader` | `individual` | `""`), `come_across` and `theology` (free text, up to 2,000 characters each) with `come_across_at` and `theology_at` (when each was last edited, or `""`), `audiences` (Target Audience keys from the Persona set, in the viewer's order) and `updatedAt`. It sits in the same collection as the Reviews and is skipped when they are listed. Each Review record also keeps `foundation`, a copy of the role and preferences when it was saved, or null.
-  - No browser storage is used.
+  - `localStorage` holds only the theme preference.
+  - `artifact/sample-review.json` (optional, FR-24) is a build input, not stored state: the JSON appendix of a saved Review (`export.js` shape: `exported_at`, `versions`, `review_source_url: null`, one or more done `posts` with `source_url` null, `screenshot_count` 0 and no @handle, and `outreach` null or done). The build checks it and inlines it; the page copies it into page memory on Try the demo and keeps nothing.
   - The platform's `sample` answer cache lasts 5 minutes per viewer and browser. It is bypassed with `cache: false` on Try again.
 
 ## 7. Migrations

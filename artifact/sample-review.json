@@ -1,0 +1,249 @@
+{
+ "exported_at": "2026-10-26T07:23:50.386Z",
+ "versions": {
+  "rubric": "witness-rubric@2",
+  "personas": "persona-set@1",
+  "prompts": "prompts@2"
+ },
+ "review_source_url": null,
+ "posts": [
+  {
+   "position": 1,
+   "status": "done",
+   "source_url": null,
+   "pasted_text": null,
+   "video_transcript": "Should a Christian attend a gay wedding? Of course not. Yes. Love is not love and lust is not love. There's no such thing as a gay wedding. The Bible has very clear boundaries of what marriage is. a covenant between a man and a woman. For you as a Christian to stand there and celebrate something that brings a mockery to what God has created, you can't call yourself a faithful Christian. If you're a dude, why do you want to watch two guys kissing? That's very gay. Why are you gay? You would never go to a strip club to support your friend. who's a stripper. As the people of God, we do not celebrate that which God hates. Can we stop saying, he's gonna get offended, they're gonna get offended. Can we change the question, not what if they get offended, to what if God gets offended? Because remember, your loyalty to God is greater than your loyalty to your friend. I would rather offend them by not attending that wedding than offend by God by disobeying him. The only reason you should be going to a gay wedding is if you're gonna stand up and say, I object and start throwing Bibles at them and start saying this is a mockery of my God's design of marriage. I object and start throwing bubbles at them and start saying,",
+   "screenshot_count": 0,
+   "evaluation": {
+    "post_transcript": "Should a Christian attend a gay wedding? Of course not. Yes. Love is not love and lust is not love. There's no such thing as a gay wedding. The Bible has very clear boundaries of what marriage is. a covenant between a man and a woman. For you as a Christian to stand there and celebrate something that brings a mockery to what God has created, you can't call yourself a faithful Christian. If you're a dude, why do you want to watch two guys kissing? That's very gay. Why are you gay? You would never go to a strip club to support your friend. who's a stripper. As the people of God, we do not celebrate that which God hates. Can we stop saying, he's gonna get offended, they're gonna get offended. Can we change the question, not what if they get offended, to what if God gets offended? Because remember, your loyalty to God is greater than your loyalty to your friend. I would rather offend them by not attending that wedding than offend by God by disobeying him. The only reason you should be going to a gay wedding is if you're gonna stand up and say, I object and start throwing Bibles at them and start saying this is a mockery of my God's design of marriage. I object and start throwing bubbles at them and start saying,",
+    "assessment": {
+     "scores": [
+      {
+       "criterion": "outsider_clarity",
+       "score": 2,
+       "evidence": "For you as a Christian to stand there and celebrate",
+       "explanation": "The words are mostly plain, and the main point (do not attend) is easy to follow. But the whole video is addressed only to Christians ('you as a Christian', 'As the people of God'), and terms like 'covenant' and 'faithful Christian' assume a church background, so many viewers outside the faith will feel they are overhearing a conversation about them rather than one that includes them. Speaking to anyone watching, for example 'Here is why I, as a Christian, would decline, and what I believe marriage is', would make it readable to outsiders.",
+       "offence_sources": [
+        "jargon",
+        "claim"
+       ]
+      },
+      {
+       "criterion": "cultural_awareness",
+       "score": 1,
+       "evidence": "You would never go to a strip club to support your friend. who's a stripper.",
+       "explanation": "The video does engage a real situation many people face: a friend's wedding and the worry about hurting them. It also answers the familiar slogan 'love is love'. But comparing a friend's wedding to a strip club, and the 'Why are you gay?' line, caricature same-sex couples, and most viewers outside the faith will hear the comparison as degrading rather than as engaging their world. Describing the friendship and the wedding fairly, for example by acknowledging what the couple and their guests value about the day, would earn a hearing.",
+       "offence_sources": [
+        "tone",
+        "claim"
+       ]
+      },
+      {
+       "criterion": "gentleness_respect",
+       "score": 1,
+       "evidence": "If you're a dude, why do you want to watch two guys kissing? That's very gay. Why are you gay?",
+       "explanation": "The speaker plainly cares about honouring God, and declining an invitation can be done respectfully. These lines, though, use 'gay' as a taunt and mock gay people, and the closing picture of 'throwing Bibles at them' reads as hostile even if it is meant as a joke. Most viewers outside the faith, and gay viewers especially, would hear contempt. Cutting the taunt and the Bible-throwing image, and stating the conviction calmly, would change this greatly.",
+       "offence_sources": [
+        "tone",
+        "claim"
+       ]
+      },
+      {
+       "criterion": "welcome_over_judgment",
+       "score": 1,
+       "evidence": "I object and start throwing Bibles at them and start saying this is a mockery of my God's design of marriage.",
+       "explanation": "Choosing not to attend because of a belief about marriage is a claim, and that part does not lower this score. What lowers it is the posture toward the couple: the video pictures standing up at their wedding and throwing Bibles at them, and it calls their marriage something 'God hates'. Both treat the couple as opponents rather than neighbours. A version that declines the invitation while keeping the friendship warm, for example 'I won't attend, but I want to keep showing up in your life', would treat them as welcome neighbours.",
+       "offence_sources": [
+        "tone",
+        "claim"
+       ]
+      },
+      {
+       "criterion": "kingdom_over_party",
+       "score": null,
+       "evidence": null,
+       "explanation": "The video is about a personal choice to attend a wedding. It does not discuss law, policy, parties or candidates, so this Criterion has nothing to assess.",
+       "offence_sources": []
+      },
+      {
+       "criterion": "humility_integrity",
+       "score": 1,
+       "evidence": "you can't call yourself a faithful Christian",
+       "explanation": "The video is direct and does not hide what it believes, which is honest. But it rules on whether other Christians are faithful based on a single choice, and it pairs claims to honour God with mocking lines. Many viewers will read that as self-righteous. Speaking in the first person, for example 'This is why I decided not to go, and I know other Christians weigh it differently', would come across as far more humble.",
+       "offence_sources": [
+        "tone"
+       ]
+      },
+      {
+       "criterion": "love_made_visible",
+       "score": 1,
+       "evidence": "Can we stop saying, he's gonna get offended, they're gonna get offended.",
+       "explanation": "The video rightly recognises that the friend relationship matters, since it frames the choice as one of loyalty. However, it treats concern for the friend's feelings as something to stop worrying about, and its own manner (the taunts and the Bible-throwing image) contradicts love toward the couple. Viewers outside the faith are likely to see no love in it at all. Adding a concrete way to show care, such as a personal note, a gift or time with the friend before or after the wedding, would make love visible alongside the conviction.",
+       "offence_sources": [
+        "tone",
+        "claim"
+       ]
+      },
+      {
+       "criterion": "invitation_dialogue",
+       "score": 2,
+       "evidence": "As the people of God, we do not celebrate that which God hates.",
+       "explanation": "The video gives Christians a clear position to think about. It offers no door to anyone outside the faith, though, and leaves no room for questions or for people who see this differently. A viewer who disagrees has nowhere to go but away. Ending with an honest question, or an offer to talk about why the speaker holds this view, would open a door.",
+       "offence_sources": [
+        "tone",
+        "claim"
+       ]
+      },
+      {
+       "criterion": "clear_conviction",
+       "score": 5,
+       "evidence": "The Bible has very clear boundaries of what marriage is. a covenant between a man and a woman.",
+       "explanation": "The conviction is stated plainly and confidently: marriage is between a man and a woman, so the speaker would not attend a same-sex wedding. Many viewers will reject this belief, but no one could mistake what is being claimed, and it is an answer someone could engage with. The opening 'Of course not. Yes.' is briefly confusing, but the rest makes the position unmistakable.",
+       "offence_sources": [
+        "claim"
+       ]
+      },
+      {
+       "criterion": "self_presentation_alignment",
+       "score": null,
+       "evidence": null,
+       "explanation": "Applies only when Creators review their own posts.",
+       "offence_sources": []
+      }
+     ],
+     "soundness_flag": {
+      "line": "For you as a Christian to stand there and celebrate something that brings a mockery to what God has created, you can't call yourself a faithful Christian.",
+      "why": "Christians who hold the same view of marriage reach different conclusions about whether attending a wedding means celebrating it. Tying someone's faithfulness to this one decision may be worth talking through with a pastor or trusted leader."
+     }
+    },
+    "reactions": {
+     "reactions": [
+      {
+       "persona": "seeker",
+       "felt_response": "pushed away",
+       "valence": "negative",
+       "reasons": [
+        "When he says \"Love is not love and lust is not love,\" I hear that the couples I know who love each other are really just about sex. I've watched friends take care of each other through panic attacks and breakups, and that looked like love to me. Being told it's only lust makes me feel like he doesn't see people like me or my friends at all.",
+        "\"Boundaries\" is a word I use in therapy to mean protecting yourself, but here it's used to explain why you shouldn't show up for a friend on the biggest day of their life. The rapid-fire \"Of course not\" and \"you can't call yourself a faithful Christian\" make me feel rushed and talked down to, like there's a test I'd fail before I even knew the rules.",
+        "The part about standing up to say \"I object\" and \"throwing Bibles at them\" scared me a little, even if it's meant as a joke. My friend from youth group seems so calm and kind, and this doesn't sound like the same thing she has. If this is what being a Christian looks like, I don't know where I would fit."
+       ]
+      },
+      {
+       "persona": "drifter",
+       "felt_response": "put off",
+       "valence": "negative",
+       "reasons": [
+        "\"If you're a dude, why do you want to watch two guys kissing? That's very gay. Why are you gay?\" sounds like something from a middle-school locker room. My kids get teased like that, and I tell them to knock it off. Hearing it in a religious video makes the whole thing feel less serious, not more.",
+        "\"Your loyalty to God is greater than your loyalty to your friend\" hits the one thing I try to live by: show up for your people. If a buddy from my college group chat got married, I'd be there because that's what decent people do. This makes church sound like a place that asks me to stop being a good friend.",
+        "Comparing a wedding to going to \"a strip club to support your friend who's a stripper\" doesn't make sense to me. A wedding is two people making promises in front of their families. I'd have scrolled past this in a second, except the strip-club line made me stop and shake my head."
+       ]
+      },
+      {
+       "persona": "neighbor_other_faith",
+       "felt_response": "uneasy",
+       "valence": "mixed",
+       "reasons": [
+        "I understand holding a serious view of marriage. When he calls it \"a covenant\" that God designed, I recognise something sacred, because in my tradition marriage is a duty and a bond between families too. I can also understand someone quietly declining to take part in a ceremony that goes against their conscience. I've had to decline things myself.",
+        "What troubles me is the tone around that conviction. \"Why are you gay?\" and \"throwing Bibles at them\" turn other people into a joke and a target. I know how it feels when your family's practice is laughed at, and I worry about my daughter hearing things like that about her own family one day.",
+        "\"We do not celebrate that which God hates\" makes me wonder how the speaker would describe my temple, my festivals, or me. I could disagree with him and still keep my dignity on a quieter version of this belief. With this delivery, I'm not sure I could."
+       ]
+      },
+      {
+       "persona": "exvangelical",
+       "felt_response": "reopened wounds",
+       "valence": "negative",
+       "reasons": [
+        "\"You can't call yourself a faithful Christian\" is the exact voice I grew up with. Whether you belonged depended on getting the right answer and saying it loudly. My friend was asked to step down from leadership after coming out, and lines like this are how it felt to watch that happen.",
+        "\"Love is not love and lust is not love\" flattens what I've seen in my friend's relationship: someone who brought him soup when he was sick, who met his parents, who wants a family with him. The faith I was raised in talked constantly about covenant and faithfulness. This post sees none of that in a gay couple. It only sees sex.",
+        "\"Why are you gay?\" and the image of standing up to say \"I object\" while \"throwing Bibles at them\" landed hardest. I still admire Jesus, and I remember him eating with people the religious leaders wouldn't touch. This felt like a mockery of my friends, and it's one of the reasons I don't go back."
+       ]
+      },
+      {
+       "persona": "skeptic",
+       "felt_response": "unconvinced",
+       "valence": "negative",
+       "reasons": [
+        "I'll give him this: he states his belief plainly, that marriage is \"a covenant between a man and a woman,\" and I can respect a clearly held position I disagree with. But \"There's no such thing as a gay wedding\" is simply false as a description of the world. These weddings happen, legally and socially. Claiming otherwise makes me trust the rest of the argument less.",
+        "The argument relies on ridicule rather than reasons. \"That's very gay. Why are you gay?\" is a schoolyard taunt, and the strip-club comparison doesn't fit a public exchange of vows. I came wanting to understand the reasoning, and I mostly got jokes at someone else's expense.",
+        "\"Throwing Bibles at them\" during someone's ceremony is a picture of imposing your beliefs on people at their most personal moment, even if it's said for a laugh. I volunteer next to church groups at the food bank, and what they do there makes a far better case for faith than this does."
+       ]
+      },
+      {
+       "persona": "progressive",
+       "felt_response": "targeted",
+       "valence": "negative",
+       "reasons": [
+        "\"Love is not love\" takes a phrase my community uses to say we deserve to exist and turns it against us. Then \"lust is not love\" reduces my relationships to something dirty. For me and my friends, love has meant showing up for each other when our biological families didn't: building a home, making promises, choosing each other every day.",
+        "\"We do not celebrate that which God hates\" lands as: God hates the people at that wedding, and that means me. I know Christians talk about covenant and faithfulness as sacred. When my friends stand up and make lifelong vows, that's what they're doing, and this post calls it \"a mockery.\"",
+        "Imagining someone at a friend's wedding yelling \"I object\" and \"throwing Bibles at them\" makes me feel unsafe. It's the same feeling I get from protest signs. My one Christian coworker is so kind, and this makes it hard to believe that kindness is what the faith actually teaches."
+       ]
+      },
+      {
+       "persona": "emboldened_believer",
+       "felt_response": "licensed to mock",
+       "valence": "negative",
+       "reasons": [
+        "\"Why are you gay?\" got a laugh out of me, and it shows me that mocking people is a fair way to make a point. I can picture myself using that line on a guy in my ministry who says he's going to a friend's wedding, or dropping it in a comment section. It moves me toward teasing and shaming, not toward actually talking with people.",
+        "\"Not what if they get offended, to what if God gets offended\" makes me feel that any hurt I cause someone is just proof I'm being faithful. That gives me permission to stop caring how my words land with gay friends or coworkers. I'd likely be blunter and colder with them, and I'd feel proud of it.",
+        "The picture of standing up to say \"I object\" and \"throwing Bibles at them\" makes confronting people in public sound bold and admirable. I already want to stand firm, and this shows me standing firm as disrupting someone's wedding rather than gently holding my convictions. Nothing in the post shows me what gentleness toward the couple or my friend would look like."
+       ]
+      }
+     ]
+    },
+    "discussion_questions": {
+     "questions": [
+      {
+       "text": "The speaker is very clear about what he believes. He says marriage is 'a covenant between a man and a woman.' If you held that same belief and made a video on this question, which lines would you keep and which would you change? For example, what might you say instead of 'Why are you gay?' or the part about 'throwing Bibles at them'?",
+       "standing": "done_differently",
+       "persona": null
+      },
+      {
+       "text": "The video says, 'The Bible has very clear boundaries of what marriage is.' The Bible also talks about how we speak to people. 1 Peter 3:15-16 says to give reasons for our hope 'with gentleness and respect,' and in Matthew 9:9-13 Jesus eats with people others looked down on. How do you think these passages relate to the question this video is answering?",
+       "standing": "bible_says",
+       "persona": null
+      },
+      {
+       "text": "Picture Jesus watching this video. How might he respond to the speaker? How might he respond to a gay person scrolling past it? Would those two responses be the same or different, and why?",
+       "standing": "jesus_responded",
+       "persona": null
+      },
+      {
+       "text": "Imagine Jesus making a short video that answers 'Should a Christian attend a gay wedding?' What do you think he might say, and how might he say it? What, if anything, would sound different from this video?",
+       "standing": "jesus_posted",
+       "persona": null
+      },
+      {
+       "text": "In one simulated reaction, the Emboldened Believer, a young and eager Christian, said the line 'Why are you gay?' made him want to use it on others in his ministry or in comment sections. How can a post shape the way its viewers treat other people? Have you seen that happen online?",
+       "standing": null,
+       "persona": "emboldened_believer"
+      },
+      {
+       "text": "The video says 'your loyalty to God is greater than your loyalty to your friend.' In a simulated reaction, the Drifter heard this as church asking him to stop being a good friend. Do you think this situation forces a choice between the two? What might it look like to take both God and a friendship seriously?",
+       "standing": null,
+       "persona": "drifter"
+      }
+     ]
+    },
+    "gentler_rewrite": {
+     "rewrite": "Should a Christian attend a same-sex wedding? My answer is no, and I want to explain why as honestly as I can, whether you share my faith or not. People often say 'love is love.' I don't believe that settles the question, because I believe God, not our feelings, defines what marriage is. The Bible describes marriage as a covenant, a lifelong, sacred promise made before God, between a man and a woman. So I don't believe a same-sex wedding is a marriage in the sense God designed. For me as a Christian, standing there and celebrating something I believe goes against what God created isn't something I could do and stay faithful to him. As followers of God, we don't celebrate what we believe he opposes. I know the worry: 'They'll be offended. My friend will be hurt.' That matters. But I think the bigger question for a Christian is not only 'What if they get offended?' but 'What if God is offended?' My loyalty to God comes before my loyalty to any friend, even one I love. If I have to choose, I would rather risk disappointing my friend than disobey God. That's why I'd tell my friend honestly and kindly why I won't be there, rather than show up and pretend. If you see this differently, or you're wondering why I hold this view, I'm genuinely happy to talk about it.",
+     "changes": [
+      "Removed the 'Why are you gay?' taunt, the strip-club comparison and the image of throwing Bibles at the couple. They mocked gay people and pictured hostility toward the couple, which the assessment and every simulated reaction flagged most strongly. None of them carried the main argument.",
+      "Changed 'you can't call yourself a faithful Christian' to first person ('isn't something I could do and stay faithful'). This keeps the conviction that attending would be unfaithful without ruling on other people.",
+      "Explained 'covenant' in plain words and opened by speaking to anyone watching, not only to Christians, so viewers outside the faith can follow the reasoning.",
+      "Recast 'Love is not love and lust is not love' and 'what God hates' as the speaker's belief that God, not feelings, defines marriage. This keeps the same claims without reducing couples' relationships to lust or aiming the language at the people themselves.",
+      "Kept 'loyalty to God over loyalty to a friend' and 'rather offend them than God', but acknowledged that the friend's hurt matters. Replaced the closing objection scene with declining honestly and kindly, and added an invitation to ask questions."
+     ]
+    },
+    "lands_well": false,
+    "rewrite_mode": "auto",
+    "models": {
+     "assess": "claude-opus-5-5",
+     "react": "claude-opus-5-5",
+     "discuss": "claude-opus-5-5",
+     "rewrite": "claude-opus-5-5"
+    }
+   }
+  }
+ ],
+ "outreach": null
+}

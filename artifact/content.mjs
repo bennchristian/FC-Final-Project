@@ -6,6 +6,7 @@ import { readFileSync, readdirSync, writeFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkCopyEdits } from './src/copy-edits.js';
+import { checkSampleReview } from './src/sample.js';
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CONTENT_DIR = join(ROOT, 'content');
@@ -175,4 +176,21 @@ export function loadCopyEdits(path = COPY_EDITS_PATH) {
   }
   const errors = checkCopyEdits(json);
   return { edits: errors.length ? null : json, errors };
+}
+
+// "Try the demo" sample Review (PRD FR-24, AD-12): the optional artifact/sample-review.json, the
+// JSON appendix of a saved Review of the three fictional examples. Absent → { sample: null, errors: [] }.
+// Present → parsed and checked by checkSampleReview against the page's content and version labels.
+export const SAMPLE_REVIEW_PATH = join(ROOT, 'artifact', 'sample-review.json');
+
+export function loadSampleReview(content, labels, path = SAMPLE_REVIEW_PATH) {
+  if (!existsSync(path)) return { sample: null, errors: [] };
+  let json;
+  try {
+    json = JSON.parse(readFileSync(path, 'utf8'));
+  } catch (e) {
+    return { sample: null, errors: [`sample-review.json: not valid JSON (${e.message})`] };
+  }
+  const errors = checkSampleReview(json, content, labels).map((e) => `sample-review.json: ${e}`);
+  return { sample: errors.length ? null : json, errors };
 }

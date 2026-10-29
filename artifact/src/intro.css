@@ -1,4 +1,4 @@
-/* Living Letter: first-screen intro (envelope opens; Learn more or Begin review closes it and it flies off).
+/* Living Letter: first-screen intro (envelope opens; Learn more, Begin review or Try the demo closes it and it flies off).
    Geometry is laid out on a 1920x1080 stage that is scaled to the viewport (--s, set in intro.js).
    Stage map (from the design person's slide 2): envelope hinge y=790, x 225..1695 (W 1470, H 1200),
    flap depth 750 (open apex y=40), letter 1093 wide at (415,190), letter rests 630px lower when inside.
@@ -103,6 +103,8 @@
 #ll-intro .ll-begin { color: var(--ll-red); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
 #ll-intro .ll-choice:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
 #ll-intro .ll-begin:hover { text-decoration-thickness: 2px; }
+/* Try the demo (FR-24) is hidden when the build has no sample. */
+#ll-intro .ll-demo[hidden] { display: none; }
 #ll-intro button:focus-visible { outline: 2px solid var(--ll-slate); outline-offset: 6px; border-radius: 2px; }
 #ll-intro .ll-nav button:focus-visible { outline-color: var(--ll-red); }
 

@@ -3,6 +3,8 @@
 // Learn more / Begin review: the letter slides back in, the flap closes, the envelope flies up off the screen and
 // Home or the Review page shows. "Review" and "How it works" at the top do the same exit, then open that page.
 // Escape skips straight to the exit, onto Home.
+// Try the demo (FR-24) asks ui.js to load the fictional sample Review, then does the Begin review exit.
+// When the sample landed it sets <html data-demo="started"> and fires `ll:demo-started` (the tour hook).
 (function () {
   'use strict';
   const root = document.getElementById('ll-intro');
@@ -13,6 +15,9 @@
   const flap = root.querySelector('.ll-flap');
   const letter = root.querySelector('.ll-letter');
   const actions = root.querySelector('.ll-actions');
+  const demo = root.querySelector('.ll-demo');
+  // SAMPLE_REVIEW is inlined by build.mjs; null when the build has no sample.
+  if (demo) demo.hidden = typeof SAMPLE_REVIEW === 'undefined' || !SAMPLE_REVIEW;
   const chrome = Array.from(root.querySelectorAll('.ll-top'));
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -153,6 +158,21 @@
     document.removeEventListener('keydown', onKey);
   }
 
+  // ---------- Try the demo (FR-24) ----------
+  // ui.js declines (detail.loaded stays false) when the viewer already has Posts of their own or a
+  // run is busy: then this is plain Start here and no hook fires.
+  function tryDemo() {
+    if (state === 'closing' || state === 'done') return;
+    const detail = { loaded: false };
+    document.dispatchEvent(new CustomEvent('ll:try-demo', { detail }));
+    const exiting = exit('review');
+    if (!detail.loaded) return;
+    Promise.resolve(exiting).then(() => {
+      document.documentElement.dataset.demo = 'started';
+      document.dispatchEvent(new CustomEvent('ll:demo-started'));
+    });
+  }
+
   // ---------- Wiring ----------
   function onKey(event) {
     if (event.key === 'Escape') exit('home');
@@ -168,6 +188,7 @@
 
   cover();
 
+  if (demo) demo.addEventListener('click', tryDemo);
   root.querySelectorAll('[data-go]').forEach((button) => {
     button.addEventListener('click', () => exit(button.getAttribute('data-go')));
   });

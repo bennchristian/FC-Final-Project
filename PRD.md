@@ -68,10 +68,11 @@ The first use is formation, not correction: a youth leader puts other people's p
 
 - **Post** — One piece of social-media content (caption or on-screen text, images, and for video a transcript), as supplied by the User. Usually public; in a Draft Checkpoint, an **Unpublished Post**. Belongs to one Review.
 - **Profile** — One social-media account (a person's or a ministry's). A profile Review is a set of Posts from one Profile that the User supplies; the tool never retrieves a Profile itself.
-- **Source URL** — The link a Post or profile came from. Recorded and displayed; never fetched except through a Permitted Retrieval route or an Instagram reel transcript (FR-3a).
+- **Source URL** — The link a Post or profile came from. Recorded and displayed; never fetched except through a Permitted Retrieval route or a single Instagram reel or TikTok video read (FR-3a).
 - **Permitted Retrieval** — Reading Post content from a Source URL through a route the platform's terms allow. In MVP the only candidate is TikTok's public oEmbed endpoint [W2, conditional].
 - **Review** — One run of the tool over one or more Posts, producing one Evaluation per Post plus Review-level outputs. Records the Rubric Version and Persona Version used.
 - **Others' Review** — A Review of someone else's public Posts. **Own-Content Review** — a Review of the User's own published or draft Posts [W2].
+- **Connected Account** — A Creator's own Instagram professional account, linked to the Web App through Instagram's login so its Posts can be picked for an Own-Content Review (FR-16a) [Post-MVP].
 - **Evaluation** — The per-Post result: Rubric Scores, Persona Reactions, Gentler Rewrite, any Soundness Flag, and Discussion Questions.
 - **Rubric** — The set of Criteria that define good witness. **Rubric Version** — an immutable, numbered release of the Rubric (v1 is defined in §4.2).
 - **Criterion** — One dimension of the Rubric, scored per Post. **Rubric Score** — a Criterion's value: 1–5, or N/A when the Criterion does not apply. Every Rubric Score carries **Evidence**: a quote from the Post that earned it.
@@ -110,7 +111,7 @@ A User can add one or more Posts to a Review, each as pasted text, one or more s
 A User can attach a Source URL to a Post or to the whole Review (a Profile's URL).
 - The Source URL is shown on the Evaluation and in the Ministry Outreach Plan.
 - Attaching a Source URL never triggers a fetch, except through FR-3 or FR-3a.
-- The UI states plainly that the tool reads only Instagram reel links, and asks for paste or screenshots otherwise.
+- The UI states plainly that the tool reads only links to a single Instagram reel or TikTok video, and asks for paste or screenshots otherwise.
 
 #### FR-3: Permitted Retrieval for TikTok captions [W2, conditional — dropped]
 > **Dropped 2026-10-21:** a live oEmbed test on two real public videos returned no caption (`ARCHITECTURE.md` AD-13).
@@ -120,10 +121,12 @@ When the Source URL is a TikTok video, the Web App can pre-fill the Post's capti
 - The User can edit or replace the pre-filled caption.
 - No other platform is read from a URL in MVP.
 
-#### FR-3a: Instagram reel transcripts [F, added 2026-10-26 by Bennett]
-When a Post's Source URL is an Instagram post or reel and no transcript was pasted, the Demo Artifact gets the reel's spoken words through the viewer's Supadata connector and uses them as the Post's video transcript (`ARCHITECTURE.md` AD-13).
-- The UI does not name the transcription service.
-- If the reel cannot be read, the User is asked to paste the transcript; a Post with text or screenshots is still added.
+#### FR-3a: Instagram reel and TikTok video reading [F, added 2026-10-26 by Bennett; widened to TikTok videos and captions 2026-10-28 by Bennett]
+The link field is for video Posts; static Posts are added as screenshots or pasted text (FR-1). When a Post's Source URL is a single Instagram reel or TikTok video, the Demo Artifact reads it through the viewer's Supadata connector (`ARCHITECTURE.md` AD-13):
+- **Caption:** when no text was pasted, the video's caption is used as the Post's text. It is added without being shown first; the User sees it with the Evaluation.
+- **Transcript:** the video's spoken words are used as the Post's video transcript.
+- The UI does not name the service.
+- If the video cannot be read, a Post with a caption, text or screenshots is still added; otherwise the User is asked to paste the transcript or text.
 
 **Out of Scope:** automatic retrieval of a whole profile; any Instagram retrieval; scraping; logged-in access.
 
@@ -246,6 +249,14 @@ A Creator can record how they want to come across and rank their Target Audience
 #### FR-16: Run an Own-Content Review and Draft Checkpoint [W2]
 A Creator can review their own published Posts or an Unpublished Post, receiving the full Evaluation including Criterion 10.
 
+#### FR-16a: Connect a Creator's own Instagram account [Post-MVP, added 2026-10-28 by Bennett]
+A signed-in Creator can connect their own Instagram professional (Business or Creator) account and pick Posts from it for an Own-Content Review instead of pasting or screenshotting them (`ARCHITECTURE.md` AD-17).
+- The Creator connects through Instagram's own login and can disconnect at any time, which deletes the stored access.
+- The Web App reads only the Connected Account's own media: caption, media type, link, and for a carousel each slide's image. Slide images are sent to Claude as screenshots and are never stored.
+- Only Posts the Creator picks are read. Nothing is read on a schedule (§5, Not a monitor).
+- A personal (non-professional) account cannot connect; the Creator is told to paste or screenshot instead.
+- Until Meta approves the app (App Review and Business Verification), only accounts with a role on the app can connect.
+
 #### FR-17: Show the "lands anywhere" reminder [F]
 Every User sees a standing reminder that a post can land on anyone's page, so witness matters whatever the intended audience.
 
@@ -292,9 +303,21 @@ The Demo Artifact has a separate tab listing what is planned but not yet built, 
 
 **Owner copy editor (owner-only authoring aid, added 2026-10-26 by Bennett).** Not a User feature. Shift+E shows a hidden bar that lets Bennett rewrite, move and restyle the text of the intro letter and every tab, then save it as `copy-edits.json`. The file is folded into the next build, so every viewer sees the new copy after a republish. Edits to the rubric and Persona text in How it works change only what the page shows; Claude still scores with the locked versions. In the Review results, label edits apply to every Post and are saved; Claude's text and pasted Posts can be retyped on screen but are never saved. Status lines and the versions label are never editable (`ARCHITECTURE.md` AD-12).
 
+### 4.12 Try the Demo
+
+#### FR-24: Try the demo [F]
+*Added 2026-10-29 by Bennett, for demo-day checklist item 1: one click into the app with sample data already in it.*
+The Demo Artifact's first screen has a "Try the demo" button beside "Start here". One click plays the normal exit and opens the Review tab on a sample Review: the public Instagram reel "Should a Christian attend a gay wedding?", fully evaluated (Bennett, 2026-10-29). The same Post appears in the recorded video.
+- Nothing runs live. The sample is Post 1 of a Review Bennett ran and saved in the live Artifact; the saved file's JSON appendix, with its links set to null, is `artifact/sample-review.json`, which the build checks and inlines.
+- The sample has no Source URL, no profile URL, no screenshots and no @handle (§7.2). An Outreach Plan is optional. Its versions must equal the page's locked versions (FR-7), so a content change needs a new sample. The build fails otherwise.
+- A visible notice marks it as a sample Review of a public reel, evaluated ahead of time, with its link left out. Clear Review removes it. The sample never replaces a Review that holds the viewer's own Posts.
+- The "Add fictional example Posts" button is removed (Bennett, 2026-10-29).
+- Without a sample file the build still passes and the button stays hidden.
+- The guided onboarding tour (checklist item 2) is not part of FR-24; FR-24 only exposes a hook for it.
+
 ## 5. Non-Goals (Explicit)
 
-- **Not a scraper.** No automatic collection of posts from Instagram, TikTok, or anywhere else beyond FR-3 and the single-reel transcript of FR-3a.
+- **Not a scraper.** No automatic collection of posts from Instagram, TikTok, or anywhere else beyond FR-3, the single-video read of FR-3a, and a Creator's own Connected Account (FR-16a).
 - **Not a content generator.** The Gentler Rewrite revises a supplied Post; the tool does not write new posts or content calendars for ministries.
 - **Not a theological judge.** No doctrinal scoring or rulings on a ministry or person; the Soundness Flag is the limit.
 - **Not a messenger.** The tool never sends messages, comments, or DMs.
@@ -309,7 +332,7 @@ The Demo Artifact has a separate tab listing what is planned but not yet built, 
 
 Delivered as a **recorded screen video of the Demo Artifact with Bennett's voice-over**; the Artifact itself has a live link shared with IFI colleagues. The video shows: Posts from a profile going in, how they are evaluated, the outputs, and the Roadmap tab.
 
-In: FR-1, FR-2, FR-4 to FR-9, FR-11 to FR-13, FR-17, FR-20, FR-22. **No cut line:** Bennett has decided every Friday requirement must ship; none is optional.
+In: FR-1, FR-2, FR-4 to FR-9, FR-11 to FR-13, FR-17, FR-20, FR-22. **No cut line:** Bennett has decided every Friday requirement must ship; none is optional. FR-24 (Try the demo) was added to the Demo Artifact on 2026-10-29.
 
 ### 6.2 Week of 2026-10-26 — Web App
 
@@ -324,6 +347,11 @@ Live public link on Vercel. Everything in 6.1 except FR-22, plus FR-10, FR-14 to
 - A secular-conservative persona — deliberately excluded.
 - A soundness standard and soundness-correcting rewrites — deferred (OQ-2).
 - Platforms beyond Instagram and TikTok as named targets (pasted content from anywhere still works).
+- Reading other people's accounts through Instagram Business Discovery: it covers only Business and Creator accounts, cannot look up one post by link, and needs App Review for production.
+
+### 6.4 After the MVP
+
+- **FR-16a Connected Account.** Lands after the week-2 Web App, because it needs a Meta developer app that Bennett creates and, for anyone outside the app's roles, Meta's App Review. Alternative to weigh first: Ayrshare is already Meta-approved and returns carousel slide links for connected accounts, but costs $299 a month after a 28-day trial.
 
 ## 7. Constraints and Guardrails
 
@@ -335,7 +363,7 @@ Post content enters only by user supply or Permitted Retrieval. No logged-in scr
 - This PRD widens `RULES.md`'s data rule ("Evaluate the ministry's own posts") to others' public Posts plus a Creator's own Posts; `RULES.md` is updated when this PRD is promoted.
 - The tool does not store or display the names, handles, or comments of followers or commenters, even when they appear in screenshots; Evaluations ignore comment sections.
 - The Demo Artifact keeps a viewer's sent Reviews (Post text, transcripts, links and results, never screenshots) in that viewer's private Past Reviews, readable by nobody else, Bennett included, until the viewer deletes them (added 2026-10-26 by Bennett).
-- The published Demo Artifact ships with no real people's posts preloaded. Example posts are entered during the recording; any built-in sample is fictional. (Claude Artifact publishing policy bars content that targets private individuals.)
+- The published Demo Artifact ships with no real people's posts preloaded. Example posts are entered during the recording; any built-in sample is fictional. **Exception (Bennett, 2026-10-29):** the FR-24 sample Review preloads one public reel by a public creator, with its link and any handle removed. (Claude Artifact publishing policy bars content that targets private individuals, so the sample must never be a private person's post.)
 
 ### 7.3 Honest simulation
 Persona Reactions are labelled simulated everywhere they appear (FR-9) and are kept apart from any real interview data.

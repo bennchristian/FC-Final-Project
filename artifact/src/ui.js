@@ -1,13 +1,14 @@
 // UI shell of the Demo Artifact (ARCHITECTURE.md AD-4, AD-5, AD-12, AD-14).
 // Plain document, no styling work: visual design is deferred to the design partner.
 // Everything renders as text nodes; screenshots appear only as file-name chips.
-// `CONTENT` and `LABELS` are inlined by artifact/build.mjs.
+// `CONTENT`, `LABELS` and `SAMPLE_REVIEW` are inlined by artifact/build.mjs.
 
-import { INTAKE_LIMITS, checkPostIntake, checkSourceUrl, canAddPost, provenanceLabel, isInstagramPostLink } from './core.js';
-import { transcribeReel } from './reel.js';
+import { INTAKE_LIMITS, checkPostIntake, checkSourceUrl, canAddPost, provenanceLabel, isReadablePostLink } from './core.js';
+import { readCaption, transcribeReel } from './reel.js';
 import { sendLetter, resetDesk } from './desk.js';
 import { evaluatePost, requestRewrite, createOutreach } from './pipeline.js';
 import { reviewToMarkdown } from './export.js';
+import { samplePosts } from './sample.js';
 import { PAST_REVIEWS_SHOWN, pastReviewsPath, reviewTally, pastReviewRecord, pastPostRecord, restorePost, sameVersions } from './past.js';
 import { PROFILE_DOC, profileRecord, personaOrder, profileSummary } from './profile.js';
 import { prepareHomeMotion, playHomeMotion } from './home.js';
@@ -26,12 +27,13 @@ const COPY = {
   pastOtherVersions: 'Scored with other rubric or Persona versions, so it cannot be reopened here.',
   profileUnavailable: 'Your profile needs your Claude account and this page’s private store, which this view does not have. Open the page as a Claude artifact while signed in.',
   profileFailed: 'Your profile could not be loaded. Try again later.',
-  readingReel: 'Reading the reel…',
+  readingPost: 'Reading the post…',
   soundnessNote: 'A prompt for discussion with a leader, not a ruling.',
   suggestion: 'Suggestion',
   landsAnywhere: 'A post can land on anyone’s page. Whoever you meant it for, people outside the faith may read it too.',
   landsWell: 'Likely to land well. No concerns to raise.',
   notAssessable: 'Nothing in this Post could be assessed.',
+  sampleNotice: 'This is a sample Review of a public Instagram reel, evaluated ahead of time. Its link is left out. Clear Review to start your own.',
 };
 
 const ERROR_COPY = {
@@ -46,31 +48,23 @@ const ERROR_COPY = {
   screenshots_not_saved: 'This Post’s screenshots were not saved with it. Remove it and add it again to send it.',
 };
 
-// Shown only when a reel link is the Post's sole content and could not be read.
+// Shown only when a post link is the Post's sole content and could not be read.
 const REEL_ERROR_COPY = {
-  approval_required: 'This page needs your permission to read reels. Allow it in the artifact’s permissions, or paste the video transcript.',
-  not_in_manifest: 'This page is not allowed to read reels in this view. Paste the video transcript instead.',
-  server_unavailable: 'The reel could not be read just now. Try again, or paste the video transcript.',
-  upstream_error: 'The reel could not be read just now. Try again, or paste the video transcript.',
-  rate_limited: 'The reel could not be read just now. Wait a little and try again, or paste the video transcript.',
-  empty: 'No spoken words were found at this link. Paste the post’s caption or add screenshots.',
+  approval_required: 'This page needs your permission to read posts. Allow it in the artifact’s permissions, or add the post’s text, transcript or screenshots.',
+  not_in_manifest: 'This page is not allowed to read posts in this view. Add the post’s text, transcript or screenshots instead.',
+  server_unavailable: 'The post could not be read just now. Try again, or add the post’s text, transcript or screenshots.',
+  upstream_error: 'The post could not be read just now. Try again, or add the post’s text, transcript or screenshots.',
+  rate_limited: 'The post could not be read just now. Wait a little and try again, or add the post’s text, transcript or screenshots.',
+  failed: 'The post could not be read just now. Try again, or add the post’s text, transcript or screenshots.',
+  empty: 'No caption or spoken words were found at this link. Add the post’s text, transcript or screenshots.',
 };
 
-function reelErrorText(code) {
-  return REEL_ERROR_COPY[code] || 'This reel could not be read here. Paste its video transcript instead.';
-}
+// A connector answer that no other call will get past: the read stops instead of falling back.
+const PERMISSION_CODES = ['approval_required', 'not_in_manifest', 'not_granted'];
 
-const FICTIONAL_EXAMPLES = [
-  {
-    pasted_text: 'Sunday recap \u{1F64C} We were SO blessed in the Word this week. Pastor broke down Rom 8:28 and the altar was FULL! If you’re not plugged into a life group yet, what are you waiting for?? Get connected, get covered. #blessed #CedarHollowFam',
-  },
-  {
-    pasted_text: 'Our nation is under judgment because it has turned its back on God. If you voted for the other side, you need to repent. Wake up, church. This culture HATES Christians and we will not stay silent!',
-  },
-  {
-    pasted_text: 'Last Saturday, 30 of our neighbours (most of whom don’t come to church) helped us repaint the elementary school on Cedar Street. We don’t have all the answers about life, but we believe Jesus cares about our street. Got questions about faith, or want to help next time? Message us. No pressure, and the coffee’s on us.',
-  },
-];
+function reelErrorText(code) {
+  return REEL_ERROR_COPY[code] || 'This post could not be read here. Add its text, transcript or screenshots instead.';
+}
 
 // ---------- State (page memory only) ----------
 
@@ -79,7 +73,7 @@ const state = {
   sampleChecked: false,
   downloads: null,
   mcp: null,
-  readingReel: false,
+  readingPost: false,
   maxImages: 0,
   mediaTypes: [],
   modelId: CONTENT.models.default,
@@ -183,7 +177,9 @@ async function downscale(file) {
   });
 }
 
+// A Post of the viewer's own replaces the sample, so the sample is never saved as theirs.
 function addPost(fields) {
+  state.posts = state.posts.filter((p) => !p.demo);
   state.posts.push({
     id: state.nextId++,
     pasted_text: fields.pasted_text || '',
@@ -198,21 +194,26 @@ function addPost(fields) {
   state.outreach = null;
 }
 
-// The reel's transcript, or '' when it cannot be read. A failure blocks the Post only
-// when the reel link is all it has.
-async function readReel(url, hasOtherContent) {
-  state.readingReel = true;
+// Reads a linked video into `fields` (AD-13): its caption as the text when none was pasted,
+// and its spoken words as the transcript. A caption that cannot be read is skipped. A failure
+// to read blocks the Post only when the link is all it has.
+async function readLinkedPost(fields, imageCount) {
+  state.readingPost = true;
   $('intake-errors').textContent = '';
-  $('intake-status').textContent = COPY.readingReel;
+  $('intake-status').textContent = COPY.readingPost;
   render();
   try {
     if (!state.mcp) throw { code: 'not_granted' };
-    return await transcribeReel(state.mcp, url);
+    const caption = await readCaption(state.mcp, fields.source_url).catch((e) => {
+      if (e && PERMISSION_CODES.includes(e.code)) throw e;
+      return '';
+    });
+    if (!fields.pasted_text.trim()) fields.pasted_text = caption;
+    fields.video_transcript = await transcribeReel(state.mcp, fields.source_url);
   } catch (e) {
-    if (!hasOtherContent) throw e;
-    return '';
+    if (!(fields.pasted_text.trim() || fields.video_transcript.trim() || imageCount)) throw e;
   } finally {
-    state.readingReel = false;
+    state.readingPost = false;
     $('intake-status').textContent = '';
     render();
   }
@@ -255,7 +256,7 @@ async function onAddPost(event) {
 
 // Adds the form as a Post. False when it could not (the reason is shown under the form).
 async function addFromForm() {
-  if (state.readingReel) return false;
+  if (state.readingPost) return false;
   const video = formMode('video-mode');
   const content = contentMode();
   const files = content === 'images' ? [...$('post-images').files] : [];
@@ -264,9 +265,9 @@ async function addFromForm() {
     video_transcript: video === 'transcript' ? $('post-transcript').value : '',
     source_url: video === 'link' ? $('post-url').value.trim() : '',
   };
-  if (!fields.video_transcript.trim() && isInstagramPostLink(fields.source_url) && canAddPost(state.posts.length)) {
+  if (isReadablePostLink(fields.source_url) && canAddPost(state.posts.length)) {
     try {
-      fields.video_transcript = await readReel(fields.source_url, Boolean(fields.pasted_text.trim() || files.length));
+      await readLinkedPost(fields, files.length);
     } catch (e) {
       $('intake-errors').textContent = reelErrorText(e && e.code);
       return false;
@@ -292,13 +293,6 @@ async function addFromForm() {
   return true;
 }
 
-function onAddExamples() {
-  for (const example of FICTIONAL_EXAMPLES) {
-    if (canAddPost(state.posts.length)) addPost(example);
-  }
-  render();
-}
-
 function onClearReview() {
   if (state.busy) return;
   state.posts = [];
@@ -318,6 +312,25 @@ function hasSent() {
 // A Post reopened from Past Reviews has screenshot names only, so it cannot be sent again.
 function canSend(post) {
   return post.images.every((img) => img.blob);
+}
+
+// "Try the demo" on the intro (FR-24): loads the fictional sample Review into page memory.
+// Never replaces a Review that holds the viewer's own Posts, and never while a run is busy.
+// `detail.loaded` tells the intro whether the demo landed, so it fires the tour hook only then.
+function onTryDemo(event) {
+  if (!SAMPLE_REVIEW || state.busy || state.readingPost) return;
+  if (state.posts.some((p) => !p.demo)) return;
+  state.posts = samplePosts(SAMPLE_REVIEW, state.nextId);
+  state.nextId += state.posts.length;
+  state.outreach = structuredClone(SAMPLE_REVIEW.outreach);
+  state.reviewSourceUrl = '';
+  state.reviewId = null;
+  state.savedPostCount = 0;
+  $('review-url').value = '';
+  $('review-url-errors').textContent = '';
+  $('export-status').textContent = '';
+  render();
+  if (event.detail) event.detail.loaded = true;
 }
 
 function onReviewUrl() {
@@ -1153,7 +1166,7 @@ function render() {
   $('post-images').setAttribute('accept', state.mediaTypes.join(','));
   $('images-hint').textContent = `Up to ${state.maxImages} screenshots. They are sent to Claude only while this Post is evaluated and are never shown or kept.`;
   $('post-count').textContent = `${state.posts.length} of ${INTAKE_LIMITS.maxPosts} Posts`;
-  $('add-post').disabled = state.readingReel || !canAddPost(state.posts.length);
+  $('add-post').disabled = state.readingPost || !canAddPost(state.posts.length);
 
   const anyDone = state.posts.some((p) => p.status === 'done');
   $('evaluate-all').disabled = state.busy || !state.sample;
@@ -1165,6 +1178,11 @@ function render() {
   $('save-review').hidden = !state.downloads;
   $('next-post').disabled = state.busy;
   $('save-note').textContent = state.db ? COPY.savedHere : COPY.savedNowhere;
+
+  // The sample notice shows while any sample Post remains; once none does, the tour hook goes too.
+  const demoShown = state.posts.some((p) => p.demo);
+  $('sample-notice').hidden = !demoShown;
+  if (!demoShown) delete document.documentElement.dataset.demo;
 
   $('post-list').replaceChildren(...state.posts.map(renderPostInput));
   $('overall').replaceChildren(...renderOverall());
@@ -1262,6 +1280,7 @@ function onNextPost() {
 
 function start() {
   $('lands-anywhere').textContent = COPY.landsAnywhere;
+  $('sample-notice').textContent = COPY.sampleNotice;
   $('link-notice').textContent = COPY.linkNotice;
   const picker = $('model');
   picker.replaceChildren(...CONTENT.models.artifact_picker.map((m) => el('option', { value: m.id }, m.label)));
@@ -1269,7 +1288,6 @@ function start() {
 
   $('post-form').addEventListener('submit', onAddPost);
   $('post-form').addEventListener('change', (e) => { if (e.target.type === 'radio') syncFormModes(); });
-  $('add-examples').addEventListener('click', onAddExamples);
   $('evaluate-all').addEventListener('click', onEvaluateAll);
   $('clear-review').addEventListener('click', onClearReview);
   $('copy-review').addEventListener('click', onCopyReview);
@@ -1282,6 +1300,8 @@ function start() {
   $('prefs-form').addEventListener('submit', onPrefsSubmit);
   $('prefs-form').addEventListener('click', onPrefFieldClick);
   document.querySelector('main').addEventListener('click', onNav);
+  document.addEventListener('ll:try-demo', onTryDemo);
+  document.addEventListener('ll:demo-started', () => $('sample-notice').scrollIntoView({ block: 'start' }));
   renderHowItWorks();
   prepareHomeMotion();
   $('how-tabs').addEventListener('change', syncHowTab);

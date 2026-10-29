@@ -305,8 +305,8 @@ function onClearReview() {
   render();
 }
 
-// "Try the demo" on the intro (FR-24): opens the real, empty Review page with the guided demo on
-// (tour.js walks through it). Never over a Review that already holds Posts, and never while a run is busy.
+// "Try the demo" on the intro (FR-24): turns the guided demo on; the intro exits onto Home and tour.js walks
+// through Home, Your profile, How it works and the real, empty Review page. Never over a Review that already holds Posts, and never while a run is busy.
 // `detail.loaded` tells the intro whether the demo started, so it fires the tour hook only then.
 function onTryDemo(event) {
   if (!sampleLink(SAMPLE_REVIEW) || state.busy || state.readingPost || state.posts.length) return;
@@ -1187,6 +1187,7 @@ function renderProfile() {
     input.disabled = !form || saving;
   }
   $('creator-prefs').hidden = !(form && form.role === 'creator');
+  $('leader-guide').hidden = !(form && form.role === 'leader');
   $('prefs-save').disabled = !form || saving;
   const status = PROFILE_STATUS[state.profileStatus] || '';
   $('prefs-status').textContent = state.statusFor === 'audiences' ? status : '';

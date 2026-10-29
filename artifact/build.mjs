@@ -383,6 +383,47 @@ ${INTRO_HTML}
       </div>
     </section>
 
+    <section class="profile-block" id="leader-guide" aria-labelledby="guide-title" hidden>
+      <h2 id="guide-title">Facilitation guide</h2>
+      <p>A simple plan for about 45 minutes with a youth or young-adult small group. You run Living Letter on a shared screen; nobody in the group needs an account.</p>
+      <div class="guide">
+        <h3>Before the session</h3>
+        <ul>
+          <li><strong>Choose 3 Posts:</strong> one that lands well, one that misses, and one in between. Use public Posts from people outside your group, or write short fictional ones. Don’t use Posts by anyone in the room or anyone they know: the aim is to learn, not to call anyone out.</li>
+          <li><strong>Send them for review ahead of time</strong> and read the results yourself. Each Review is kept in your Saved Reviews below, so you can open it in the session without waiting.</li>
+          <li><strong>Plan your focus.</strong> For each Post, pick the one or two Personas and the two or three Discussion Questions you most want to use.</li>
+          <li><strong>Check for a Soundness Flag.</strong> If a Post has one, decide beforehand how you’ll handle it. It is a prompt for you as the leader, not a ruling.</li>
+        </ul>
+        <h3>During the session</h3>
+        <ol>
+          <li><strong>Open (5 minutes).</strong> Read 2 Corinthians 3:2–3. Ask: “If someone only knew Jesus through what Christians post, what would they think he is like?”</li>
+          <li><strong>Each Post (about 10 minutes).</strong>
+            <ul>
+              <li>Show the Post on its own first. Ask: What’s your first reaction? Who might this help, and who might it hurt?</li>
+              <li>Read the Persona Reactions you chose and compare them with the group’s guesses. Ask: Do you know someone like this?</li>
+              <li>Open one high and one low Rubric Score and read its Evidence. Ask whether the score is fair.</li>
+              <li>Read the Gentler Rewrite beside the original. What stayed the same (the conviction)? What changed (the tone and the framing)?</li>
+              <li>Use your Discussion Questions, ending with “How might Jesus have posted this?”</li>
+            </ul>
+          </li>
+          <li><strong>Close (10 minutes).</strong> Each person names one thing they’ll do differently the next time they post. Pray for the real friends the Personas brought to mind.</li>
+        </ol>
+        <h3>Ground rules to say out loud</h3>
+        <ul>
+          <li><strong>We are talking about Posts, not people.</strong> Nobody mocks the poster.</li>
+          <li><strong>The tool starts the conversation; it doesn’t end it.</strong> The Personas are simulated, the scores are for discussion, and it’s fine to disagree with them.</li>
+          <li><strong>Kind isn’t vague.</strong> A Post can say clearly what it believes and still be gentle: Clear Conviction is one of the Criteria.</li>
+        </ul>
+        <h3>Watch for</h3>
+        <ul>
+          <li>If the group piles on a Post, ask: “How would you say it instead?”</li>
+          <li>If someone seems convicted about their own posts, follow up with them privately afterwards.</li>
+          <li>Don’t add a group member’s own Posts unless they ask you to.</li>
+          <li>Keep Send feedback (the Ministry Outreach Plan) out of the group session. It is for one person raising a concern privately with the poster.</li>
+        </ul>
+      </div>
+    </section>
+
     <section class="profile-block" id="creator-prefs" aria-labelledby="prefs-title" hidden>
       <h2 id="prefs-title">Creator preferences</h2>
       <p>How you want to come across, what you believe, and who you most want to reach. Your Reviews then list first the Personas who lead your top audiences. Scores never change.</p>

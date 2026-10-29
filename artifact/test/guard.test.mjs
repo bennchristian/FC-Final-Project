@@ -94,4 +94,6 @@ test('every page view has a nav target and the intro lands on Home', () => {
   assert.match(html, /data-go="home">Learn more</);
   assert.match(html, /data-go="review">Begin review</);
   assert.match(intro, /if \(event\.key === 'Escape'\) exit\('home'\)/);
+  // Try the demo opens on Home (FR-24); declined, it is plain Begin review.
+  assert.match(intro, /exit\(detail\.loaded \? 'home' : 'review'\)/);
 });

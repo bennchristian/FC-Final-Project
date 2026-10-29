@@ -293,6 +293,18 @@ The Demo Artifact has a separate tab listing what is planned but not yet built, 
 
 **Owner copy editor (owner-only authoring aid, added 2026-10-26 by Bennett).** Not a User feature. Shift+E shows a hidden bar that lets Bennett rewrite, move and restyle the text of the intro letter and every tab, then save it as `copy-edits.json`. The file is folded into the next build, so every viewer sees the new copy after a republish. Edits to the rubric and Persona text in How it works change only what the page shows; Claude still scores with the locked versions. In the Review results, label edits apply to every Post and are saved; Claude's text and pasted Posts can be retyped on screen but are never saved. Status lines and the versions label are never editable (`ARCHITECTURE.md` AD-12).
 
+### 4.12 Try the Demo
+
+#### FR-24: Try the demo [F]
+*Added 2026-10-29 by Bennett, for demo-day checklist item 1: one click into the app with sample data already in it.*
+The Demo Artifact's first screen has a "Try the demo" button beside "Start here". One click plays the normal exit and opens the Review tab on a sample Review: the public Instagram reel "Should a Christian attend a gay wedding?", fully evaluated (Bennett, 2026-10-29). The same Post appears in the recorded video.
+- Nothing runs live. The sample is Post 1 of a Review Bennett ran and saved in the live Artifact; the saved file's JSON appendix, with its links set to null, is `artifact/sample-review.json`, which the build checks and inlines.
+- The sample has no Source URL, no profile URL, no screenshots and no @handle (§7.2). An Outreach Plan is optional. Its versions must equal the page's locked versions (FR-7), so a content change needs a new sample. The build fails otherwise.
+- A visible notice marks it as a sample Review of a public reel, evaluated ahead of time, with its link left out. Clear Review removes it. The sample never replaces a Review that holds the viewer's own Posts.
+- The "Add fictional example Posts" button is removed (Bennett, 2026-10-29).
+- Without a sample file the build still passes and the button stays hidden.
+- The guided onboarding tour (checklist item 2) is not part of FR-24; FR-24 only exposes a hook for it.
+
 ## 5. Non-Goals (Explicit)
 
 - **Not a scraper.** No automatic collection of posts from Instagram, TikTok, or anywhere else beyond FR-3, the single-video read of FR-3a, and a Creator's own Connected Account (FR-16a).
@@ -310,7 +322,7 @@ The Demo Artifact has a separate tab listing what is planned but not yet built, 
 
 Delivered as a **recorded screen video of the Demo Artifact with Bennett's voice-over**; the Artifact itself has a live link shared with IFI colleagues. The video shows: Posts from a profile going in, how they are evaluated, the outputs, and the Roadmap tab.
 
-In: FR-1, FR-2, FR-4 to FR-9, FR-11 to FR-13, FR-17, FR-20, FR-22. **No cut line:** Bennett has decided every Friday requirement must ship; none is optional.
+In: FR-1, FR-2, FR-4 to FR-9, FR-11 to FR-13, FR-17, FR-20, FR-22. **No cut line:** Bennett has decided every Friday requirement must ship; none is optional. FR-24 (Try the demo) was added to the Demo Artifact on 2026-10-29.
 
 ### 6.2 Week of 2026-10-26 — Web App
 
@@ -340,7 +352,7 @@ Post content enters only by user supply or Permitted Retrieval. No logged-in scr
 - Public Posts by individuals are treated like ministry Posts: public, and therefore open to charitable critique. Posters are not asked to opt in.
 - This PRD widens `RULES.md`'s data rule ("Evaluate the ministry's own posts") to others' public Posts plus a Creator's own Posts; `RULES.md` is updated when this PRD is promoted.
 - The tool does not store or display the names, handles, or comments of followers or commenters, even when they appear in screenshots; Evaluations ignore comment sections.
-- The published Demo Artifact ships with no real people's posts preloaded. Example posts are entered during the recording; any built-in sample is fictional. (Claude Artifact publishing policy bars content that targets private individuals.)
+- The published Demo Artifact ships with no real people's posts preloaded. Example posts are entered during the recording; any built-in sample is fictional. **Exception (Bennett, 2026-10-29):** the FR-24 sample Review preloads one public reel by a public creator, with its link and any handle removed. (Claude Artifact publishing policy bars content that targets private individuals, so the sample must never be a private person's post.)
 
 ### 7.3 Honest simulation
 Persona Reactions are labelled simulated everywhere they appear (FR-9) and are kept apart from any real interview data.

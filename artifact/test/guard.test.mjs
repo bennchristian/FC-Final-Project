@@ -48,12 +48,6 @@ test('every persona-bearing view in ui.js carries the simulated label', () => {
   }
 });
 
-test('the fictional examples name no real handles', () => {
-  const ui = sources.find(([f]) => f === 'ui.js')[1];
-  const examples = ui.slice(ui.indexOf('const FICTIONAL_EXAMPLES'), ui.indexOf('];', ui.indexOf('const FICTIONAL_EXAMPLES')));
-  assert.doesNotMatch(examples, /@\w/);
-});
-
 test('the intro hides instead of removing itself, so Go back can reopen it', () => {
   const intro = readFileSync(join(SRC, 'intro.js'), 'utf8');
   assert.doesNotMatch(intro, /root\.remove\(\)/);

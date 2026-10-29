@@ -344,7 +344,7 @@ flowchart LR
 
 ### AD-12 — The Demo Artifact is one self-contained page that keeps nothing [ADOPTED]
 
-- **Binds:** FR-1, FR-2, FR-17, FR-20, FR-22, PRD §7.2, Demo Artifact
+- **Binds:** FR-1, FR-2, FR-17, FR-20, FR-22, FR-24, PRD §7.2, Demo Artifact
 - **Prevents:** keys, network calls, persisted third-party content, preloaded real posts, or a broken shared link in the published Artifact.
 - **Rule:**
   - **Build:** `node artifact/build.mjs` inlines the locked content ids (latest `<n>` of each name), `config/models.json` and `artifact/src/` into `artifact/dist/witness-review.html`, which is git-ignored. Load `artifact-design` before building the page, and `artifact-capabilities` before writing `sample()` code.
@@ -355,13 +355,14 @@ flowchart LR
   - **Persistence:** Reviews, Posts and screenshots live in page memory only. `localStorage` holds only per-viewer UI preferences, such as the theme, inside try/catch.
   - **Export:** the viewer may copy the Review as Markdown, or save it as a `.md` file through `downloads.save` after confirming. The saved file adds a raw JSON appendix. Screenshots are never included. The page itself still keeps nothing.
   - **Owner copy editor (owner-only authoring aid, 2026-10-26, Bennett):** Shift+E (ignored while typing) shows a hidden bar (`artifact/src/editor.js`). In edit mode, any element with its own text in the intro and `main` can be rewritten, moved and restyled; page clicks are suppressed except the tabs, and every `<details>` is held open. "Save edits" hands over `copy-edits.json` through the existing `downloads` (clipboard fallback); no storage, no network, no new capability. Bennett commits it as `artifact/copy-edits.json`; `build.mjs` checks it (`artifact/src/copy-edits.js`) and inlines it as `COPY_EDITS`, and the page applies it on load with edit HTML sanitized to an inline-formatting allowlist. Edits match a box by its original text plus occurrence; an edit whose text changed is reported as no longer matching and kept in the next export. How it works edits to `content/` text are a display-only overlay (Bennett, 2026-10-26): Claude still scores with the locked versions, an accepted exception to AD-16's "the page always matches the scoring text". The Review results (`#posts`, `#outreach-slot`) are re-scanned after every render: label edits are saved as `live` edits keyed by text alone and applied to every Post; text `ui.js` marks `.said` (Claude's output or what the viewer pasted) can be retyped on screen but is never saved. Never editable: status and error lines, the versions label.
+  - **Sample Review (FR-24, 2026-10-29, Bennett):** the optional `artifact/sample-review.json` is the JSON appendix of a Review Bennett saved in the live Artifact, with its links set to null: since 2026-10-29, the public reel "Should a Christian attend a gay wedding?" (PRD §7.2 exception). `build.mjs` checks it with `checkSampleReview` (`artifact/src/sample.js`: at least one done Post, no screenshots, Source URL, profile URL or @handle, versions equal to the locked labels, every Evaluation and any Outreach Plan passing the `core.js` validators) and inlines it as `SAMPLE_REVIEW`, or `null` when absent, which hides the button. "Try the demo" on the intro dispatches `ll:try-demo`; `ui.js` loads fresh copies of the sample into page memory unless the Review holds the viewer's own Posts or a run is busy, and shows a fixed notice that it is a sample of a public reel, evaluated ahead of time, with its link left out. After the exit, the intro sets `<html data-demo="started">` and dispatches `ll:demo-started` (the hook for a later onboarding tour); Clear Review removes both the notice and the attribute. No storage, no network, no live call.
   - **Network:**
     - Page script makes no fetch or XHR.
     - The only external loads are Google Fonts stylesheets and pinned CDN scripts that the `artifact-design` contract allows.
     - No Source URL is ever fetched by the page. The one exception is AD-13's single-video read, which goes through the viewer's Supadata connector.
-  - **Scope:** FR-1, FR-2, FR-4–FR-9, FR-11–FR-13, FR-17, FR-20 and FR-22. The Artifact runs Others' Reviews only, so own-content Criteria show N/A.
+  - **Scope:** FR-1, FR-2, FR-4–FR-9, FR-11–FR-13, FR-17, FR-20, FR-22 and FR-24. The Artifact runs Others' Reviews only, so own-content Criteria show N/A.
   - **Limits:** `limits()` is read at load. `rate_limited`, `not_granted` and `upstream_error` map to per-Post errors with a manual Try again.
-  - **Use:** calls happen only on an explicit viewer action, on the viewer's own Claude usage. Built-in examples are fictional.
+  - **Use:** calls happen only on an explicit viewer action, on the viewer's own Claude usage. Built-in examples are fictional, except the FR-24 sample Review (PRD §7.2 exception).
 
 ### AD-13 — No URL is ever read, except one Instagram reel or TikTok video through Supadata [ADOPTED, amended 2026-10-26 and 2026-10-28]
 
@@ -597,6 +598,7 @@ FC-Final-Project/
 | FR-18 Accounts | W2 | Supabase Auth, `src/proxy.ts` | AD-9, AD-11 |
 | FR-19 Saved Reviews | W2 | `review` and its children, reopened | AD-5, AD-6, AD-9, AD-10 |
 | FR-22 Roadmap tab | F only | static Artifact tab | AD-12 |
+| FR-24 Try the demo | F only | `artifact/src/sample.js`, `artifact/sample-review.json`; intro button | AD-12 |
 | FR-23 Caps | W2 | `src/server/gate/`, `usage_event` | AD-8 |
 | NFR latency / secrets / RLS | both | — | AD-10 / AD-7, AD-15 / AD-9 |
 | OQ-5 | both | screenshots (AD-5), caps (AD-8), Artifact calls (AD-12) | — |

@@ -1,12 +1,13 @@
 // UI shell of the Demo Artifact (ARCHITECTURE.md AD-4, AD-5, AD-12, AD-14).
 // Plain document, no styling work: visual design is deferred to the design partner.
 // Everything renders as text nodes; screenshots appear only as file-name chips.
-// `CONTENT` and `LABELS` are inlined by artifact/build.mjs.
+// `CONTENT`, `LABELS` and `SAMPLE_REVIEW` are inlined by artifact/build.mjs.
 
 import { INTAKE_LIMITS, checkPostIntake, checkSourceUrl, canAddPost, provenanceLabel, isReadablePostLink } from './core.js';
 import { readCaption, transcribeReel } from './reel.js';
 import { evaluatePost, requestRewrite, createOutreach } from './pipeline.js';
 import { reviewToMarkdown } from './export.js';
+import { samplePosts } from './sample.js';
 
 // ---------- Fixed UI copy (AD-14). Constants, never model output. Wording owned by bmad-ux. ----------
 
@@ -19,6 +20,7 @@ const COPY = {
   landsAnywhere: 'A post can land on anyone’s page. Whoever you meant it for, people outside the faith may read it too.',
   landsWell: 'Likely to land well. No concerns to raise.',
   notAssessable: 'Nothing in this Post could be assessed.',
+  sampleNotice: 'This is a sample Review of a public Instagram reel, evaluated ahead of time. Its link is left out. Clear Review to start your own.',
 };
 
 const ERROR_COPY = {
@@ -49,18 +51,6 @@ const PERMISSION_CODES = ['approval_required', 'not_in_manifest', 'not_granted']
 function reelErrorText(code) {
   return REEL_ERROR_COPY[code] || 'This post could not be read here. Add its text, transcript or screenshots instead.';
 }
-
-const FICTIONAL_EXAMPLES = [
-  {
-    pasted_text: 'Sunday recap \u{1F64C} We were SO blessed in the Word this week. Pastor broke down Rom 8:28 and the altar was FULL! If you’re not plugged into a life group yet, what are you waiting for?? Get connected, get covered. #blessed #CedarHollowFam',
-  },
-  {
-    pasted_text: 'Our nation is under judgment because it has turned its back on God. If you voted for the other side, you need to repent. Wake up, church. This culture HATES Christians and we will not stay silent!',
-  },
-  {
-    pasted_text: 'Last Saturday, 30 of our neighbours (most of whom don’t come to church) helped us repaint the elementary school on Cedar Street. We don’t have all the answers about life, but we believe Jesus cares about our street. Got questions about faith, or want to help next time? Message us. No pressure, and the coffee’s on us.',
-  },
-];
 
 // ---------- State (page memory only) ----------
 
@@ -247,13 +237,6 @@ async function onAddPost(event) {
   render();
 }
 
-function onAddExamples() {
-  for (const example of FICTIONAL_EXAMPLES) {
-    if (canAddPost(state.posts.length)) addPost(example);
-  }
-  render();
-}
-
 function onClearReview() {
   if (state.busy) return;
   state.posts = [];
@@ -261,6 +244,23 @@ function onClearReview() {
   state.reviewSourceUrl = '';
   $('review-url').value = '';
   render();
+}
+
+// "Try the demo" on the intro (FR-24): loads the fictional sample Review into page memory.
+// Never replaces a Review that holds the viewer's own Posts, and never while a run is busy.
+// `detail.loaded` tells the intro whether the demo landed, so it fires the tour hook only then.
+function onTryDemo(event) {
+  if (!SAMPLE_REVIEW || state.busy || state.readingPost) return;
+  if (state.posts.some((p) => !p.demo)) return;
+  state.posts = samplePosts(SAMPLE_REVIEW, state.nextId);
+  state.nextId += state.posts.length;
+  state.outreach = structuredClone(SAMPLE_REVIEW.outreach);
+  state.reviewSourceUrl = '';
+  $('review-url').value = '';
+  $('review-url-errors').textContent = '';
+  $('export-status').textContent = '';
+  render();
+  if (event.detail) event.detail.loaded = true;
 }
 
 function onReviewUrl() {
@@ -657,6 +657,11 @@ function render() {
   $('save-review').disabled = !anyDone;
   $('save-review').hidden = !state.downloads;
 
+  // The sample notice shows while any sample Post remains; once none does, the tour hook goes too.
+  const demoShown = state.posts.some((p) => p.demo);
+  $('sample-notice').hidden = !demoShown;
+  if (!demoShown) delete document.documentElement.dataset.demo;
+
   $('posts').replaceChildren(...state.posts.map(renderPost));
   $('outreach-slot').replaceChildren(state.posts.length ? renderOutreach() : '');
 }
@@ -714,6 +719,7 @@ function showTab(name) {
 
 function start() {
   $('lands-anywhere').textContent = COPY.landsAnywhere;
+  $('sample-notice').textContent = COPY.sampleNotice;
   $('link-notice').textContent = COPY.linkNotice;
   $('versions').textContent = `${LABELS.rubric} · ${LABELS.personas} · ${LABELS.prompts}`;
   const picker = $('model');
@@ -722,7 +728,6 @@ function start() {
 
   $('post-form').addEventListener('submit', onAddPost);
   $('post-form').addEventListener('change', (e) => { if (e.target.type === 'radio') syncFormModes(); });
-  $('add-examples').addEventListener('click', onAddExamples);
   $('evaluate-all').addEventListener('click', onEvaluateAll);
   $('clear-review').addEventListener('click', onClearReview);
   $('copy-review').addEventListener('click', onCopyReview);
@@ -732,6 +737,8 @@ function start() {
   $('tab-button-how').addEventListener('click', () => showTab('how'));
   $('open-how').addEventListener('click', () => showTab('how'));
   $('tab-button-roadmap').addEventListener('click', () => showTab('roadmap'));
+  document.addEventListener('ll:try-demo', onTryDemo);
+  document.addEventListener('ll:demo-started', () => $('sample-notice').scrollIntoView({ block: 'start' }));
   const hashTab = location.hash.slice(1);
   showTab(['how', 'roadmap'].includes(hashTab) ? hashTab : 'review');
   renderHowItWorks();

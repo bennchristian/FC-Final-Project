@@ -6,10 +6,12 @@
 //
 // The optional artifact/copy-edits.json (owner copy editor, AD-12) is checked and inlined
 // as COPY_EDITS; without it COPY_EDITS is null and the page copy is unchanged.
+// The optional artifact/sample-review.json ("Try the demo", PRD FR-24) is checked and inlined
+// as SAMPLE_REVIEW; without it SAMPLE_REVIEW is null and the Try the demo button stays hidden.
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { ROOT, loadContent, checkLock, lockLatest, checkPrompts, checkContentShapes, loadCopyEdits } from './content.mjs';
+import { ROOT, loadContent, checkLock, lockLatest, checkPrompts, checkContentShapes, loadCopyEdits, loadSampleReview } from './content.mjs';
 
 const SRC = join(ROOT, 'artifact', 'src');
 const OUT = join(ROOT, 'artifact', 'dist', 'witness-review.html');
@@ -43,15 +45,19 @@ const contentErrors = [...checkPrompts(content.prompts), ...checkContentShapes(c
 if (contentErrors.length) fail(contentErrors);
 const copyEdits = loadCopyEdits();
 if (copyEdits.errors.length) fail(copyEdits.errors);
+const sampleReview = loadSampleReview(content, labels);
+if (sampleReview.errors.length) fail(sampleReview.errors);
 
 const script = [
   `const CONTENT = ${inlineJson(content)};`,
   `const LABELS = ${inlineJson(labels)};`,
   `const COPY_EDITS = ${inlineJson(copyEdits.edits)};`,
+  `const SAMPLE_REVIEW = ${inlineJson(sampleReview.sample)};`,
   toScript('core.js'),
   toScript('reel.js'),
   toScript('pipeline.js'),
   toScript('export.js'),
+  toScript('sample.js'),
   toScript('ui.js'),
   toScript('theme.js'),
   toScript('intro.js'),
@@ -196,7 +202,6 @@ ${INTRO_HTML}
       <p id="intake-errors" class="error" aria-live="polite"></p>
       <div class="row">
         <button type="submit" id="add-post">Add Post</button>
-        <button type="button" id="add-examples">Add fictional example Posts</button>
         <span id="post-count" class="muted"></span>
       </div>
     </form>
@@ -211,6 +216,7 @@ ${INTRO_HTML}
     <p class="muted">Posts are evaluated one at a time. Persona Reactions are simulated perspectives, not real people’s opinions. <strong>This page saves nothing: closing or reloading it clears the Review.</strong> Use Copy Review or Save Review as file to keep your results.</p>
     <p id="export-status" class="muted" aria-live="polite"></p>
     <textarea id="export-fallback" rows="8" readonly hidden aria-label="Review as text"></textarea>
+    <p id="sample-notice" class="notice" hidden></p>
     <div id="posts"></div>
     <div id="outreach-slot"></div>
   </section>
@@ -273,4 +279,7 @@ mkdirSync(join(ROOT, 'artifact', 'dist'), { recursive: true });
 writeFileSync(OUT, html);
 const editCount = copyEdits.edits ? copyEdits.edits.edits.length : 0;
 console.log(`Built ${OUT.replace(`${ROOT}/`, '')} (${(Buffer.byteLength(html) / 1024).toFixed(1)} KB) with ${labels.rubric} · ${labels.personas} · ${labels.prompts}`);
+console.log(sampleReview.sample
+  ? `Sample Review: ${sampleReview.sample.posts.length} Post(s) from artifact/sample-review.json (Try the demo shown)`
+  : 'Sample Review: none (no artifact/sample-review.json; Try the demo hidden)');
 console.log(copyEdits.edits ? `Copy edits: ${editCount} from artifact/copy-edits.json` : 'Copy edits: none (no artifact/copy-edits.json)');

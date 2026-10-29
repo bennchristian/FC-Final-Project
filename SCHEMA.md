@@ -391,6 +391,7 @@ Users never insert, update or delete through the Data API. Review deletion is a 
 - **Screenshots:** they exist only in the browser and in the evaluate request body. They are never stored and never rendered as images (AD-5).
 - **Demo Artifact:**
   - Reviews live in page memory; `localStorage` holds only the theme preference.
+  - `artifact/sample-review.json` (optional, FR-24) is a build input, not stored state: the JSON appendix of a saved Review (`export.js` shape: `exported_at`, `versions`, `review_source_url: null`, one or more done `posts` with `source_url` null, `screenshot_count` 0 and no @handle, and `outreach` null or done). The build checks it and inlines it; the page copies it into page memory on Try the demo and keeps nothing.
   - The platform's `sample` answer cache lasts 5 minutes per viewer and browser. It is bypassed with `cache: false` on Try again.
 
 ## 7. Migrations

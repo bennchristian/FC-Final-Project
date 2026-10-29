@@ -18,7 +18,6 @@ const HEAD = `<!doctype html>
 <style>
   html { scrollbar-width: none; } ::-webkit-scrollbar { display: none; }
   *:focus, *:focus-visible { outline: none !important; }
-  #add-examples { display: none !important; } /* being removed from the product */
   #vid-layer { position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: 2147483647; pointer-events: none; }
   #vid-layer > div { position: absolute; }
   .vid-hl { background: rgba(138, 32, 28, 0.17); mix-blend-mode: multiply; border-bottom: 3px solid #8A201C; }

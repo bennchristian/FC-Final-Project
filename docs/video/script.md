@@ -139,8 +139,6 @@ in the field, the cursor clicks Evaluate, the progress state shows, and the resu
   unopened below Post 1.
 - **The creator.** The reel is a real person's public post. The URL on screen shows a post id, not a
   handle. Blurring the link field after 5.2 keeps the video about the post rather than the person.
-- **Fictional example Posts.** These are not used. Bennett plans to remove the feature. That is a product
-  change (PRD §4.1, `ui.js` `FICTIONAL_EXAMPLES`) and is not part of this script.
 
 ## Open decisions
 

@@ -1,0 +1,13 @@
+{
+  "name": "living-letter-video",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "capture": "node capture.mjs",
+    "render": "node render.mjs"
+  },
+  "devDependencies": {
+    "ffmpeg-static": "^5.2.0",
+    "playwright": "^1.48.2"
+  }
+}

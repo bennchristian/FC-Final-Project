@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Living Letter video stage</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Open+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+  :root { --bg: #FFFBF5; --ink: #210C09; --red: #8A201C; --slate: #5D6378; --mist: #DCE2E8; }
+  html, body { margin: 0; background: var(--bg); overflow: hidden; }
+  #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
+  iframe { position: absolute; left: 0; top: 0; width: 1920px; border: 0; transform-origin: 0 0; background: var(--bg); }
+  #intro { height: 1080px; z-index: 2; }
+  #page { height: 14000px; z-index: 1; }
+  #ov { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+  .o { position: absolute; color: var(--ink); white-space: pre-wrap; }
+  .o.serif { font-family: "Instrument Serif", serif; }
+  .o.sans { font-family: "Open Sans", sans-serif; }
+  .o.band { background: #FFFBF5; box-shadow: 0 0 24px 12px #FFFBF5; padding: 10px 28px; border-radius: 6px; }
+  .pill { font: 600 30px/1 "Open Sans", sans-serif; padding: 16px 30px; border-radius: 999px; border: 2px solid var(--red);
+          color: var(--red); background: var(--bg); }
+  .pill.on { background: var(--red); color: var(--bg); }
+  #cursor { position: absolute; left: 0; top: 0; z-index: 6; width: 40px; height: 40px; opacity: 0; }
+  #ring { position: absolute; z-index: 6; width: 70px; height: 70px; margin: -35px 0 0 -35px; border: 4px solid var(--red);
+          border-radius: 50%; opacity: 0; }
+  #fade { position: absolute; inset: 0; z-index: 9; background: var(--bg); opacity: 0; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <iframe id="page" src="/artifact.html?mode=page"></iframe>
+  <iframe id="intro" src="/artifact.html?mode=intro"></iframe>
+  <div id="ov"></div>
+  <div id="ring"></div>
+  <svg id="cursor" viewBox="0 0 24 24"><path d="M4 2 L4 19 L8.6 14.8 L11.6 21.6 L14.6 20.3 L11.7 13.6 L18 13.6 Z" fill="#210C09" stroke="#FFFBF5" stroke-width="1.4" stroke-linejoin="round"/></svg>
+  <div id="fade"></div>
+</div>
+<script type="module" src="/engine.js"></script>
+</body>
+</html>

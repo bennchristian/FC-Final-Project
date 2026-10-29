@@ -314,8 +314,8 @@ ${INTRO_HTML}
   <section id="view-results" class="view" hidden>
     <h1 class="desk-title">Your letter, read</h1>
     <p id="sample-notice" class="notice" hidden></p>
-    <div id="overall"></div>
     <div id="posts"></div>
+    <div id="overall"></div>
   </section>
   </div>
 

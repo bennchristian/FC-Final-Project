@@ -57,6 +57,11 @@ test('the results show no versions label, no Concerns list, and Offence sources 
   assert.match(offence, /'Where do offence sources come from\?'/);
 });
 
+test('the results open on the Posts; the Review summary comes after them', () => {
+  const build = readFileSync(join(ROOT, 'artifact', 'build.mjs'), 'utf8');
+  assert.ok(build.indexOf('<div id="posts"></div>') < build.indexOf('<div id="overall"></div>'));
+});
+
 test('no two functions share a name once the sources are inlined into one script', () => {
   // build.mjs joins every source into one script, where a second declaration silently replaces the first.
   const names = sources.flatMap(([f, text]) => [...text.matchAll(/^(?:export )?(?:async )?function (\w+)/gm)].map((m) => `${m[1]} (${f})`));

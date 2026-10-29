@@ -103,8 +103,8 @@
     { id: 'send', view: 'review', anchor: ['#evaluate-all'], title: 'Send it for review',
       body: () => 'The letter goes into its envelope and the Mailbox, and the results open. If you change the link first, Send runs a live Review on your own Claude usage.',
       wait: { on: 'replayed', can: () => true, hint: 'Click Send for review.' } },
-    { id: 'overall', view: 'results', anchor: ['#overall'], title: 'Your letter, read',
-      body: () => `The note at the top marks this as the sample. The overall summary is worked out by code from the scores, never by Claude.${tour.saved ? ' The Review is already saved to your profile.' : ''}` },
+    { id: 'letter', view: 'results', anchor: ['#sample-notice', '#posts'], title: 'Your letter, read',
+      body: () => 'The note at the top marks this as the sample. Each Post’s results follow, starting with its Soundness Flag when it has one: a line that may not be theologically sound, as a prompt to talk through with a leader, not a ruling.' },
     { id: 'summary', view: 'results', anchor: ['[data-tour="summary"]'], title: 'This Post’s summary', skip: () => !q('[data-tour="summary"]'),
       body: () => 'A Post that is likely to land well says so first. Concerns are marked in the Rubric Scores below.' },
     { id: 'scores', view: 'results', anchor: ['[data-tour="scores"]'], title: 'Rubric Scores',
@@ -115,6 +115,8 @@
       body: () => 'When a Post has room to improve, a gentler version keeps its message and convictions and says them more clearly and kindly, beside the original.' },
     { id: 'questions', view: 'results', anchor: ['[data-tour="questions"]'], title: 'Discussion Questions',
       body: () => 'Questions for a small group or a leader to talk through, drawn from the Post, its scores and the reactions.' },
+    { id: 'overall', view: 'results', anchor: ['#overall'], title: 'The whole Review',
+      body: () => `Under the Posts, the overall summary is worked out by code from the scores, never by Claude.${tour.saved ? ' The Review is already saved to your profile.' : ''}` },
     { id: 'mailbox', view: 'results', anchor: ['#mailbox .next-card'], title: 'The Mailbox',
       body: () => 'What comes next: copy the Review, save it as a file, or Send feedback, which drafts a loving message to the account behind the Posts. Each Review you send is saved to your profile.',
       wait: { on: 'profile', can: () => tour.canSave, hint: 'Click View saved reviews.',
@@ -381,14 +383,14 @@
     tour.replaying = false;
     tour.canSave = Boolean(event.detail && event.detail.canSave);
     tour.saved = Boolean(event.detail && event.detail.saved);
-    go(STEPS.findIndex((s) => s.id === 'overall'), false);
+    go(STEPS.findIndex((s) => s.id === 'letter'), false);
   });
   document.addEventListener('ll:view', (event) => {
     // Only the Mailbox step waits on 'profile' (done() checks); the early profile cards open it themselves.
     if (event.detail && event.detail.name === 'profile') done('profile');
     // A live Send (the viewer changed the link) opens the Results without a replay: carry on from there.
     if (event.detail && event.detail.name === 'results' && tour && !tour.replaying && STEPS[tour.index].id === 'send') {
-      go(STEPS.findIndex((s) => s.id === 'overall'), false);
+      go(STEPS.findIndex((s) => s.id === 'letter'), false);
     }
   });
   document.addEventListener('ll:past-opened', () => done('opened'));

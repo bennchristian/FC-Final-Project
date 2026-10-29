@@ -1074,7 +1074,7 @@ function plural(n, one, many) {
   return `${n} ${n === 1 ? one : many}`;
 }
 
-// The overall summary at the top of the results, from code (past.js), never from the model.
+// The overall summary under the Posts, from code (past.js), never from the model.
 function renderOverall() {
   const sent = state.posts.filter((p) => p.status !== 'pending');
   const t = reviewTally(sent);

@@ -108,7 +108,7 @@
     { id: 'summary', view: 'results', anchor: ['[data-tour="summary"]'], title: 'This Post’s summary', skip: () => !q('[data-tour="summary"]'),
       body: () => 'A Post that is likely to land well says so first. Concerns are marked in the Rubric Scores below.' },
     { id: 'scores', view: 'results', anchor: ['[data-tour="scores"]'], title: 'Rubric Scores',
-      body: () => 'Ten Criteria of good witness, each scored 1 to 5. Choose a Criterion to see, beside the table, the Evidence it quotes from the Post and why it scored as it did. Open “How this Criterion is judged” for the guidance and its sources.' },
+      body: () => 'Ten Criteria of good witness, each scored 1 to 5; the ones that raise concerns are marked. Choose a Criterion to see, beside the table, the Evidence it quotes from the Post and why it scored as it did. Open “How this Criterion is judged” for the guidance and its sources.' },
     { id: 'reactions', view: 'results', anchor: ['[data-tour="reactions"]'], title: 'Persona Reactions',
       body: () => `How ${personaCount()} simulated people might feel reading the Post, and why. Choose a Persona from the list, or read them one after another with Read next persona. They are simulated perspectives, not real people’s opinions.` },
     { id: 'rewrite', view: 'results', anchor: ['[data-tour="rewrite"]'], title: 'Gentler Rewrite', skip: () => !q('[data-tour="rewrite"]'),

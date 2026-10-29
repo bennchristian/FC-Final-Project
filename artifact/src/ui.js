@@ -1345,7 +1345,7 @@ function syncHowTab() {
 }
 
 // One view at a time. The masthead marks Review on the send page and the results. Those two sit
-// on the desk beside the Mailbox; Next post shows there only on the results.
+// on the desk beside the Mailbox; Send another post shows there only on the results.
 const VIEWS = ['home', 'review', 'results', 'profile', 'how', 'roadmap'];
 const NAV_FOR = { review: 'review', results: 'review', how: 'how', profile: 'profile' };
 
@@ -1368,7 +1368,7 @@ function showView(name) {
 }
 
 // Every [data-nav] control (masthead, logo, profile icon, Start reviewing, View past reviews, Roadmap).
-// Once a Review has been sent, Review opens its results; Next post goes back to Add Posts.
+// Once a Review has been sent, Review opens its results; Send another post goes back to Add Posts.
 function onNav(event) {
   const button = event.target.closest('[data-nav]');
   if (!button) return;

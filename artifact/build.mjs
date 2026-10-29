@@ -326,7 +326,7 @@ ${INTRO_HTML}
     <div class="next-card">
       <h3>Next…</h3>
       <ul class="next-list">
-        <li id="next-post-item" hidden><button type="button" id="next-post">Next post</button></li>
+        <li id="next-post-item" hidden><button type="button" id="next-post">Send another post</button></li>
         <li><button type="button" id="save-review" hidden>Save Review as file</button></li>
         <li><button type="button" id="copy-review">Copy review</button></li>
         <li><button type="button" data-nav="profile">View saved reviews</button></li>

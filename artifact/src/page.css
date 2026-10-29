@@ -283,7 +283,6 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
   display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); gap: 1.25rem; align-items: start; padding: 1.5rem;
   background: var(--card); color: var(--card-ink); border-radius: var(--radius);
 }
-.summary-part:last-child { grid-column: 1 / -1; }
 .summary-icon { width: 4.5rem; height: 4.5rem; background-position: center; background-size: contain; background-repeat: no-repeat; }
 .summary-body { min-width: 0; }
 .summary-body h3 { margin-top: 0.25rem; color: var(--card-ink); }
@@ -333,12 +332,24 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
 .how-steps h3 { font: italic 400 var(--fs-lg)/1.2 var(--serif); color: var(--heading-alt); margin: 1.25rem 0 0.4rem; }
 .how-steps p { font-size: var(--fs-sm); line-height: 1.55; margin: 0; max-width: 17rem; }
 .how-more { font-size: var(--fs-md); line-height: 1.55; color: var(--muted); max-width: var(--measure); margin: 3rem 0 0; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+/* Narrower: one step per row, icon beside its text, and the arrow runs down from one icon to the next. */
 @media (max-width: 860px) {
-  .how-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.5rem 2rem; }
-  .how-steps li::after, .how-steps li::before { display: none; }
-}
-@media (max-width: 520px) {
-  .how-steps { grid-template-columns: minmax(0, 1fr); }
+  .how-panel.how-overview { --how-icon: 6rem; --how-art-h: 5rem; --how-gap: 2.5rem; }
+  .how-steps { grid-template-columns: minmax(0, 1fr); gap: var(--how-gap); }
+  .how-steps li { display: grid; grid-template-columns: var(--how-icon) minmax(0, 1fr); column-gap: 1.25rem; align-content: start; }
+  .how-art { grid-column: 1; grid-row: 1 / span 2; height: var(--how-art-h); background-position: center; }
+  .how-steps h3, .how-steps p { grid-column: 2; }
+  .how-steps p { max-width: 32rem; }
+  .how-steps h3 { margin-top: 0.4rem; }
+  .how-steps li:not(:last-child)::after {
+    top: calc(var(--how-art-h) + 0.5rem); left: calc(var(--how-icon) / 2 - 0.75px);
+    width: 0; height: calc(100% - var(--how-art-h) - 1rem + var(--how-gap) - 2px);
+    border-top: 0; border-left: 1.5px solid var(--accent);
+  }
+  .how-steps li:not(:last-child)::before {
+    top: calc(100% + var(--how-gap) - 0.5rem - 7px); left: calc(var(--how-icon) / 2 - 4px);
+    border-top: 7px solid var(--accent); border-left: 4px solid transparent; border-right: 4px solid transparent; border-bottom: 0;
+  }
 }
 .how-panel details.criterion { padding-top: 0.6rem; margin: 0.6rem 0; }
 .how-panel details.criterion > summary { font: 400 var(--fs-lg)/1.2 var(--serif); color: var(--fg); letter-spacing: -0.015em; }

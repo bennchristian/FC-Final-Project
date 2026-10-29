@@ -3,7 +3,7 @@
 // Everything renders as text nodes; screenshots appear only as file-name chips.
 // `CONTENT` and `LABELS` are inlined by artifact/build.mjs.
 
-import { INTAKE_LIMITS, checkPostIntake, checkSourceUrl, canAddPost, provenanceLabel, isReadablePostLink, rewriteChanges } from './core.js';
+import { INTAKE_LIMITS, checkPostIntake, checkSourceUrl, canAddPost, isReadablePostLink, rewriteChanges } from './core.js';
 import { readCaption, transcribeReel } from './reel.js';
 import { sendLetter, resetDesk } from './desk.js';
 import { evaluatePost, requestRewrite, createOutreach } from './pipeline.js';
@@ -834,15 +834,18 @@ function criterionDetails(criterion, score) {
   );
 }
 
+// One line naming the sources; what each one does to the score is folded away below it. Only the effect:
+// the meaning lives in How it works, where Bennett's copy edits apply.
 function renderOffence(keys) {
   if (!keys.length) return null;
-  return el('div', {},
-    el('span', { className: 'label' }, 'Offence source: '),
-    el('ul', {}, keys.map((k) => {
-      const o = offenceByKey[k];
-      return el('li', {}, el('strong', {}, `${o.name}. `), o.effect);
-    })),
-  );
+  const sources = keys.map((k) => offenceByKey[k]);
+  return [
+    el('p', { className: 'offence' }, el('span', { className: 'label' }, 'Offence source: '), sources.map((o) => o.name).join(', ')),
+    el('details', {},
+      el('summary', {}, 'Where do offence sources come from?'),
+      el('ul', {}, sources.map((o) => el('li', {}, el('strong', {}, `${o.name}. `), o.effect))),
+    ),
+  ];
 }
 
 // One part of a Post's results (Rubric Scores, Persona Reactions, rewrite, questions): a rule above,
@@ -910,14 +913,11 @@ function renderScores(post, evaluation) {
   );
 }
 
+// A Post with concerns gets no summary line: the Rubric Scores table marks them, so a list here only repeated it.
 function renderSummary(evaluation) {
   if (evaluation.rewrite_mode === 'not_assessable') return el('p', { className: 'summary', 'data-tour': 'summary' }, COPY.notAssessable);
   if (evaluation.lands_well) return el('p', { className: 'summary good', 'data-tour': 'summary' }, COPY.landsWell);
-  const concerns = evaluation.assessment.scores.filter((s) => s.score !== null && s.score < 3);
-  return el('div', { className: 'summary', 'data-tour': 'summary' },
-    el('p', {}, `Concerns (${concerns.length}):`),
-    el('ul', {}, concerns.map((s) => el('li', {}, `${criterionByKey[s.criterion].name}: `, said(s.explanation)))),
-  );
+  return null;
 }
 
 // On a creator's Reviews, the Personas who lead their top audiences come first. Scores never change.
@@ -978,15 +978,24 @@ function originalText(post, evaluation) {
   return post.pasted_text || evaluation.post_transcript || '';
 }
 
+// The Suggestion with its new or changed words highlighted, worked out in code against the Original.
+// Plain text when nothing could be compared or nothing changed.
+function markedRewrite(original, rewrite) {
+  const runs = rewriteChanges(original, rewrite);
+  if (!runs || !runs.some((r) => r.changed)) return rewrite;
+  return runs.map((r) => (r.changed ? el('mark', { className: 'changed said' }, r.text) : r.text));
+}
+
 function renderRewrite(post, evaluation) {
   if (evaluation.gentler_rewrite) {
     const rw = evaluation.gentler_rewrite;
+    const original = originalText(post, evaluation);
+    const marked = markedRewrite(original, rw.rewrite);
     return evalPart('pen', 'Gentler Rewrite', 'rewrite',
+      typeof marked === 'string' ? null : el('p', { className: 'muted' }, 'Highlighted words in the suggestion are new or changed.'),
       el('div', { className: 'pair' },
-        el('div', {}, el('p', { className: 'label' }, 'Original'), el('p', { className: 'pre said' }, originalText(post, evaluation))),
-        el('div', {}, el('p', { className: 'label' }, COPY.suggestion),
-          el('p', { className: 'pre said' }, rewriteChanges(originalText(post, evaluation), rw.rewrite).map((r) => (r.changed ? el('strong', {}, r.text) : r.text))),
-          el('p', { className: 'muted rewrite-key' }, 'Changed words are in bold.')),
+        el('div', {}, el('p', { className: 'label' }, 'Original'), el('p', { className: 'pre said' }, original)),
+        el('div', {}, el('p', { className: 'label' }, COPY.suggestion), el('p', { className: 'pre said' }, marked)),
       ),
       el('p', {}, 'What changed:'),
       el('ul', {}, rw.changes.map((c) => el('li', { className: 'said' }, c))),
@@ -1017,7 +1026,6 @@ function renderEvaluation(post) {
   if (!ev) return null;
   const flag = ev.assessment.soundness_flag;
   return el('div', { className: 'evaluation' },
-    el('p', { className: 'muted' }, provenanceLabel(LABELS, ev.models)),
     renderSummary(ev),
     flag ? el('div', { className: 'flag' },
       el('strong', {}, 'Soundness Flag: '), el('q', { className: 'said' }, flag.line), said(` ${flag.why}`),
@@ -1361,7 +1369,7 @@ function showView(name) {
   for (const view of VIEWS) $(`view-${view}`).hidden = view !== name;
   const onDesk = name === 'review' || name === 'results';
   $('desk').hidden = !onDesk;
-  // On the desk the footer (Roadmap, versions) sits under the Mailbox, so the page ends with the envelope.
+  // On the desk the footer (Roadmap) sits under the Mailbox, so the page ends with the envelope.
   (onDesk ? $('desk-side') : document.querySelector('main')).append($('page-foot'));
   $('next-post-item').hidden = name !== 'results';
   for (const button of document.querySelectorAll('.tabs [data-nav]')) {

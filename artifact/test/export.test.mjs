@@ -22,12 +22,13 @@ const review = {
 
 test('Markdown export carries every part of the Review and labels Personas simulated', () => {
   const md = reviewToMarkdown(review, content, labels, { exportedAt: '2026-10-21T12:00:00Z', includeJson: false });
-  for (const part of ['# Living Letter',`Versions: ${labels.rubric}`, '## Post 1', '> line one\n> line two', 'Screenshots: 1 (not included',
+  for (const part of ['# Living Letter', '## Post 1', '> line one\n> line two', 'Screenshots: 1 (not included',
     '### Rubric Scores', '| 1. Outsider Clarity | 2 / 5 | Jargon |', '- Why: Insider phrasing', '### Persona Reactions (simulated)',
     '### Gentler Rewrite (suggestion)', '### Discussion Questions', '*Not evaluated (failed).*', '## Ministry Outreach Plan', 'Concern · Post 1']) {
     assert.ok(md.includes(part), part);
   }
   assert.ok(!md.includes('## Raw data'));
+  for (const version of [labels.rubric, labels.personas, labels.prompts, 'Versions:']) assert.ok(!md.includes(version), version);
 });
 
 test('the saved file adds a JSON appendix that parses back to the Review', () => {
@@ -37,4 +38,6 @@ test('the saved file adds a JSON appendix that parses back to the Review', () =>
   assert.deepEqual(json.posts[0].evaluation.assessment.scores, assessment.scores);
   assert.equal(json.posts[0].screenshot_count, 1);
   assert.equal(JSON.stringify(json).includes('"blob"'), false);
+  assert.deepEqual(json.versions, labels, 'versions stay in the data, never in the readable text');
+  assert.ok(!md.split('## Raw data')[0].includes(labels.rubric));
 });

@@ -357,45 +357,57 @@ export function canAddPost(postCount) {
   return postCount < INTAKE_LIMITS.maxPosts;
 }
 
-// ---------- Provenance label (AD-6) ----------
+// ---------- Gentler Rewrite highlights (display only) ----------
 
-// `witness-rubric@n · persona-set@n · prompts@n · <model>`; the Assess model, plus
-// "(mixed)" when the calls were answered by different models.
-export function provenanceLabel(versionLabels, models) {
-  const answered = Object.values(models).filter(Boolean);
-  const mixed = new Set(answered).size > 1 ? ' (mixed)' : '';
-  return `${versionLabels.rubric} · ${versionLabels.personas} · ${versionLabels.prompts} · ${models.assess}${mixed}`;
+// Word-level diff sizes: a kept run shorter than MIN_KEPT_RUN words between changes counts as changed,
+// so stray "a" and "the" matches do not break up a rewritten passage; above MAX_DIFF_CELLS no diff is drawn.
+const MIN_KEPT_RUN = 3;
+const MAX_DIFF_CELLS = 4_000_000;
+
+function diffWord(token) {
+  return token.toLowerCase().replace(/[‘’]/g, "'").replace(/[^\p{L}\p{N}']/gu, '');
 }
 
-// The Gentler Rewrite split into runs of text, each marked `changed` unless its words are part of
-// the longest sequence of words it shares with the original (compared without case or edge
-// punctuation). The spaces between two changed words count as changed, so bold runs stay whole.
+// Splits `rewrite` into runs of { text, changed } against `original`, using the longest common subsequence
+// of words (case and punctuation ignored). Joining the runs' text gives back `rewrite` exactly.
+// Returns null when there is no original to compare or the texts are too long to diff.
 export function rewriteChanges(original, rewrite) {
-  const key = (word) => word.toLowerCase().replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
-  const before = String(original || '').split(/\s+/).filter(Boolean).map(key);
-  const tokens = String(rewrite || '').split(/(\s+)/).filter((t) => t !== '');
-  const wordAt = tokens.map((t, i) => (/\S/.test(t) ? i : -1)).filter((i) => i >= 0);
-  const after = wordAt.map((i) => key(tokens[i]));
-  // Longest common subsequence of words, then walk it back to see which rewrite words it keeps.
-  const cols = after.length + 1;
-  const lcs = new Uint16Array((before.length + 1) * cols);
-  for (let i = before.length - 1; i >= 0; i--) {
-    for (let j = after.length - 1; j >= 0; j--) {
-      lcs[i * cols + j] = before[i] === after[j]
-        ? lcs[(i + 1) * cols + j + 1] + 1
-        : Math.max(lcs[(i + 1) * cols + j], lcs[i * cols + j + 1]);
-    }
+  const tokens = rewrite.split(/(\s+)/).filter(Boolean);
+  const isWord = (t) => !/^\s+$/.test(t) && diffWord(t) !== '';
+  const a = original.split(/\s+/).map(diffWord).filter(Boolean);
+  const at = tokens.flatMap((t, i) => (isWord(t) ? [i] : [])); // token index of each rewrite word
+  const b = at.map((i) => diffWord(tokens[i]));
+  const n = a.length;
+  const m = b.length;
+  if (!n || !m || n * m > MAX_DIFF_CELLS) return null;
+
+  const L = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = m - 1; j >= 0; j--) L[i][j] = a[i] === b[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
   }
-  const kept = new Set();
-  for (let i = 0, j = 0; i < before.length && j < after.length;) {
-    if (before[i] === after[j]) { kept.add(wordAt[j]); i++; j++; } else if (lcs[(i + 1) * cols + j] >= lcs[i * cols + j + 1]) i++; else j++;
+  const kept = new Array(m).fill(false);
+  for (let i = 0, j = 0; i < n && j < m;) {
+    if (a[i] === b[j]) { kept[j] = true; i++; j++; } else if (L[i + 1][j] >= L[i][j + 1]) i++; else j++;
   }
-  const changedAt = (i) => (/\S/.test(tokens[i])
-    ? !kept.has(i)
-    : i > 0 && i < tokens.length - 1 && !kept.has(i - 1) && !kept.has(i + 1));
+  for (let s = 0; s < m;) {
+    if (!kept[s]) { s++; continue; }
+    let e = s;
+    while (e < m && kept[e]) e++;
+    if (s > 0 && e < m && e - s < MIN_KEPT_RUN) kept.fill(false, s, e);
+    s = e;
+  }
+
+  // Spaces and bare punctuation take the state of the words on both sides, so a highlight runs unbroken.
+  const changedAt = new Array(tokens.length).fill(null);
+  at.forEach((i, w) => { changedAt[i] = !kept[w]; });
   const runs = [];
   tokens.forEach((text, i) => {
-    const changed = changedAt(i);
+    let changed = changedAt[i];
+    if (changed === null) {
+      const before = changedAt.slice(0, i).reverse().find((c) => c !== null);
+      const after = changedAt.slice(i + 1).find((c) => c !== null);
+      changed = Boolean(before && after);
+    }
     const last = runs[runs.length - 1];
     if (last && last.changed === changed) last.text += text;
     else runs.push({ text, changed });

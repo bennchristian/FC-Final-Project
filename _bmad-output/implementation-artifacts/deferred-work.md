@@ -4,3 +4,10 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-fr-3a-instagram-tiktok-post-read.md`
   summary: Show the caption read from a post link before the Post is added, so the User can edit or replace it.
   evidence: The caption goes straight into the Post's text at submit. PRD FR-3a now says so explicitly; the dropped FR-3 had promised an editable pre-fill. A preview step is a UX change for bmad-ux / Bennett to decide.
+- source_spec: `_bmad-output/implementation-artifacts/spec-results-display-cleanup.md`
+  summary: Guided demo never explains how concerns are marked; move "Concerns are marked in the Rubric Scores" into the tour's `scores` step and drop or repurpose the `summary` step.
+  evidence: The sample Post has lands_well false, so the `summary` step's new skip always fires on the demo.
+- source_spec: `_bmad-output/implementation-artifacts/spec-results-display-cleanup.md`
+  summary: Decide whether the copied/saved Markdown should also drop its "Summary: concerns" list of Criterion names, to match the page.
+  evidence: export.js postSection still writes it; Bennett's request named the page's Concerns segment only.
+

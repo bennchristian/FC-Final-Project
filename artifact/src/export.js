@@ -2,8 +2,6 @@
 // viewer can copy or save themselves. Pure: no DOM, no I/O. Nothing here is kept
 // by the page; the viewer decides where the text goes (AD-12).
 
-import { provenanceLabel } from './core.js';
-
 const SIMULATED_NOTE = 'Persona Reactions are simulated perspectives, not real people’s opinions.';
 
 function quote(text) {
@@ -18,7 +16,7 @@ function scoreText(score) {
   return score === null ? 'N/A' : `${score} / 5`;
 }
 
-function postSection({ position, post, evaluation, status }, content, labels) {
+function postSection({ position, post, evaluation, status }, content) {
   const { rubric, personaSet } = content;
   const criterion = Object.fromEntries(rubric.criteria.map((c) => [c.key, c]));
   const offence = Object.fromEntries(rubric.offence_sources.map((o) => [o.key, o.name]));
@@ -34,7 +32,6 @@ function postSection({ position, post, evaluation, status }, content, labels) {
     return out;
   }
 
-  out.push(`*${provenanceLabel(labels, evaluation.models)}*`, '');
   if (evaluation.post_transcript && evaluation.post_transcript !== post.pasted_text) {
     out.push('**Post text as read by Claude**', '', quote(evaluation.post_transcript), '');
   }
@@ -102,17 +99,17 @@ function outreachSection(outreach, content) {
 }
 
 // review = { posts: [{ position, post, evaluation, status }], reviewSourceUrl, outreach }
-// With includeJson, a raw JSON appendix is added for later analysis.
+// With includeJson, a raw JSON appendix is added for later analysis. Versions appear only there,
+// as data: the readable text never shows them (FR-7).
 export function reviewToMarkdown(review, content, labels, { exportedAt, includeJson }) {
   const out = [
     '# Living Letter',
     '',
     `Exported: ${exportedAt}`,
-    `Versions: ${labels.rubric} · ${labels.personas} · ${labels.prompts}`,
   ];
   if (review.reviewSourceUrl) out.push(`Profile: ${review.reviewSourceUrl}`);
   out.push('', `*${SIMULATED_NOTE}*`, '');
-  for (const p of review.posts) out.push(...postSection(p, content, labels));
+  for (const p of review.posts) out.push(...postSection(p, content));
   if (review.outreach && review.outreach.status === 'done') out.push(...outreachSection(review.outreach, content));
 
   if (includeJson) {

@@ -48,6 +48,15 @@ test('Persona Reactions carry the one-line simulated note (FR-9)', () => {
   assert.match(ui, /simulated: 'Simulated perspectives, not real people’s opinions\.'/);
 });
 
+test('the results show no versions label, no Concerns list, and Offence sources on one line', () => {
+  const ui = sources.find(([f]) => f === 'ui.js')[1];
+  assert.doesNotMatch(ui, /provenanceLabel|LABELS\.(rubric|personas|prompts)/, 'versions are never shown (FR-7)');
+  assert.doesNotMatch(ui, /Concerns \(/);
+  const offence = ui.slice(ui.indexOf('function renderOffence'), ui.indexOf('\nfunction ', ui.indexOf('function renderOffence') + 1));
+  assert.match(offence, /\.join\(', '\)/);
+  assert.match(offence, /'Where do offence sources come from\?'/);
+});
+
 test('no two functions share a name once the sources are inlined into one script', () => {
   // build.mjs joins every source into one script, where a second declaration silently replaces the first.
   const names = sources.flatMap(([f, text]) => [...text.matchAll(/^(?:export )?(?:async )?function (\w+)/gm)].map((m) => `${m[1]} (${f})`));

@@ -62,7 +62,7 @@ The first use is formation, not correction: a youth leader puts other people's p
 - **UJ-4. Bennett keeps the personas and rubric honest.** [W2]
   - **Persona + context:** Bennett, the Maintainer, who knows non-believers, budding Christian influencers, and ministries willing to be interviewed.
   - **Path:** He runs interviews from an Interview Plan made outside the tool, then publishes a new Persona Version or Rubric Version based on what he learns.
-  - **Climax:** New Reviews use the new versions; old Reviews still show the versions that produced them.
+  - **Climax:** New Reviews use the new versions; old Reviews keep the versions that produced them.
 
 ## 3. Glossary
 
@@ -167,7 +167,7 @@ The system can attach a Soundness Flag when a Post's main message may not be the
 - The standard for soundness is deferred (§11, OQ-2).
 
 #### FR-7: Record versions on every Evaluation [F]
-Every Evaluation records and displays the Rubric Version and Persona Version that produced it.
+Every Evaluation records the Rubric Version and Persona Version that produced it. The versions are kept with every saved Review and in a saved file's data, so scores are never compared across versions, but they are not shown to the User: not in the results, the copied text or the readable part of a saved file (changed 2026-10-29 by Bennett: the versions line cluttered the results).
 
 ### 4.3 Persona Reactions
 
@@ -302,7 +302,7 @@ The Demo Artifact has a separate tab listing what is planned but not yet built, 
 - **Persona order by audience (Roadmap item, now in the demo):** on a creator's Reviews, Persona Reactions are listed with the Personas who lead their top audiences first. Preferences never change scores, prompts or the locked rubric and Persona versions.
 - **Profile Summary (FR-14, for creators):** worked out by code, never by the model, across the creator's saved Reviews at the current versions: each Criterion's average, which Personas react well or badly, the strongest and weakest Posts, and the top 2–3 changes (the Criteria with most concerns, with what a score of 4 looks like). Recurring patterns were dropped from the Artifact's summary on 2026-10-29: the Criterion averages and Top changes already cover them.
 
-**Owner copy editor (owner-only authoring aid, added 2026-10-26 by Bennett).** Not a User feature. Shift+E shows a hidden bar that lets Bennett rewrite, move and restyle the text of the intro letter and every tab, then save it as `copy-edits.json`. The file is folded into the next build, so every viewer sees the new copy after a republish. Edits to the rubric and Persona text in How it works change only what the page shows; Claude still scores with the locked versions. In the Review results, label edits apply to every Post and are saved; Claude's text and pasted Posts can be retyped on screen but are never saved. Status lines and the versions label are never editable (`ARCHITECTURE.md` AD-12).
+**Owner copy editor (owner-only authoring aid, added 2026-10-26 by Bennett).** Not a User feature. Shift+E shows a hidden bar that lets Bennett rewrite, move and restyle the text of the intro letter and every tab, then save it as `copy-edits.json`. The file is folded into the next build, so every viewer sees the new copy after a republish. Edits to the rubric and Persona text in How it works change only what the page shows; Claude still scores with the locked versions. In the Review results, label edits apply to every Post and are saved; Claude's text and pasted Posts can be retyped on screen but are never saved. Status lines are never editable (`ARCHITECTURE.md` AD-12).
 
 ### 4.12 Try the Demo
 

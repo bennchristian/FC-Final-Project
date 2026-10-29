@@ -202,7 +202,8 @@ details[open] > summary { margin-bottom: 0.4em; }
 .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 14px; }
 .pair > div { min-width: 0; background: var(--field); padding: 0.6em 1em 0.8em; border-radius: var(--radius); }
 .pair > div + div { background: var(--band); }
-.rewrite-key { font-size: var(--fs-xs); margin: 0.6rem 0 0; }
+/* New or changed words in the Gentler Rewrite's Suggestion (rewriteChanges in core.js). */
+.pair mark.changed { background: color-mix(in srgb, var(--accent) 24%, transparent); color: inherit; border-radius: 2px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .card { background: var(--field); padding: 0.4em 1em; border-radius: var(--radius); }
 
 

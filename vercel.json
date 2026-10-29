@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "echo 'Living Letter web demo: nothing to install'",
+  "buildCommand": "node web/build.mjs",
+  "outputDirectory": "web/dist",
+  "cleanUrls": true
+}

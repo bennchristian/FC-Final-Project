@@ -1,0 +1,10 @@
+# The web demo build (web/build.mjs) needs only artifact/, content/, config/ and web/.
+video/
+_bmad/
+_bmad-output/
+.claude/
+docs/
+supabase/
+artifact/dist/
+web/dist/
+.env*

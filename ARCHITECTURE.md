@@ -330,8 +330,8 @@ flowchart LR
 - **Prevents:** unconfirmed or throwaway addresses holding accounts, sign-up emails failing under the built-in mail limit, and silently expiring sessions.
 - **Rule:**
   - **Accounts (Bennett, 2026-10-29; replaces invite-only accounts):**
-    - Anyone can sign up with email + password through Supabase Auth. "Confirm email" is on: an account is usable only after its address is confirmed.
-    - Password reset is by email.
+    - Anyone can sign up with email + password through Supabase Auth. "Confirm email" is on: an account is usable only after its address is confirmed. **Temporary (Bennett, 2026-10-30):** it stays off in both projects until the SMTP provider exists. Sign-up code handles both settings.
+    - Password reset is by email. **Deferred** until the SMTP provider exists; until then Bennett resets passwords in the dashboard.
     - Auth email goes through a custom SMTP provider set in each project's Auth settings, because Supabase's built-in email is rate-limited and meant for testing only. The provider's credentials live only in the Supabase dashboard, never in the repo or Vercel.
     - The confirmation and reset links redirect only to the site URL and the redirect URLs listed in that project's Auth settings (`dev`: localhost; `prod`: the Vercel production URL).
   - **Sessions:** session cookies are refreshed in `src/proxy.ts`, Next 16's replacement for middleware, through `@supabase/ssr` `createServerClient` + `getClaims()`. Sign-out clears them.
@@ -503,6 +503,24 @@ flowchart LR
   - **Profile:** the Web App's `profile` mirrors the Artifact's profile fields. The two are never synced, because the Artifact cannot reach the Web App. Persona order (FR-10) and the code-only Profile Summary (FR-14) on the Web App use the Web App's profile.
   - **Cross-surface contract:** the Review File's appendix shape is owned by `artifact/src/export.js` and recorded in `SCHEMA.md` §6. A change is additive only, and the Web App validator and the Review File vectors (AD-16) change in the same commit.
 
+### AD-19 — The hosted web demo is the unchanged Artifact page plus a browser-only stand-in [ADOPTED 2026-10-30]
+
+- **Binds:** PRD §4.14, the live Vercel site (`living-letter`), `web/`
+- **Prevents:** the web demo drifting from the Artifact, any Claude or Supabase cost or key, and real accounts or personal data held for a demo.
+- **Rule:**
+  - **Same page:** `web/build.mjs` runs `artifact/build.mjs` and wraps its output, unchanged, in a plain HTML document with `web/shim.js` in the head. Nothing under `artifact/`, `content/` or `config/` changes for the web.
+  - **Stand-in runtime:** `web/shim.js` defines `window.claude.use`, all in the browser:
+    - `db`: a document store in `localStorage` (`ll-demo-db`), the subset `ui.js` calls (`collection`, `doc`, `get`, `set`, `delete`, `orderBy`, `limit`);
+    - `user`: the demo account (`ll-demo-user`). Its id is a hash of the email;
+    - `downloads`: an ordinary file download;
+    - `mcp`: reads only the sample reel's link, from `artifact/sample-review.json`;
+    - `sample`: `web/demo-engine.js`. It recognises the step by the prompt's `# Task:` line and answers JSON that passes the Artifact's validators. Its scores are word-list heuristics, and the sample reel gets its saved real results. Screenshot-only Posts are not assessable.
+  - **Demo sign-in:** an overlay asks for an email and password and accepts any. Nothing is sent anywhere. Sign out is added under Your profile. Two wording swaps apply on the web only: "your Claude account" → "your Living Letter account", "not even this page’s owner" → "not even the Living Letter team".
+  - **Honesty:** the sign-in screen says it is a demo, that Reviews come from a demo evaluator rather than Claude, and carries Bennett's FR-25 caveat with a link to the Artifact.
+  - **Deploy:** `vercel.json` (static: no install, `node web/build.mjs`, output `web/dist`). Bennett's CLI deploys with `vercel deploy --prod` from `main`; the project is not git-connected. Production URL: https://living-letter-kappa.vercel.app.
+  - **Check:** `node --test web/test/*.test.mjs` runs the evaluator through the real `artifact/src/pipeline.js` and validators.
+  - **Relation to AD-18:** AD-18 stays the plan for a real companion Web App and is not built. AD-19 is what is live.
+
 ## Consistency Conventions
 
 | Concern | Convention |
@@ -611,6 +629,7 @@ FC-Final-Project/
 | FR-19 Saved Reviews | W2 | `review` rows, reopened read-only | AD-5, AD-6, AD-9, AD-18 |
 | FR-25 Run a Review in the Artifact | W2 | Run a Review page, `NEXT_PUBLIC_ARTIFACT_URL` | AD-14, AD-18 |
 | FR-26 Add a Review from its Review File | W2 | `importReviewFile`; `src/domain` review-file validator | AD-4, AD-5, AD-18 |
+| Web demo (PRD §4.14) | live | `web/build.mjs`, `web/shim.js`, `web/demo-engine.js`, `vercel.json` | AD-19 |
 | FR-22 Roadmap tab | F only | static Artifact tab | AD-12 |
 | FR-24 Try the demo | F only | `artifact/src/sample.js`, `artifact/sample-review.json`, `artifact/src/tour.js`; intro button | AD-12 |
 | FR-23 Caps | retired | — | AD-8 (retired) |

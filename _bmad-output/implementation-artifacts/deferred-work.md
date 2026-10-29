@@ -11,3 +11,9 @@
   summary: Decide whether the copied/saved Markdown should also drop its "Summary: concerns" list of Criterion names, to match the page.
   evidence: export.js postSection still writes it; Bennett's request named the page's Concerns segment only.
 
+- source_spec: none
+  summary: Web App Review File upload and Saved Reviews (FR-19, FR-26; AD-18 import steps 1-9, list, read-only reopen, delete).
+  evidence: Split 2026-10-30 from the Web App MVP build at Bennett's choice; runs after spec-web-app-foundation.
+- source_spec: none
+  summary: Web App profile, code-only Profile Summary and Persona order by audience (FR-10, FR-14, FR-15).
+  evidence: Split 2026-10-30 from the Web App MVP build at Bennett's choice; runs after the Review File upload spec.

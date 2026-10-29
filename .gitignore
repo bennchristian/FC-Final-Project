@@ -2,3 +2,6 @@
 artifact/dist/
 node_modules/
 .DS_Store
+.vercel
+web/dist/
+supabase/.temp/

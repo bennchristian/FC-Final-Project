@@ -336,6 +336,16 @@ A signed-in User can upload a Review File and have it saved as a Saved Review.
 - A Review File never holds screenshots, only their count. Handles other than the poster's are removed before saving (`ARCHITECTURE.md` AD-5).
 - Each upload is a new Saved Review; uploading the same file twice gives two.
 
+### 4.14 Web Demo [live, added 2026-10-30 by Bennett]
+
+*Bennett, 2026-10-30: "make Living Letter into a live web app without changing anything from the Artifact … this is just a demo, not a real app. I don't need working log ins, sign ups, etc. It just has to look like it works."*
+
+A public website (https://living-letter-kappa.vercel.app) shows the Demo Artifact exactly as it is, outside Claude (`ARCHITECTURE.md` AD-19).
+- **Sign-in looks real.** Any email and password are accepted, and nothing leaves the browser. Profile, preferences and Saved Reviews are kept in that browser.
+- **Reviews look real.** A demo evaluator answers in place of Claude from the Post's own text. Its scores are rough heuristics, and screenshots cannot be read. The sample reel shows its real saved Review. No cost to anyone.
+- **The sign-in screen says so.** It states that this is a demo with simulated Reviews, carries the FR-25 caveat about bringing your own API key at about $0.25 per Post, and links to the Artifact as the full, free version.
+- The companion Web App of §4.13 (FR-25, FR-26) stays planned and is not built.
+
 ## 5. Non-Goals (Explicit)
 
 - **Not a scraper.** No automatic collection of posts from Instagram, TikTok, or anywhere else beyond FR-3, the single-video read of FR-3a, and a Creator's own Connected Account (FR-16a).

@@ -9,7 +9,7 @@
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { ROOT, loadContent, checkLock, lockLatest, checkPrompts, checkContentShapes, loadCopyEdits } from './content.mjs';
+import { ROOT, loadContent, checkLock, lockLatest, checkPrompts, checkContentShapes, loadCopyEdits, loadSampleReview } from './content.mjs';
 
 const SRC = join(ROOT, 'artifact', 'src');
 const OUT = join(ROOT, 'artifact', 'dist', 'witness-review.html');
@@ -48,11 +48,14 @@ const contentErrors = [...checkPrompts(content.prompts), ...checkContentShapes(c
 if (contentErrors.length) fail(contentErrors);
 const copyEdits = loadCopyEdits();
 if (copyEdits.errors.length) fail(copyEdits.errors);
+const sampleReview = loadSampleReview(content, labels);
+if (sampleReview.errors.length) fail(sampleReview.errors);
 
 const script = [
   `const CONTENT = ${inlineJson(content)};`,
   `const LABELS = ${inlineJson(labels)};`,
   `const COPY_EDITS = ${inlineJson(copyEdits.edits)};`,
+  `const SAMPLE_REVIEW = ${inlineJson(sampleReview.sample)};`,
   toScript('core.js'),
   toScript('reel.js'),
   toScript('pipeline.js'),
@@ -61,7 +64,9 @@ const script = [
   toScript('profile.js'),
   toScript('home.js'),
   toScript('desk.js'),
+  toScript('sample.js'),
   toScript('ui.js'),
+  toScript('tour.js'),
   toScript('theme.js'),
   toScript('intro.js'),
   // After intro.js and ui.js, so the intro markup and start()'s copy exist when edits apply.
@@ -80,6 +85,7 @@ const PAGE_CSS = readFileSync(join(SRC, 'page.css'), 'utf8');
 const ICONS = {
   checklist: 'icon-checklist.png', person: 'icon-person.png', pen: 'icon-pen.png', bubbles: 'icon-bubbles.png', mailbox: 'icon-mailbox.png',
   creator: 'home-creator.png', individual: 'home-individual.png', leader: 'home-leader.png',
+  audiences: 'icon-audiences.png',
 };
 const ICON_CSS = `:root { ${Object.entries(ICONS).map(([n, file]) => `--icon-${n}: url("${imgData(file)}");`).join(' ')} }\n`
   + Object.keys(ICONS).map((n) => `.icon-${n} { background-image: var(--icon-${n}); }`).join('\n');
@@ -139,7 +145,7 @@ ${INTRO_HTML}
 
     <section class="home-band home-why" aria-labelledby="home-why-title">
       <div class="home-why-text">
-        <h2 id="home-why-title">Social media ministry is growing fast.</h2>
+        <h2 id="home-why-title">Social media ministry is growing <span class="home-underline">fast</span>.</h2>
         <p>Social media has become one of the main places faith is shared. Already in 2014, one in five Americans (20%) had shared their faith on social media in the past week, and nearly half (46%) had seen someone else do it.<sup><a href="#source-1">1</a></sup> By 2018, 28% of US Christians said they use social media to share their faith, and 58% of non-Christians said someone had shared their faith with them on Facebook.<sup><a href="#source-2">2</a></sup></p>
         <p>But the results sometimes backfire and harm how people see Christians and the faith. One in six US adults (17%) has unfollowed, blocked or muted someone because of the religious content they posted.<sup><a href="#source-3">3</a></sup> Among young adults outside the church, 87% called Christians judgmental and 85% called them hypocritical.<sup><a href="#source-4">4</a></sup></p>
         <p class="home-resolve">In our endeavour to sharpen one another and our witness, we’ve created this tool so we can learn to <span class="home-underline">represent Jesus better.</span></p>
@@ -185,7 +191,7 @@ ${INTRO_HTML}
         <svg viewBox="0 0 340 214" aria-hidden="true">
           <text x="6" y="104">Living</text>
           <text x="6" y="200">Letter</text>
-          <path d="M152 22 H332 V206 H232 M332 22 L252 68" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"/>
+          <path d="M152 22 H332 V206 H232 M332 22 L252 68" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square" pathLength="1"/>
         </svg>
       </h2>
       <div class="home-name-text">
@@ -308,6 +314,7 @@ ${INTRO_HTML}
 
   <section id="view-results" class="view" hidden>
     <h1 class="desk-title">Your letter, read</h1>
+    <p id="sample-notice" class="notice" hidden></p>
     <div id="overall"></div>
     <div id="posts"></div>
   </section>
@@ -381,6 +388,7 @@ ${INTRO_HTML}
       <h2 id="prefs-title">Creator preferences</h2>
       <p>How you want to come across, what you believe, and who you most want to reach. Your Reviews then list first the Personas who lead your top audiences. Scores never change.</p>
       <form id="prefs-form" class="prefs-form">
+        <div class="prefs-box">
         <div class="pref-field" data-field="come_across">
           <label for="pref-come-across">How you want to come across</label>
           <div class="pref-view" hidden>
@@ -393,21 +401,25 @@ ${INTRO_HTML}
           </div>
         </div>
         <div class="pref-field" data-field="theology">
-          <label for="pref-theology">Your theology and tradition</label>
+          <label for="pref-theology">Your theology, tradition and convictions</label>
           <div class="pref-view" hidden>
             <p class="pref-text" id="pref-theology-text"></p>
             <p class="pref-meta"><span class="muted" id="pref-theology-when"></span> <button type="button" class="link-button" data-edit="theology">Edit</button></p>
           </div>
           <div class="pref-edit">
-            <textarea id="pref-theology" rows="3" maxlength="2000" placeholder="For example: evangelical Anglican; we hold to the Nicene Creed."></textarea>
+            <textarea id="pref-theology" rows="4" maxlength="2000" placeholder="For example: evangelical Anglican; we hold to the Nicene Creed.&#10;Your main convictions too: any stance you hold strongly, such as on sexuality, gender or marriage."></textarea>
             <div class="row"><button type="button" data-save="theology">Save</button><button type="button" class="link-button" data-cancel="theology">Cancel</button><span class="muted" id="pref-theology-status" aria-live="polite"></span></div>
           </div>
         </div>
-        <fieldset class="audience-rank">
-          <legend>The audiences you want to reach, most important first</legend>
-          <ol id="pref-audiences"></ol>
-        </fieldset>
-        <div class="row"><button type="submit" id="prefs-save">Save order</button><span id="prefs-status" class="muted" aria-live="polite"></span></div>
+        </div>
+        <div class="prefs-audiences">
+          <span class="prefs-audiences-icon icon-audiences" aria-hidden="true"></span>
+          <fieldset class="audience-rank">
+            <legend>The audiences you want to reach, most important first</legend>
+            <ol id="pref-audiences"></ol>
+          </fieldset>
+          <div class="row"><button type="submit" id="prefs-save">Save order</button><span id="prefs-status" class="muted" aria-live="polite"></span></div>
+        </div>
       </form>
     </section>
 
@@ -530,4 +542,10 @@ mkdirSync(join(ROOT, 'artifact', 'dist'), { recursive: true });
 writeFileSync(OUT, html);
 const editCount = copyEdits.edits ? copyEdits.edits.edits.length : 0;
 console.log(`Built ${OUT.replace(`${ROOT}/`, '')} (${(Buffer.byteLength(html) / 1024).toFixed(1)} KB) with ${labels.rubric} · ${labels.personas} · ${labels.prompts}`);
+const demoLink = sampleReview.sample && sampleReview.sample.posts[0].source_url;
+console.log(!sampleReview.sample
+  ? 'Sample Review: none (no artifact/sample-review.json; Try the demo hidden)'
+  : demoLink
+    ? `Sample Review: ${sampleReview.sample.posts.length} Post(s) from artifact/sample-review.json, replayed for ${demoLink} (Try the demo shown)`
+    : `Sample Review: ${sampleReview.sample.posts.length} Post(s) from artifact/sample-review.json, but Post 1 has no link (Try the demo hidden)`);
 console.log(copyEdits.edits ? `Copy edits: ${editCount} from artifact/copy-edits.json` : 'Copy edits: none (no artifact/copy-edits.json)');

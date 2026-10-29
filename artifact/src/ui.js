@@ -3,12 +3,13 @@
 // Everything renders as text nodes; screenshots appear only as file-name chips.
 // `CONTENT` and `LABELS` are inlined by artifact/build.mjs.
 
-import { INTAKE_LIMITS, checkPostIntake, checkSourceUrl, canAddPost, provenanceLabel, isInstagramPostLink } from './core.js';
-import { transcribeReel } from './reel.js';
+import { INTAKE_LIMITS, checkPostIntake, checkSourceUrl, canAddPost, provenanceLabel, isReadablePostLink } from './core.js';
+import { readCaption, transcribeReel } from './reel.js';
 import { sendLetter, resetDesk } from './desk.js';
 import { evaluatePost, requestRewrite, createOutreach } from './pipeline.js';
 import { reviewToMarkdown } from './export.js';
 import { PAST_REVIEWS_SHOWN, pastReviewsPath, reviewTally, pastReviewRecord, pastPostRecord, restorePost, sameVersions } from './past.js';
+import { samplePosts, sampleLink, isSamplePost } from './sample.js';
 import { PROFILE_DOC, profileRecord, personaOrder, profileSummary } from './profile.js';
 import { prepareHomeMotion, playHomeMotion } from './home.js';
 
@@ -18,6 +19,7 @@ const COPY = {
   simulated: 'Simulated perspective',
   linkNotice: 'The profile link is only shown alongside the results. It is never opened.',
   savedHere: 'Each Review you send is saved to your profile’s Saved Reviews, which only you can see. Screenshots are never saved.',
+  sampleNotice: 'This is a sample Review of a public Instagram reel. Its results were evaluated ahead of time, so it used none of your Claude usage.',
   savedNowhere: 'This page cannot save Reviews here: closing or reloading it clears the Review. Use Copy Review or Save Review as file to keep your results.',
   savedToPast: 'Saved to your profile.',
   pastSaveFailed: 'This Review could not be saved to your profile. Use Copy Review or Save Review as file to keep it.',
@@ -26,7 +28,7 @@ const COPY = {
   pastOtherVersions: 'Scored with other rubric or Persona versions, so it cannot be reopened here.',
   profileUnavailable: 'Your profile needs your Claude account and this page’s private store, which this view does not have. Open the page as a Claude artifact while signed in.',
   profileFailed: 'Your profile could not be loaded. Try again later.',
-  readingReel: 'Reading the reel…',
+  readingPost: 'Reading the post…',
   soundnessNote: 'A prompt for discussion with a leader, not a ruling.',
   suggestion: 'Suggestion',
   landsAnywhere: 'A post can land on anyone’s page. Whoever you meant it for, people outside the faith may read it too.',
@@ -46,18 +48,22 @@ const ERROR_COPY = {
   screenshots_not_saved: 'This Post’s screenshots were not saved with it. Remove it and add it again to send it.',
 };
 
-// Shown only when a reel link is the Post's sole content and could not be read.
+// Shown only when a post link is the Post's sole content and could not be read.
 const REEL_ERROR_COPY = {
-  approval_required: 'This page needs your permission to read reels. Allow it in the artifact’s permissions, or paste the video transcript.',
-  not_in_manifest: 'This page is not allowed to read reels in this view. Paste the video transcript instead.',
-  server_unavailable: 'The reel could not be read just now. Try again, or paste the video transcript.',
-  upstream_error: 'The reel could not be read just now. Try again, or paste the video transcript.',
-  rate_limited: 'The reel could not be read just now. Wait a little and try again, or paste the video transcript.',
-  empty: 'No spoken words were found at this link. Paste the post’s caption or add screenshots.',
+  approval_required: 'This page needs your permission to read posts. Allow it in the artifact’s permissions, or add the post’s text, transcript or screenshots.',
+  not_in_manifest: 'This page is not allowed to read posts in this view. Add the post’s text, transcript or screenshots instead.',
+  server_unavailable: 'The post could not be read just now. Try again, or add the post’s text, transcript or screenshots.',
+  upstream_error: 'The post could not be read just now. Try again, or add the post’s text, transcript or screenshots.',
+  rate_limited: 'The post could not be read just now. Wait a little and try again, or add the post’s text, transcript or screenshots.',
+  failed: 'The post could not be read just now. Try again, or add the post’s text, transcript or screenshots.',
+  empty: 'No caption or spoken words were found at this link. Add the post’s text, transcript or screenshots.',
 };
 
+// A connector answer that no other call will get past: the read stops instead of falling back.
+const PERMISSION_CODES = ['approval_required', 'not_in_manifest', 'not_granted'];
+
 function reelErrorText(code) {
-  return REEL_ERROR_COPY[code] || 'This reel could not be read here. Paste its video transcript instead.';
+  return REEL_ERROR_COPY[code] || 'This post could not be read here. Add its text, transcript or screenshots instead.';
 }
 
 // ---------- State (page memory only) ----------
@@ -67,7 +73,7 @@ const state = {
   sampleChecked: false,
   downloads: null,
   mcp: null,
-  readingReel: false,
+  readingPost: false,
   maxImages: 0,
   mediaTypes: [],
   modelId: CONTENT.models.default,
@@ -77,6 +83,8 @@ const state = {
   busy: false,
   nextId: 1,
   view: 'home',
+  // The guided demo (FR-24, tour.js): on while the tour runs, from Try the demo to End tour or Clear Review.
+  demo: false,
   // Past Reviews (past.js): the viewer's private db subtree, when this view has one.
   db: null,
   viewerId: null,
@@ -186,21 +194,26 @@ function addPost(fields) {
   state.outreach = null;
 }
 
-// The reel's transcript, or '' when it cannot be read. A failure blocks the Post only
-// when the reel link is all it has.
-async function readReel(url, hasOtherContent) {
-  state.readingReel = true;
+// Reads a linked video into `fields` (AD-13): its caption as the text when none was pasted,
+// and its spoken words as the transcript. A caption that cannot be read is skipped. A failure
+// to read blocks the Post only when the link is all it has.
+async function readLinkedPost(fields, imageCount) {
+  state.readingPost = true;
   $('intake-errors').textContent = '';
-  $('intake-status').textContent = COPY.readingReel;
+  $('intake-status').textContent = COPY.readingPost;
   render();
   try {
     if (!state.mcp) throw { code: 'not_granted' };
-    return await transcribeReel(state.mcp, url);
+    const caption = await readCaption(state.mcp, fields.source_url).catch((e) => {
+      if (e && PERMISSION_CODES.includes(e.code)) throw e;
+      return '';
+    });
+    if (!fields.pasted_text.trim()) fields.pasted_text = caption;
+    fields.video_transcript = await transcribeReel(state.mcp, fields.source_url);
   } catch (e) {
-    if (!hasOtherContent) throw e;
-    return '';
+    if (!(fields.pasted_text.trim() || fields.video_transcript.trim() || imageCount)) throw e;
   } finally {
-    state.readingReel = false;
+    state.readingPost = false;
     $('intake-status').textContent = '';
     render();
   }
@@ -243,7 +256,7 @@ async function onAddPost(event) {
 
 // Adds the form as a Post. False when it could not (the reason is shown under the form).
 async function addFromForm() {
-  if (state.readingReel) return false;
+  if (state.readingPost) return false;
   const video = formMode('video-mode');
   const content = contentMode();
   const files = content === 'images' ? [...$('post-images').files] : [];
@@ -252,9 +265,9 @@ async function addFromForm() {
     video_transcript: video === 'transcript' ? $('post-transcript').value : '',
     source_url: video === 'link' ? $('post-url').value.trim() : '',
   };
-  if (!fields.video_transcript.trim() && isInstagramPostLink(fields.source_url) && canAddPost(state.posts.length)) {
+  if (isReadablePostLink(fields.source_url) && canAddPost(state.posts.length)) {
     try {
-      fields.video_transcript = await readReel(fields.source_url, Boolean(fields.pasted_text.trim() || files.length));
+      await readLinkedPost(fields, files.length);
     } catch (e) {
       $('intake-errors').textContent = reelErrorText(e && e.code);
       return false;
@@ -282,6 +295,10 @@ async function addFromForm() {
 
 function onClearReview() {
   if (state.busy) return;
+  if (state.demo) {
+    endDemo();
+    document.dispatchEvent(new CustomEvent('ll:demo-ended'));
+  }
   state.posts = [];
   state.outreach = null;
   state.reviewSourceUrl = '';
@@ -290,6 +307,67 @@ function onClearReview() {
   state.saveError = '';
   $('review-url').value = '';
   render();
+}
+
+// "Try the demo" on the intro (FR-24): opens the real, empty Review page with the guided demo on
+// (tour.js walks through it). Never over a Review that already holds Posts, and never while a run is busy.
+// `detail.loaded` tells the intro whether the demo started, so it fires the tour hook only then.
+function onTryDemo(event) {
+  if (!sampleLink(SAMPLE_REVIEW) || state.busy || state.readingPost || state.posts.length) return;
+  state.demo = true;
+  const model = SAMPLE_REVIEW.posts[0].evaluation.models.assess;
+  if (CONTENT.models.artifact_picker.some((m) => m.id === model)) state.modelId = model;
+  render();
+  if (event.detail) event.detail.loaded = true;
+}
+
+// End tour, the tour's last card, or Clear Review: the demo is over, and Send runs live again.
+function endDemo() {
+  state.demo = false;
+  delete document.documentElement.dataset.demo;
+}
+
+// The demo's Send replays the saved sample instead of calling Claude or Supadata: only while the demo
+// is on, the Review is empty, and the form holds exactly the sample's link and nothing else.
+function isDemoReplay() {
+  const link = sampleLink(SAMPLE_REVIEW);
+  return Boolean(state.demo && link && state.posts.length === 0 && !state.reviewSourceUrl && !$('review-url').value.trim()
+    && formMode('video-mode') === 'link' && $('post-url').value.trim() === link
+    && !$('post-transcript').value.trim() && !$('post-text').value.trim() && $('post-images').files.length === 0);
+}
+
+const REPLAY_REVIEWING_MS = 1200;
+
+// Plays a live Send with the saved sample: the envelope flight, the Post "Reviewing…" for a moment,
+// then the saved Evaluation. The Review saves to Saved Reviews like any other.
+async function replayDemo() {
+  state.busy = true;
+  document.dispatchEvent(new CustomEvent('ll:demo-replaying'));
+  const posts = samplePosts(SAMPLE_REVIEW, state.nextId);
+  state.nextId += posts.length;
+  const evaluations = posts.map((p) => p.evaluation);
+  for (const post of posts) Object.assign(post, { status: 'evaluating', evaluation: null });
+  state.posts = posts;
+  state.outreach = null;
+  state.reviewId = null;
+  state.savedPostCount = 0;
+  state.saveError = '';
+  const model = SAMPLE_REVIEW.posts[0].evaluation.models.assess;
+  if (CONTENT.models.artifact_picker.some((m) => m.id === model)) state.modelId = model;
+  $('intake-errors').textContent = '';
+  $('post-form').reset();
+  render();
+  await sendLetter();
+  showView('results');
+  resetDesk();
+  await new Promise((resolve) => setTimeout(resolve, REPLAY_REVIEWING_MS));
+  posts.forEach((post, i) => Object.assign(post, { status: 'done', evaluation: evaluations[i] }));
+  state.outreach = SAMPLE_REVIEW.outreach ? structuredClone(SAMPLE_REVIEW.outreach) : null;
+  render();
+  await saveReview();
+  state.busy = false;
+  render();
+  document.dispatchEvent(new CustomEvent('ll:demo-replayed', { detail: { canSave: Boolean(state.db && state.viewerId), saved: Boolean(state.reviewId) } }));
 }
 
 function hasSent() {
@@ -344,7 +422,12 @@ async function runPost(post, cache) {
 // Send for review: whatever is on the form joins the Review first, then the letter goes into
 // the envelope and the Mailbox (desk.js) while the Posts are already being reviewed.
 async function onEvaluateAll() {
-  if (state.busy || !state.sample) return;
+  if (state.busy) return;
+  if (isDemoReplay()) {
+    await replayDemo();
+    return;
+  }
+  if (!state.sample) return;
   if (formHasContent() && !(await addFromForm())) return;
   if (!state.posts.some((p) => p.status === 'pending')) {
     $('intake-errors').textContent = 'Add a link, a transcript, screenshots or text first.';
@@ -613,7 +696,7 @@ async function onOpenPast(item) {
   try {
     const snap = await pastCollection().doc(item.id).collection('posts').get();
     const records = snap.docs.map((d) => d.data()).sort((a, b) => a.position - b.position);
-    state.posts = records.map((record) => restorePost(record, state.nextId++));
+    state.posts = records.map((record) => ({ ...restorePost(record, state.nextId++), demo: isSamplePost(SAMPLE_REVIEW, record) }));
     state.reviewId = item.id;
     state.savedPostCount = records.length;
     state.saveError = '';
@@ -623,6 +706,7 @@ async function onOpenPast(item) {
     state.outreach = item.outreach || null;
     state.busy = false;
     showView('results');
+    document.dispatchEvent(new CustomEvent('ll:past-opened'));
   } catch {
     state.busy = false;
     state.pastError = 'That Review could not be opened. Try again later.';
@@ -784,7 +868,7 @@ function renderScores(evaluation) {
     );
   });
   return el('div', {},
-    el('div', { className: 'table-wrap' },
+    el('div', { className: 'table-wrap', 'data-tour': 'scores' },
       el('table', { className: 'overview' },
         el('thead', {}, el('tr', {}, el('th', {}, 'Criterion'), el('th', {}, 'Score'))),
         el('tbody', {}, overview),
@@ -795,10 +879,10 @@ function renderScores(evaluation) {
 }
 
 function renderSummary(evaluation) {
-  if (evaluation.rewrite_mode === 'not_assessable') return el('p', { className: 'summary' }, COPY.notAssessable);
-  if (evaluation.lands_well) return el('p', { className: 'summary good' }, COPY.landsWell);
+  if (evaluation.rewrite_mode === 'not_assessable') return el('p', { className: 'summary', 'data-tour': 'summary' }, COPY.notAssessable);
+  if (evaluation.lands_well) return el('p', { className: 'summary good', 'data-tour': 'summary' }, COPY.landsWell);
   const concerns = evaluation.assessment.scores.filter((s) => s.score !== null && s.score < 3);
-  return el('div', { className: 'summary' },
+  return el('div', { className: 'summary', 'data-tour': 'summary' },
     el('p', {}, `Concerns (${concerns.length}):`),
     el('ul', {}, concerns.map((s) => el('li', {}, `${criterionByKey[s.criterion].name}: `, said(s.explanation)))),
   );
@@ -813,7 +897,7 @@ function orderedReactions(evaluation) {
 }
 
 function renderReactions(evaluation) {
-  return el('section', {},
+  return el('section', { 'data-tour': 'reactions' },
     el('h4', {}, 'Persona Reactions ', simulatedTag()),
     isCreator() ? el('p', { className: 'muted' }, 'Listed with the Personas who lead your top audiences first.') : null,
     el('ul', { className: 'reactions' }, orderedReactions(evaluation).map((r) =>
@@ -835,7 +919,7 @@ function originalText(post, evaluation) {
 function renderRewrite(post, evaluation) {
   if (evaluation.gentler_rewrite) {
     const rw = evaluation.gentler_rewrite;
-    return el('section', {},
+    return el('section', { 'data-tour': 'rewrite' },
       el('h4', {}, 'Gentler Rewrite'),
       el('div', { className: 'pair' },
         el('div', {}, el('p', { className: 'label' }, 'Original'), el('p', { className: 'pre said' }, originalText(post, evaluation))),
@@ -848,7 +932,7 @@ function renderRewrite(post, evaluation) {
   if (evaluation.rewrite_mode === 'offer' && post.status === 'done') {
     const running = post.rewriteStatus === 'running';
     const failed = post.rewriteStatus !== 'idle' && !running;
-    return el('section', {},
+    return el('section', { 'data-tour': 'rewrite' },
       el('button', { type: 'button', onclick: () => onSuggestRewrite(post), disabled: state.busy || !state.sample }, running ? 'Writing a gentler version…' : 'Suggest a gentler version'),
       failed ? el('p', { className: 'error' }, errorText(post.rewriteStatus)) : null,
     );
@@ -857,8 +941,8 @@ function renderRewrite(post, evaluation) {
 }
 
 function renderQuestions(evaluation) {
-  if (!evaluation.discussion_questions) return el('p', { className: 'muted' }, 'Writing Discussion Questions…');
-  return el('section', {},
+  if (!evaluation.discussion_questions) return el('p', { className: 'muted', 'data-tour': 'questions' }, 'Writing Discussion Questions…');
+  return el('section', { 'data-tour': 'questions' },
     el('h4', {}, 'Discussion Questions'),
     el('ol', {}, evaluation.discussion_questions.questions.map((q) =>
       el('li', {}, said(q.text), q.persona ? [' ', simulatedTag(), ` (${personaByKey[q.persona].name})`] : null),
@@ -1134,10 +1218,11 @@ function render() {
   $('post-images').setAttribute('accept', state.mediaTypes.join(','));
   $('images-hint').textContent = `Up to ${state.maxImages} screenshots. They are sent to Claude only while this Post is evaluated and are never shown or kept.`;
   $('post-count').textContent = `${state.posts.length} of ${INTAKE_LIMITS.maxPosts} Posts`;
-  $('add-post').disabled = state.readingReel || !canAddPost(state.posts.length);
+  $('add-post').disabled = state.readingPost || !canAddPost(state.posts.length);
 
   const anyDone = state.posts.some((p) => p.status === 'done');
-  $('evaluate-all').disabled = state.busy || !state.sample;
+  // The demo's Send replays the sample, so it needs no Claude here.
+  $('evaluate-all').disabled = state.busy || (!state.sample && !state.demo);
   $('clear-review').disabled = state.busy || state.posts.length === 0;
   // aria-disabled, not disabled, so its explanation still shows on hover before there are results.
   $('send-feedback').setAttribute('aria-disabled', String(!anyDone || state.busy));
@@ -1146,6 +1231,9 @@ function render() {
   $('save-review').hidden = !state.downloads;
   $('next-post').disabled = state.busy;
   $('save-note').textContent = state.db ? COPY.savedHere : COPY.savedNowhere;
+
+  // The sample notice shows while sample Posts are on screen (the demo's, or the demo Review reopened).
+  $('sample-notice').hidden = !state.posts.some((p) => p.demo);
 
   $('post-list').replaceChildren(...state.posts.map(renderPostInput));
   $('overall').replaceChildren(...renderOverall());
@@ -1222,6 +1310,7 @@ function showView(name) {
   if (name === 'home') playHomeMotion();
   render();
   window.scrollTo(0, 0);
+  document.dispatchEvent(new CustomEvent('ll:view', { detail: { name } }));
 }
 
 // Every [data-nav] control (masthead, logo, profile icon, Start reviewing, View past reviews, Roadmap).
@@ -1256,6 +1345,9 @@ function start() {
   $('save-review').addEventListener('click', onSaveReview);
   $('review-url').addEventListener('change', onReviewUrl);
   $('next-post').addEventListener('click', onNextPost);
+  $('sample-notice').textContent = COPY.sampleNotice;
+  document.addEventListener('ll:try-demo', onTryDemo);
+  document.addEventListener('ll:tour-ended', endDemo);
   $('send-feedback').addEventListener('click', onSendFeedback);
   $('feedback').addEventListener('click', onFeedbackClick);
   document.querySelector('.role-cards').addEventListener('change', onRoleChange);

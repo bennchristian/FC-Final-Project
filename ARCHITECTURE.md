@@ -8,7 +8,7 @@ scope: 'Both MVP surfaces: the Demo Artifact (Fri 2026-10-23) and the Web App (w
 status: final
 created: '2026-10-21'
 updated: '2026-10-21'
-binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, FR-11, FR-12, FR-13, FR-14, FR-15, FR-16, FR-17, FR-18, FR-19, FR-20, FR-21, FR-22, FR-23, OQ-5]
+binds: [FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, FR-11, FR-12, FR-13, FR-14, FR-15, FR-16, FR-16a, FR-17, FR-18, FR-19, FR-20, FR-21, FR-22, FR-23, OQ-5]
 sources: [PRD.md, RULES.md, _bmad-output/planning-artifacts/prds/prd-FC-Final-Project-2026-10-21/addendum.md, bmad-ux shared note ux-facts-for-architecture.md]
 companions: [SCHEMA.md]
 ---
@@ -344,34 +344,40 @@ flowchart LR
 
 ### AD-12 — The Demo Artifact is one self-contained page that keeps only the viewer’s own Past Reviews [ADOPTED]
 
-- **Binds:** FR-1, FR-2, FR-17, FR-20, FR-22, PRD §7.2, Demo Artifact
+- **Binds:** FR-1, FR-2, FR-17, FR-20, FR-22, FR-24, PRD §7.2, Demo Artifact
 - **Prevents:** keys, network calls, persisted third-party content, preloaded real posts, or a broken shared link in the published Artifact.
 - **Rule:**
   - **Build:** `node artifact/build.mjs` inlines the locked content ids (latest `<n>` of each name), `config/models.json` and `artifact/src/` into `artifact/dist/witness-review.html`, which is git-ignored. Load `artifact-design` before building the page, and `artifact-capabilities` before writing `sample()` code.
   - **Publish:**
     - Through the Artifact tool. The first publish pinned contract `0.2.88`; on 2026-10-26 it moved to the latest contract for `mcp`.
     - Its URL is recorded in `CLAUDE.md` §2, and every later publish passes that `url`.
-  - **Capabilities:** exactly `{sample: {images: true}, downloads: true, mcp: {servers: [{server: "Supadata", tools: ["supadata_transcript", "supadata_check_transcript_status"]}]}, db: {}, user: {}}`. `downloads` was added 2026-10-21 by Bennett so a viewer can keep a Review; `mcp` was added 2026-10-26 by Bennett for reel transcripts (AD-13); `db` and `user` were added 2026-10-26 by Bennett for Past Reviews.
+  - **Capabilities:** exactly `{sample: {images: true}, downloads: true, mcp: {servers: [{server: "Supadata", tools: ["supadata_metadata", "supadata_transcript", "supadata_check_transcript_status"]}]}, db: {}, user: {}}`. `downloads` was added 2026-10-21 by Bennett so a viewer can keep a Review; `mcp` was added 2026-10-26 by Bennett for reel transcripts, and `supadata_metadata` on 2026-10-27 for captions and the post type (AD-13); `db` and `user` were added 2026-10-26 by Bennett for Past Reviews.
   - **Persistence:** Reviews, Posts and screenshots live in page memory while the page is open. Each sent Review is also saved to Past Reviews (2026-10-26, Bennett): the viewer’s private `db` subtree `data/users/<id>/`, readable by nobody else, the owner included (shapes in `SCHEMA.md` §6). Saves happen after a send, a Try again, a rewrite or an Outreach Plan, one write at a time. Screenshots are never stored, only their names. With no `db` or no signed-in viewer the page says so and keeps nothing. No browser storage. **Profile (2026-10-28):** one more private document, `data/users/<id>/profile` (role, Creator preferences; `artifact/src/profile.js`), read once at load and written only when the viewer saves; the Profile Summary is computed in the page from the saved Reviews' Posts, never by the model.
   - **Export:** the viewer may copy the Review as Markdown, or save it as a `.md` file through `downloads.save` after confirming. The saved file adds a raw JSON appendix. Screenshots are never included.
   - **Owner copy editor (owner-only authoring aid, 2026-10-26, Bennett):** Shift+E (ignored while typing) shows a hidden bar (`artifact/src/editor.js`). In edit mode, any element with its own text in the intro and `main` can be rewritten, moved and restyled; page clicks are suppressed except page navigation (`[data-nav]`, not Start reviewing), and every `<details>` is held open. "Save edits" hands over `copy-edits.json` through the existing `downloads` (clipboard fallback); the editor itself stores nothing and makes no network call. Bennett commits it as `artifact/copy-edits.json`; `build.mjs` checks it (`artifact/src/copy-edits.js`) and inlines it as `COPY_EDITS`, and the page applies it on load with edit HTML sanitized to an inline-formatting allowlist. Edits match a box by its original text plus occurrence; an edit whose text changed is reported as no longer matching and kept in the next export. How it works edits to `content/` text are a display-only overlay (Bennett, 2026-10-26): Claude still scores with the locked versions, an accepted exception to AD-16's "the page always matches the scoring text". The Review results (`#posts`, `#outreach-slot`) are re-scanned after every render: label edits are saved as `live` edits keyed by text alone and applied to every Post; text `ui.js` marks `.said` (Claude's output or what the viewer pasted) can be retyped on screen but is never saved. Never editable: status and error lines, the versions label.
+  - **Sample Review and guided demo (FR-24, 2026-10-29, Bennett):** the optional `artifact/sample-review.json` is the JSON appendix of a Review Bennett saved in the live Artifact: the public reel "Should a Christian attend a gay wedding?", with its link `https://www.instagram.com/p/DcRYltnvb77/` (PRD §7.2 exception). `build.mjs` checks it with `checkSampleReview` (`artifact/src/sample.js`: at least one done Post, no screenshots, profile URL or @handle, a Post Source URL that is null or an Instagram post link (`isInstagramPostLink`), versions equal to the locked labels, every Evaluation and any Outreach Plan passing the `core.js` validators) and inlines it as `SAMPLE_REVIEW`, or `null` when absent; the button shows only when the first Post has a link. "Try the demo" (the intro letter's third choice) dispatches `ll:try-demo`; `ui.js` turns the demo on (`state.demo`) unless the Review already holds Posts or a run is busy, and the intro does the Begin review exit onto the empty Review page, sets `<html data-demo="started">` and dispatches `ll:demo-started`. `artifact/src/tour.js` (an IIFE inlined after `ui.js`) then shows coach cards anchored to the real controls (`.field-select`, `#review-url`, the two `fieldset.either`, `#link-field`, `#evaluate-all`, `#overall`, `[data-tour=summary|scores|reactions|rewrite|questions]`, `#mailbox .next-card`, `.role-cards`, `#creator-prefs`, `#past-list .past-item:first-child`), outlines the target and fills in the sample link. **Replay:** while the demo is on, the Review is empty and the form holds exactly the sample link and nothing else, Send (`onEvaluateAll`) never calls `addFromForm`, Claude or Supadata: it plays `sendLetter()`, shows the Post "Reviewing…" for 1.2 s, puts back the saved Evaluation and the optional Outreach Plan, and calls `saveReview()` like a live run, so the demo Review is saved to Past Reviews with its link. Anything else is a normal Send. A Post reopened from Past Reviews that equals a sample Post (`isSamplePost`) keeps the fixed sample notice (evaluated ahead of time, none of the viewer's Claude usage). Events: `ui.js` fires `ll:demo-replaying`, `ll:demo-replayed` (with `canSave`, `saved`), `ll:demo-ended` (Clear Review), `ll:view` (every `showView`) and `ll:past-opened`; `tour.js` answers with `ll:tour-ended` (End tour or the last card), which turns the demo off and removes `data-demo`. Steps that wait for a click offer Next when there is no `db` or no signed-in viewer. No storage, no network, no live call.
   - **Network:**
     - Page script makes no fetch or XHR.
     - The only external loads are Google Fonts stylesheets and pinned CDN scripts that the `artifact-design` contract allows.
-    - No Source URL is ever fetched by the page. The one exception is AD-13's reel transcript, which goes through the viewer's Supadata connector.
+    - No Source URL is ever fetched by the page. The one exception is AD-13's single-video read, which goes through the viewer's Supadata connector.
   - **Page flow (2026-10-26, Bennett; desk layout 2026-10-27):** the intro envelope, whose letter offers Learn more (to Home) or Begin review (straight to the Review page), then Home (what, why with cited stats, who it is for, overview, why “Living Letter”, Start reviewing). Review and Results sit on a desk beside a sticky **Mailbox** (`artifact/src/desk.js`, design partner's mockup). On Review, “Submit a letter for review” is a letter standing in an open envelope that scrolls inside it: 1. set up, 2. add Posts (Videos: link or transcript; Static posts: screenshots or text), Send for review. Send adds whatever is on the form as a Post, starts the Review, and plays the motion: the letter goes into the envelope, the flap closes, and the sealed envelope flies into the Mailbox slot. Results follow: an overall summary worked out by code, then per Post its summary, rubric overview and each score, Persona Reactions, rewrite and Discussion Questions. The Mailbox's Next… card holds Next post (Results only), Save Review as file, Copy review, View past reviews and **Send feedback**, which opens the Ministry Outreach Plan in a popup (a modal `<dialog>`: a letter in an open envelope over the tinted page, 2026-10-27) and drafts it on that click; its hover and focus text says so. The popup holds the Outreach Message with Copy message, then the Talking Points, affirmations and concerns side by side; it closes with Close, Escape or a click outside the letter. The Results have no Outreach section. The masthead person icon opens **Your profile** (2026-10-28): the Claude account it is signed in with, how the viewer uses Living Letter (creator, leader or individual), and for creators their preferences and a Profile Summary, then Saved Reviews. On a creator's Reviews, Persona Reactions follow their ranked audiences; scores never change. Below 1000px wide, or with reduced motion, the envelope and the flight are dropped: the letter is a plain sheet, the Mailbox follows it, and Send fades the letter. How it works and a footer Roadmap link complete the views. Next post returns to Add Posts with the same Review.
-  - **Scope:** FR-1, FR-2, FR-4–FR-9, FR-11–FR-13, FR-17, FR-20 and FR-22. The Artifact runs Others' Reviews only, so own-content Criteria show N/A.
+  - **Scope:** FR-1, FR-2, FR-4–FR-9, FR-11–FR-13, FR-17, FR-20, FR-22 and FR-24. The Artifact runs Others' Reviews only, so own-content Criteria show N/A.
   - **Limits:** `limits()` is read at load. `rate_limited`, `not_granted` and `upstream_error` map to per-Post errors with a manual Try again.
-  - **Use:** calls happen only on an explicit viewer action, on the viewer's own Claude usage. Built-in examples are fictional.
+  - **Use:** calls happen only on an explicit viewer action, on the viewer's own Claude usage. Built-in examples are fictional, except the FR-24 sample Review (PRD §7.2 exception).
 
-### AD-13 — No URL is ever read, except an Instagram reel's transcript [ADOPTED, amended 2026-10-26]
+### AD-13 — No URL is ever read, except one Instagram reel or TikTok video through Supadata [ADOPTED, amended 2026-10-26 and 2026-10-28]
 
 - **Binds:** FR-2, FR-3, FR-3a
 - **Prevents:** any code path, script or model call reading a Post or profile from a URL.
 - **Rule:**
   - FR-3 is dropped. TikTok oEmbed returned no caption in the 2026-10-21 test.
-  - No surface, script or model call reads a URL, with one exception (FR-3a): in the Demo Artifact, when a Post's Source URL is a single Instagram post or reel (`isInstagramPostLink`; reels are often shared as `/p/` links) and no transcript was pasted, `artifact/src/reel.js` sends that URL to the viewer's Supadata connector (`supadata_transcript`, `text: true`; a `jobId` answer is polled at most 20 times) and uses the result as the Post's video transcript. The UI does not name Supadata. The page runs on the latest runtime contract, since `mcp` did not reach the page on 0.2.88.
-  - If the reel cannot be read, the Post is still added when it has text or screenshots; otherwise the viewer is asked to paste the transcript.
+  - No surface, script or model call reads a URL, with one exception (FR-3a): in the Demo Artifact, when a Post's Source URL is a single Instagram post or reel or a single TikTok video (`isReadablePostLink` in `core.js`; reels are often shared as `/p/` links), `artifact/src/reel.js` sends that URL, and only that URL, to the viewer's Supadata connector:
+    - `supadata_metadata` (`readCaption`). Its `description` becomes the Post's text when none was pasted. A failure skips the caption, except a permission answer (`approval_required`, `not_in_manifest`), which stops the read.
+    - `supadata_transcript` (`text: true`; a `jobId` answer is polled at most 20 times). The result becomes the Post's video transcript.
+  - Carousel slides are not read from a link: the page's network is blocked, so it cannot download the slide images, and `supadata_extract` refuses carousels (tested 2026-10-27). Static Posts come in as screenshots or pasted text.
+  - The UI does not name Supadata. The page runs on the latest runtime contract, since `mcp` did not reach the page on 0.2.88.
+  - If the video cannot be read, the Post is still added when it has a caption, text or screenshots; otherwise the viewer is asked to paste the transcript or text.
+  - A second exception, once AD-17 is adopted: the Web App reads a Creator's own Connected Account through the official Instagram API (FR-16a). It reads by media id, never by Source URL.
   - Source URLs are display-only and are never sent to a model. Profile URLs are never read.
 
 ### AD-14 — PRD tone and content rules live in versioned prompt content
@@ -457,6 +463,26 @@ flowchart LR
     - Vitest runs them against `src/domain/`, from week 2.
     - Both are in the check command.
     - The fake adapter's fixtures are conformance-valid outputs.
+
+### AD-17 — A Creator's own Instagram account is read only through the official API, on the server [PROPOSED 2026-10-28, Post-MVP]
+
+- **Binds:** FR-16, FR-16a, Web App only
+- **Prevents:** reading anyone else's account, an access token reaching the browser, slide images kept after an Evaluation.
+- **Rule:**
+  - **App and login:**
+    - A Meta app using "Instagram API with Instagram Login", requesting `instagram_business_basic` only.
+    - The OAuth callback is `/api/instagram/callback`. It runs behind the verified user (AD-9).
+  - **Token:**
+    - The long-lived token (60 days) is encrypted and stored in a server-only `instagram_connection` row with no Data API access, even for its owner (`SCHEMA.md` §5, AD-9).
+    - It is refreshed before it expires and never sent to the client. Disconnect deletes the row.
+  - **Reads (only on the Creator's action; no schedule):**
+    - `/api/instagram/media` lists the Connected Account's posts: `id, caption, media_type, permalink, timestamp, thumbnail_url`.
+    - `/api/instagram/media/[id]` reads one post, plus `children{media_type,media_url}` for a carousel.
+  - **Slide images:**
+    - The server downloads them, downscales them to the AD-5 edge, and passes them to step 1 as screenshots.
+    - They are never stored. The per-Post cap is `MAX_IMAGES_PER_POST`.
+  - **Config:** `INSTAGRAM_APP_ID` and `INSTAGRAM_APP_SECRET` (server-only), plus the token-encryption key `INSTAGRAM_TOKEN_KEY`, live in Vercel env (AD-15). Development uses the app in Development mode, with Bennett's accounts as testers.
+  - **Scope:** personal accounts, other people's accounts and Business Discovery are out (PRD §6.3).
 
 ## Consistency Conventions
 
@@ -558,6 +584,7 @@ FC-Final-Project/
 | FR-1 Paste + screenshots + transcript | F + W2 | intake UI on both; browser downscale | AD-5, AD-10 |
 | FR-2 Source URL (display only) | F + W2 | Review/Post fields; UI | AD-4, AD-13, AD-14 |
 | FR-3 TikTok pre-fill | dropped | — | AD-13 |
+| FR-3a Instagram reel and TikTok video read | F only | `artifact/src/reel.js`; `isReadablePostLink` in `core.js` | AD-12, AD-13 |
 | FR-4/5/6 Scores, lands well, Soundness Flag | F + W2 | Assess; `core.js` / `src/domain` derive | AD-2, AD-3, AD-4, AD-14 |
 | FR-7 / FR-20 / FR-21 Versions | F + W2 (FR-21 W2) | `content/`, lock file, version tables, publish script | AD-1, AD-6, AD-15 |
 | FR-8/9 Persona Reactions, simulated label | F + W2 | React; UI | AD-2, AD-14 |
@@ -567,10 +594,12 @@ FC-Final-Project/
 | FR-13 Ministry Outreach Plan | F + W2 | Outreach (`artifact/src/pipeline.js`; `/api/reviews/[id]/outreach`) | AD-2, AD-8, AD-12, AD-14 |
 | FR-14 Profile Summary | W2 | `src/domain` stats + Profile Summary call | AD-2, AD-3 |
 | FR-15/16 Creator Foundation, Own-Content, Draft Checkpoint, Criterion 10 | W2 | `creator_foundation`; `review.kind`, `is_draft_checkpoint` | AD-3, AD-6, AD-9 |
+| FR-16a Connected Account | Post-MVP | `instagram_connection`; `/api/instagram/*` | AD-5, AD-9, AD-13, AD-15, AD-17 |
 | FR-17 "Lands anywhere" reminder | F + W2 | fixed UI copy | AD-14 |
 | FR-18 Accounts | W2 | Supabase Auth, `src/proxy.ts` | AD-9, AD-11 |
 | FR-19 Saved Reviews | W2 | `review` and its children, reopened | AD-5, AD-6, AD-9, AD-10 |
 | FR-22 Roadmap tab | F only | static Artifact tab | AD-12 |
+| FR-24 Try the demo | F only | `artifact/src/sample.js`, `artifact/sample-review.json`, `artifact/src/tour.js`; intro button | AD-12 |
 | FR-23 Caps | W2 | `src/server/gate/`, `usage_event` | AD-8 |
 | NFR latency / secrets / RLS | both | — | AD-10 / AD-7, AD-15 / AD-9 |
 | OQ-5 | both | screenshots (AD-5), caps (AD-8), Artifact calls (AD-12) | — |

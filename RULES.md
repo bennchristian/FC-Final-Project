@@ -32,7 +32,8 @@ The stack is Next.js, TypeScript, Vercel, Supabase, and the Claude API. Versions
 
 ## Security rules
 
-- **Secrets:** the Claude API key and the Supabase secret key (`sb_secret_…`, env `SUPABASE_SECRET_KEY`) are server-side
+- **Secrets:** the Claude API key, the Supabase secret key (`sb_secret_…`, env `SUPABASE_SECRET_KEY`) and, post-MVP,
+  the Instagram app secret and token key (`INSTAGRAM_APP_SECRET`, `INSTAGRAM_TOKEN_KEY`; AD-17) are server-side
   environment variables only. They never go in client bundles, the artifact, the repo, or
   logs. `.env*` stays in `.gitignore`.
 - **RLS:** every Supabase table has RLS enabled and an explicit policy in the migration that

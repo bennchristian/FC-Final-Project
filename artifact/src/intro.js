@@ -3,6 +3,9 @@
 // Learn more / Begin review: the letter slides back in, the flap closes, the envelope flies up off the screen and
 // Home or the Review page shows. "Review" and "How it works" at the top do the same exit, then open that page.
 // Escape skips straight to the exit, onto Home.
+// Try the demo (FR-24) asks ui.js to start the guided demo, then does the Begin review exit onto the real, empty
+// Review page. When ui.js accepted, it sets <html data-demo="started"> and fires `ll:demo-started`, which starts
+// the walkthrough in tour.js.
 (function () {
   'use strict';
   const root = document.getElementById('ll-intro');
@@ -171,6 +174,25 @@
   root.querySelectorAll('[data-go]').forEach((button) => {
     button.addEventListener('click', () => exit(button.getAttribute('data-go')));
   });
+
+  // ---------- Try the demo (FR-24) ----------
+  // ui.js declines (detail.loaded stays false) when the Review already holds Posts or a run is busy:
+  // then this is plain Begin review and no hook fires. Shown only when the sample has the link the tour fills in.
+  const demo = root.querySelector('.ll-demo');
+  if (demo && typeof SAMPLE_REVIEW !== 'undefined' && SAMPLE_REVIEW && SAMPLE_REVIEW.posts[0].source_url) {
+    demo.hidden = false;
+    demo.addEventListener('click', () => {
+      if (state === 'closing' || state === 'done') return;
+      const detail = { loaded: false };
+      document.dispatchEvent(new CustomEvent('ll:try-demo', { detail }));
+      const exiting = exit('review');
+      if (!detail.loaded) return;
+      Promise.resolve(exiting).then(() => {
+        document.documentElement.dataset.demo = 'started';
+        document.dispatchEvent(new CustomEvent('ll:demo-started'));
+      });
+    });
+  }
 
   // Wait briefly for the brand fonts so text does not reflow mid-animation.
   const fontsReady = document.fonts && document.fonts.load

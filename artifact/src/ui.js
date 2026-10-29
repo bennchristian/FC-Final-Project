@@ -3,7 +3,7 @@
 // Everything renders as text nodes; screenshots appear only as file-name chips.
 // `CONTENT` and `LABELS` are inlined by artifact/build.mjs.
 
-import { INTAKE_LIMITS, checkPostIntake, checkSourceUrl, canAddPost, provenanceLabel, isReadablePostLink } from './core.js';
+import { INTAKE_LIMITS, checkPostIntake, checkSourceUrl, canAddPost, provenanceLabel, isReadablePostLink, rewriteChanges } from './core.js';
 import { readCaption, transcribeReel } from './reel.js';
 import { sendLetter, resetDesk } from './desk.js';
 import { evaluatePost, requestRewrite, createOutreach } from './pipeline.js';
@@ -985,7 +985,9 @@ function renderRewrite(post, evaluation) {
     return evalPart('pen', 'Gentler Rewrite', 'rewrite',
       el('div', { className: 'pair' },
         el('div', {}, el('p', { className: 'label' }, 'Original'), el('p', { className: 'pre said' }, originalText(post, evaluation))),
-        el('div', {}, el('p', { className: 'label' }, COPY.suggestion), el('p', { className: 'pre said' }, rw.rewrite)),
+        el('div', {}, el('p', { className: 'label' }, COPY.suggestion),
+          el('p', { className: 'pre said' }, rewriteChanges(originalText(post, evaluation), rw.rewrite).map((r) => (r.changed ? el('strong', {}, r.text) : r.text))),
+          el('p', { className: 'muted rewrite-key' }, 'Changed words are in bold.')),
       ),
       el('p', {}, 'What changed:'),
       el('ul', {}, rw.changes.map((c) => el('li', { className: 'said' }, c))),
@@ -1133,7 +1135,8 @@ function renderOutreach() {
       o ? 'Try again' : 'Write the message'));
     if (o) children.push(el('p', { className: 'error' }, errorText(o.error)));
   } else if (o.status === 'running') {
-    children.push(el('p', { className: 'feedback-wait' }, 'Writing the message…'));
+    children.push(el('p', { className: 'feedback-wait', role: 'status' }, 'Writing the message',
+      el('span', { className: 'wait-dots', 'aria-hidden': 'true' }, el('span', {}, '.'), el('span', {}, '.'), el('span', {}, '.'))));
   } else {
     const message = o.output.outreach_message;
     const point = (tp) => el('li', {},
@@ -1146,10 +1149,14 @@ function renderOutreach() {
       .map((kind) => o.output.talking_points.filter((tp) => (tp.kind === 'concern') === (kind === 'concern')))
       .filter((points) => points.length)
       .map((points) => el('ul', { className: `talking-points ${points[0].kind === 'concern' ? 'is-concern' : 'is-affirmation'}` }, points.map(point)));
+    // The viewer can reword the message before copying it; their wording lasts until a new message is written.
+    const box = el('textarea', { id: 'outreach-message', rows: 6, 'aria-label': 'Outreach Message' }, o.edited ?? message);
+    box.addEventListener('input', () => { o.edited = box.value; });
     children.push(
-      el('textarea', { id: 'outreach-message', readonly: true, rows: 6, 'aria-label': 'Outreach Message' }, message),
+      el('p', { className: 'feedback-edit-note' }, 'Edit it into your own words before you send it.'),
+      box,
       el('div', { className: 'row' },
-        el('button', { type: 'button', className: 'copy-message', onclick: () => onCopy(message, 'outreach-message') }, 'Copy message'),
+        el('button', { type: 'button', className: 'copy-message', onclick: () => onCopy(box.value, 'outreach-message') }, 'Copy message'),
         el('span', { id: 'copy-status', className: 'muted', 'aria-live': 'polite' }),
       ),
       el('h3', { className: 'feedback-points-title' }, 'Talking points'),

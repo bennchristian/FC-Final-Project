@@ -8,3 +8,4 @@ import './export.test.mjs';
 import './reel.test.mjs';
 import './copy-edits.test.mjs';
 import './sample.test.mjs';
+import './rewrite.test.mjs';

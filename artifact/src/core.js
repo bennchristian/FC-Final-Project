@@ -366,3 +366,39 @@ export function provenanceLabel(versionLabels, models) {
   const mixed = new Set(answered).size > 1 ? ' (mixed)' : '';
   return `${versionLabels.rubric} · ${versionLabels.personas} · ${versionLabels.prompts} · ${models.assess}${mixed}`;
 }
+
+// The Gentler Rewrite split into runs of text, each marked `changed` unless its words are part of
+// the longest sequence of words it shares with the original (compared without case or edge
+// punctuation). The spaces between two changed words count as changed, so bold runs stay whole.
+export function rewriteChanges(original, rewrite) {
+  const key = (word) => word.toLowerCase().replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+  const before = String(original || '').split(/\s+/).filter(Boolean).map(key);
+  const tokens = String(rewrite || '').split(/(\s+)/).filter((t) => t !== '');
+  const wordAt = tokens.map((t, i) => (/\S/.test(t) ? i : -1)).filter((i) => i >= 0);
+  const after = wordAt.map((i) => key(tokens[i]));
+  // Longest common subsequence of words, then walk it back to see which rewrite words it keeps.
+  const cols = after.length + 1;
+  const lcs = new Uint16Array((before.length + 1) * cols);
+  for (let i = before.length - 1; i >= 0; i--) {
+    for (let j = after.length - 1; j >= 0; j--) {
+      lcs[i * cols + j] = before[i] === after[j]
+        ? lcs[(i + 1) * cols + j + 1] + 1
+        : Math.max(lcs[(i + 1) * cols + j], lcs[i * cols + j + 1]);
+    }
+  }
+  const kept = new Set();
+  for (let i = 0, j = 0; i < before.length && j < after.length;) {
+    if (before[i] === after[j]) { kept.add(wordAt[j]); i++; j++; } else if (lcs[(i + 1) * cols + j] >= lcs[i * cols + j + 1]) i++; else j++;
+  }
+  const changedAt = (i) => (/\S/.test(tokens[i])
+    ? !kept.has(i)
+    : i > 0 && i < tokens.length - 1 && !kept.has(i - 1) && !kept.has(i + 1));
+  const runs = [];
+  tokens.forEach((text, i) => {
+    const changed = changedAt(i);
+    const last = runs[runs.length - 1];
+    if (last && last.changed === changed) last.text += text;
+    else runs.push({ text, changed });
+  });
+  return runs;
+}

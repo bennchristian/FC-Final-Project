@@ -394,13 +394,13 @@ ${INTRO_HTML}
           </div>
         </div>
         <div class="pref-field" data-field="theology">
-          <label for="pref-theology">Your theology and tradition</label>
+          <label for="pref-theology">Your theology, tradition and convictions</label>
           <div class="pref-view" hidden>
             <p class="pref-text" id="pref-theology-text"></p>
             <p class="pref-meta"><span class="muted" id="pref-theology-when"></span> <button type="button" class="link-button" data-edit="theology">Edit</button></p>
           </div>
           <div class="pref-edit">
-            <textarea id="pref-theology" rows="3" maxlength="2000" placeholder="For example: evangelical Anglican; we hold to the Nicene Creed."></textarea>
+            <textarea id="pref-theology" rows="4" maxlength="2000" placeholder="For example: evangelical Anglican; we hold to the Nicene Creed.&#10;Your main convictions too: any stance you hold strongly, such as on sexuality, gender or marriage."></textarea>
             <div class="row"><button type="button" data-save="theology">Save</button><button type="button" class="link-button" data-cancel="theology">Cancel</button><span class="muted" id="pref-theology-status" aria-live="polite"></span></div>
           </div>
         </div>

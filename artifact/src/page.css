@@ -146,6 +146,10 @@ fieldset.either legend + * { clear: both; }
   color: var(--muted); border: 1px solid var(--muted); border-radius: var(--radius); padding: 0 0.6em;
 }
 .evaluation { margin-top: 1.4rem; border-top: 1px solid var(--line); padding-top: 0.8rem; }
+/* Each part of the results under a rule, its heading led by the part's small How it works icon. */
+.eval-part { border-top: 1px solid var(--muted); margin-top: 2rem; padding-top: 0.25rem; }
+.eval-head { display: flex; align-items: center; gap: 0.6rem; }
+.eval-icon { flex: none; width: 2rem; height: 2rem; background-position: center; background-size: contain; background-repeat: no-repeat; }
 .summary { margin-block: 1rem; }
 .summary.good { background: var(--band); border-radius: var(--radius); padding: 0.75em 1em; font-weight: 600; color: var(--good); }
 .flag { border: 1px solid var(--accent); border-radius: var(--radius); padding: 0.8em 1em; margin: 1rem 0; }
@@ -164,6 +168,20 @@ tr.concern td:first-child { padding-left: 0.6em; }
 tr.concern td.num { color: var(--bad); font-weight: 600; padding-right: 0.6em; }
 
 .criterion { border-top: 1px solid var(--line); padding-top: 1rem; margin: 1.2rem 0; }
+/* Rubric Scores: each Criterion in the table opens its explanation in the column beside it,
+   or below the table when the Post's card is narrow. */
+.evaluation { container-type: inline-size; }
+.scores-split { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem 2.5rem; align-items: start; }
+.scores-split table.overview { width: 100%; min-width: 0; }
+.criterion-pick { color: inherit; text-decoration: none; }
+.criterion-pick:hover:not(:disabled), tr.open .criterion-pick { text-decoration: underline; }
+tr.open td:first-child { box-shadow: inset 3px 0 0 var(--accent); padding-left: 0.6em; }
+tr.open .criterion-pick { font-weight: 600; }
+.criterion-detail .criterion { border-top: 0; padding-top: 0; margin: 0; }
+@container (min-width: 40rem) {
+  .scores-split { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); }
+  .criterion-detail { position: sticky; top: 1rem; }
+}
 .criterion h4, .criterion h5 { margin: 0 0 0.3em; }
 .criterion.concern h5 { color: var(--bad); }
 .criterion p { margin: 0.35em 0; }
@@ -240,18 +258,20 @@ sup a { text-decoration: none; padding-inline: 0.1em; }
 
 /* Creator preferences: the written preferences in a light blue box, the ranked audiences in a column of their own
    beside it (under the design partner's group icon) when there is room; one column below 1000px. */
-.prefs-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2rem; align-items: start; margin-top: 1.25rem; }
+.prefs-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2rem; margin-top: 1.25rem; }
 @media (min-width: 1000px) { .prefs-form { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 3rem; } }
 .prefs-box { background: var(--band); border-radius: var(--radius); padding: 0.25rem 1.5rem 1.5rem; }
-.prefs-audiences { min-width: 0; }
-.prefs-audiences-icon { display: block; width: 9rem; aspect-ratio: 360 / 259; background-position: left center; background-size: contain; background-repeat: no-repeat; }
+/* Side by side, the box and the audiences column are one height: Save order sits at the column's foot. */
+.prefs-audiences { min-width: 0; display: flex; flex-direction: column; padding-bottom: 1.5rem; }
+.prefs-audiences > .row { margin-top: auto; padding-top: 1rem; }
+.prefs-audiences-icon { flex: none; width: 3.5rem; aspect-ratio: 360 / 259; background-position: center; background-size: contain; background-repeat: no-repeat; }
 .prefs-form textarea { min-height: 5.5rem; }
 /* A saved preference reads as text, with when it was last edited and an Edit link. */
 .pref-text { margin: 0.2rem 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .pref-meta { margin: 0.35rem 0 0; font-size: var(--fs-sm); }
 .pref-meta .muted { font-size: inherit; }
 .audience-rank { border: 0; margin: 1rem 0 0; padding: 0; min-width: 0; }
-.audience-rank legend { padding: 0; margin-bottom: 0.4em; font: 600 var(--fs-2xs)/1.3 var(--sans); text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
+.audience-rank legend { display: flex; align-items: center; gap: 0.75rem; padding: 0; margin-bottom: 0.4em; font: 600 var(--fs-2xs)/1.3 var(--sans); text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
 #pref-audiences { margin: 0; padding-left: 1.6em; }
 #pref-audiences li { margin: 0; padding: 0.45rem 0; border-bottom: 1px solid var(--line); }
 #pref-audiences li::marker { color: var(--muted); }

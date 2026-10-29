@@ -413,9 +413,8 @@ ${INTRO_HTML}
         </div>
         </div>
         <div class="prefs-audiences">
-          <span class="prefs-audiences-icon icon-audiences" aria-hidden="true"></span>
           <fieldset class="audience-rank">
-            <legend>The audiences you want to reach, most important first</legend>
+            <legend><span class="prefs-audiences-icon icon-audiences" aria-hidden="true"></span><span>The audiences you want to reach, most important first</span></legend>
             <ol id="pref-audiences"></ol>
           </fieldset>
           <div class="row"><button type="submit" id="prefs-save">Save order</button><span id="prefs-status" class="muted" aria-live="polite"></span></div>

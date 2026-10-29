@@ -187,9 +187,12 @@ details { margin: 0.6em 0; }
 summary { cursor: pointer; color: var(--accent); font-size: var(--fs-sm); }
 details[open] > summary { margin-bottom: 0.4em; }
 
-.reactions { list-style: none; padding-left: 0; }
-.reactions > li { border-top: 1px solid var(--line); padding-top: 0.8rem; margin-top: 0.8rem; }
-.reactions > li > ul { margin-top: 0.4em; }
+/* Persona Reactions: one Persona at a time, chosen from the list or with Read next persona. */
+.persona-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; margin: 1rem 0; }
+.persona-bar .label { margin: 0; }
+.persona-pick { width: auto; max-width: 100%; }
+.reaction { border-top: 1px solid var(--line); padding-top: 0.8rem; }
+.reaction > ul { margin-top: 0.4em; }
 .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 14px; }
 .pair > div { min-width: 0; background: var(--field); padding: 0.6em 1em 0.8em; border-radius: var(--radius); }
 .pair > div + div { background: var(--band); }

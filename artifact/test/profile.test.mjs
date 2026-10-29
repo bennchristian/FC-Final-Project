@@ -45,7 +45,7 @@ test('ranked audiences put their lead Personas first, each once, and keep every 
   assert.deepEqual(personaOrder([], TARGETS, PERSONAS), PERSONAS);
 });
 
-test('the summary works out averages, patterns, Personas, strongest and weakest Posts and top changes', () => {
+test('the summary works out averages, Personas, strongest and weakest Posts and top changes', () => {
   const summary = profileSummary([
     post('A', { clarity: 2, gentleness: 4, conviction: 5 }, { seeker: 'negative', skeptic: 'negative', believer: 'positive' }),
     post('B', { clarity: 1, gentleness: 5, conviction: 4 }, { seeker: 'negative', skeptic: 'mixed', believer: 'positive' }),
@@ -58,8 +58,6 @@ test('the summary works out averages, patterns, Personas, strongest and weakest 
   assert.equal(summary.notAssessable, 1);
   assert.deepEqual(summary.averages.find((a) => a.criterion === 'clarity'), { criterion: 'clarity', average: 3, scored: 4 });
   assert.deepEqual(summary.averages.find((a) => a.criterion === 'conviction'), { criterion: 'conviction', average: 4, scored: 3 });
-  assert.deepEqual(summary.concernPatterns, [{ criterion: 'clarity', count: 2, of: 4 }]);
-  assert.deepEqual(summary.strengthPatterns.map((p) => p.criterion), ['gentleness', 'clarity', 'conviction']);
   assert.deepEqual(summary.reactWell.map((p) => p.key), ['believer']);
   assert.deepEqual(summary.reactBadly.map((p) => p.key), ['skeptic']);
   assert.deepEqual(summary.strongest.map((p) => p.excerpt), ['C', 'A']);

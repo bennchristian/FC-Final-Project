@@ -929,19 +929,49 @@ function orderedReactions(evaluation) {
   return [...reactions].sort((a, b) => order.indexOf(a.persona) - order.indexOf(b.persona));
 }
 
-function renderReactions(evaluation) {
+function renderReaction(r) {
+  const persona = personaByKey[r.persona];
+  return el('div', { className: 'reaction' },
+    el('strong', {}, persona.name),
+    el('div', { className: 'muted' }, persona.summary),
+    el('div', {}, 'Felt response: ', said(r.felt_response), ` (${r.valence})`),
+    el('ul', {}, r.reasons.map((reason) => el('li', { className: 'said' }, reason))),
+    el('details', {}, el('summary', {}, `Who is the ${persona.name}?`), renderPersona(persona)),
+  );
+}
+
+// One Persona at a time: chosen from the list under the heading, or in turn with Read next persona.
+// The choice is kept on the Post, so a re-render shows the same Persona.
+function renderReactions(post, evaluation) {
+  const reactions = orderedReactions(evaluation);
+  const pickId = `persona-pick-${post.id}`;
+  const picker = el('select', { id: pickId, className: 'persona-pick' },
+    reactions.map((r, i) => el('option', { value: String(i) }, `${personaByKey[r.persona].name} (${r.valence})`)));
+  const count = el('span', { className: 'muted' });
+  const shown = el('div', { className: 'reaction-shown', 'aria-live': 'polite' });
+  const next = el('button', { type: 'button', className: 'persona-next' });
+  let current = 0;
+  // Updated in place rather than by render(), so the list and the button keep focus.
+  function show(i) {
+    current = i;
+    post.openPersona = reactions[i].persona;
+    picker.value = String(i);
+    count.textContent = `${i + 1} of ${reactions.length}`;
+    shown.replaceChildren(renderReaction(reactions[i]));
+    next.textContent = i === reactions.length - 1 ? 'Back to the first persona' : 'Read next persona';
+  }
+  picker.addEventListener('change', () => show(Number(picker.value)));
+  next.addEventListener('click', () => {
+    show((current + 1) % reactions.length);
+    if (picker.getBoundingClientRect().top < 0) picker.scrollIntoView({ block: 'start' });
+  });
+  show(Math.max(0, reactions.findIndex((r) => r.persona === post.openPersona)));
   return evalPart('person', 'Persona Reactions', 'reactions',
     el('p', { className: 'muted' }, COPY.simulated),
     isCreator() ? el('p', { className: 'muted' }, 'Listed with the Personas who lead your top audiences first.') : null,
-    el('ul', { className: 'reactions' }, orderedReactions(evaluation).map((r) =>
-      el('li', {},
-        el('strong', {}, personaByKey[r.persona].name),
-        el('div', { className: 'muted' }, personaByKey[r.persona].summary),
-        el('div', {}, 'Felt response: ', said(r.felt_response), ` (${r.valence})`),
-        el('ul', {}, r.reasons.map((reason) => el('li', { className: 'said' }, reason))),
-        el('details', {}, el('summary', {}, `Who is the ${personaByKey[r.persona].name}?`), renderPersona(personaByKey[r.persona])),
-      ),
-    )),
+    el('div', { className: 'persona-bar' }, el('label', { for: pickId, className: 'label' }, 'Read a Persona'), picker, count),
+    shown,
+    reactions.length > 1 ? el('div', { className: 'row' }, next) : null,
   );
 }
 
@@ -992,7 +1022,7 @@ function renderEvaluation(post) {
       el('strong', {}, 'Soundness Flag: '), el('q', { className: 'said' }, flag.line), said(` ${flag.why}`),
       el('p', { className: 'muted' }, COPY.soundnessNote)) : null,
     renderScores(post, ev),
-    renderReactions(ev),
+    renderReactions(post, ev),
     renderRewrite(post, ev),
     renderQuestions(ev),
   );
@@ -1199,10 +1229,6 @@ function renderProfileSummary() {
   const none = (text) => el('p', { className: 'muted' }, text);
   const personaLine = (p, count, word) => el('li', {}, el('strong', {}, personaByKey[p.key].name), ` ${count} of ${sum.postCount} Posts ${word}`);
 
-  const patterns = [
-    ...sum.concernPatterns.map((p) => el('li', {}, `${p.count} of ${p.of} Posts score below ${below} on `, el('strong', {}, name(p.criterion)), '.')),
-    ...sum.strengthPatterns.map((p) => el('li', {}, `${p.count} of ${p.of} Posts score 4 or more on `, el('strong', {}, name(p.criterion)), '.')),
-  ];
   const postLine = (p) => el('li', {}, el('span', { className: 'said' }, p.excerpt), el('span', { className: 'muted' }, ` · average ${p.average} / 5`));
 
   return [
@@ -1214,8 +1240,6 @@ function renderProfileSummary() {
           el('tbody', {}, sum.averages.map((a) => el('tr', { className: a.average !== null && a.average < below ? 'concern' : '' },
             el('td', {}, `${criterionByKey[a.criterion].number}. ${name(a.criterion)}`),
             el('td', { className: 'num' }, a.average === null ? 'N/A' : `${a.average} / 5`))))))),
-      part('bubbles', 'Recurring patterns',
-        patterns.length ? el('ul', {}, patterns) : none('No pattern yet: one shows once two or more Posts share it.')),
       part('person', 'How the Personas react',
         el('p', { className: 'label' }, 'React well'),
         sum.reactWell.length ? el('ul', {}, sum.reactWell.map((p) => personaLine(p, p.positive, 'positive.'))) : none('None yet.'),

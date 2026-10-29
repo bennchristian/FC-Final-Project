@@ -46,7 +46,7 @@ function round1(n) {
 
 // The Profile Summary across saved Posts. `posts` are { evaluation, excerpt, savedAt } for done Posts
 // at the page's versions. Posts that could not be assessed are left out. Scores below
-// `rubric.thresholds.auto_rewrite_below` are concerns; 4 and above are strengths.
+// `rubric.thresholds.auto_rewrite_below` are concerns.
 export function profileSummary(posts, rubric, personaKeys) {
   const below = rubric.thresholds.auto_rewrite_below;
   const assessed = posts.filter((p) => p.evaluation && p.evaluation.rewrite_mode !== 'not_assessable');
@@ -60,16 +60,8 @@ export function profileSummary(posts, rubric, personaKeys) {
       average: round1(mean(values)),
       scored: values.length,
       concerns: values.filter((v) => v < below).length,
-      strengths: values.filter((v) => v >= 4).length,
     };
   });
-
-  // Recurring: on at least two Posts. Most frequent first.
-  const recurring = (field) => criteria
-    .filter((c) => c[field] >= 2)
-    .sort((a, b) => b[field] - a[field] || a.key.localeCompare(b.key))
-    .slice(0, 3)
-    .map((c) => ({ criterion: c.key, count: c[field], of: c.scored }));
 
   const personas = personaKeys.map((key) => {
     const tally = { key, positive: 0, mixed: 0, negative: 0 };
@@ -97,8 +89,6 @@ export function profileSummary(posts, rubric, personaKeys) {
     postCount: assessed.length,
     notAssessable: posts.length - assessed.length,
     averages: criteria.map(({ key, average, scored: n }) => ({ criterion: key, average, scored: n })),
-    concernPatterns: recurring('concerns'),
-    strengthPatterns: recurring('strengths'),
     reactWell: personas.filter((p) => p.positive > p.negative).sort((a, b) => b.positive - a.positive),
     reactBadly: personas.filter((p) => p.negative > p.positive).sort((a, b) => b.negative - a.negative),
     strongest: ranked.slice(0, shown),

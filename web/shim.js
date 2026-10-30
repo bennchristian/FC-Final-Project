@@ -107,6 +107,29 @@
     profiles: async () => ({}),
   };
 
+  // ---------- The intro waits for sign-in ----------
+  // intro.js opens the envelope on page load with Web Animations, so behind the sign-in it would
+  // play unseen. Until sign-in, animations on the intro (and on <main>, which its exit fades in)
+  // start paused; any sign-in plays them from the start. Reduced motion keeps its own short ones.
+
+  const held = [];
+  const nativeAnimate = Element.prototype.animate;
+  function holdIntro() {
+    Element.prototype.animate = function (...args) {
+      const a = nativeAnimate.apply(this, args);
+      if (this.closest('#ll-intro') || this.tagName === 'MAIN') { a.pause(); held.push(a); }
+      return a;
+    };
+  }
+  function releaseIntro() {
+    Element.prototype.animate = nativeAnimate;
+    for (const a of held.splice(0)) if (a.playState === 'paused') a.play();
+  }
+  if (!account) {
+    holdIntro();
+    signedIn.then(releaseIntro);
+  }
+
   // ---------- sample: the demo evaluator in place of Claude ----------
 
   async function sample(input, opts = {}) {
@@ -279,6 +302,8 @@
       error.textContent = '';
     }
     switchButton.addEventListener('click', () => setMode(!creating));
+    // Escape skips the intro (intro.js listens on document); not while it waits behind the sign-in.
+    wrap.addEventListener('keydown', (e) => { if (e.key === 'Escape') e.stopPropagation(); });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();

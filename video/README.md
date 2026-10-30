@@ -21,6 +21,19 @@ matches the recording.
   its evaluation word for word.
 - `assets/words.json`: word timings, from `transcribe.py`.
 
+## The 2-minute video
+
+[`docs/video/script-2min.md`](../docs/video/script-2min.md), timed to `assets/vo-2min.m4a` (Bennett's
+recording with its silences and breaths cut) by `timeline-2min.js`. Pass `--tl=2min` to any command
+below; stills go to `out/stills-2min/`, the video to `out/living-letter-2min.mp4`. Its `HOLDS` are the
+hook's three lines and the 3.4 and 3.5 reading pauses. Animations the page makes while
+`window.__group` is `'clock'` (the Send for review flight) run on video time; see `clockAnims` in
+`engine.js`.
+
+- `assets/vo-2min-raw.m4a`: the recording as delivered (`Living Letter Final Demo Video.m4a`).
+- `assets/vo-2min.m4a`, `assets/words-2min.json`: the cut VO and its word timings.
+- `assets/logo-red.png`: the end card's logo (from `artifact/src/img/`).
+
 ## Commands
 
 Requires an ffmpeg with libx264 (`FFMPEG`). Optional: `CHROMIUM`, when Playwright's own Chromium

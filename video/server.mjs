@@ -34,6 +34,7 @@ const HEAD = `<!doctype html>
     a.pause();
     a.currentTime = 0;
     a.__group = window.__group;
+    a.__born = window.__vt || 0;
     window.__anims.push(a);
     return a;
   };
@@ -51,13 +52,16 @@ function artifactPage(mode) {
   const at = html.lastIndexOf('<script>');
   const pre = mode === 'page' ? '<script>document.getElementById("ll-intro").remove();</script>\n' : '';
   html = html.slice(0, at) + pre + html.slice(at);
-  html = html.replace(/\nstart\(\);\n/, '\nstart();\nwindow.__ll = { state, render, addPost, showTab, COPY, $ };\n');
+  // Whatever of these the built Artifact still has (the page has changed since the 3-minute video).
+  const names = ['state', 'render', 'addPost', 'showTab', 'showView', 'COPY', '$', 'sendLetter', 'resetDesk', 'samplePosts', 'SAMPLE_REVIEW'];
+  const expose = names.map((n) => `${JSON.stringify(n)}: typeof ${n} === 'undefined' ? undefined : ${n}`).join(', ');
+  html = html.replace(/\nstart\(\);\n/, `\nstart();\nwindow.__ll = { ${expose} };\n`);
   if (!html.includes('window.__ll')) throw new Error('harness: start() hook not found in the built Artifact');
   // The built page starts with head content (title, fonts, styles); the parser opens <body> itself.
   return `${HEAD}${html}\n</html>`;
 }
 
-export function serve() {
+export function serve(port = 0) {
   const server = createServer((req, res) => {
     const url = new URL(req.url, 'http://localhost');
     try {
@@ -68,12 +72,13 @@ export function serve() {
       }
       const file = join(HERE, url.pathname.replace(/^\/+/, ''));
       if (!file.startsWith(HERE)) throw new Error('outside');
+      const body = readFileSync(file);
       res.writeHead(200, { 'content-type': TYPES[extname(file)] || 'application/octet-stream' });
-      res.end(readFileSync(file));
+      res.end(body);
     } catch {
       res.writeHead(404);
       res.end();
     }
   });
-  return new Promise((resolve) => server.listen(0, '127.0.0.1', () => resolve(server)));
+  return new Promise((resolve) => server.listen(port, '127.0.0.1', () => resolve(server)));
 }

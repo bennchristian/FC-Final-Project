@@ -4,6 +4,7 @@
 //   FFMPEG=/path/to/ffmpeg node render.mjs                       full video → out/living-letter.mp4
 //   FFMPEG=... node render.mjs --from=60 --to=80                 a section, with audio
 //   FFMPEG=... node render.mjs --stills=8,13.5,45                still frames → out/stills/
+//   add --tl=2min for the 2-minute video (timeline-2min.js, its own VO and output name)
 //
 // CHROMIUM may point at a Chromium executable when Playwright's own build is not installed.
 
@@ -31,7 +32,7 @@ function run(cmd, argv, input) {
 }
 
 // The voice-over with silence inserted at each hold, padded to the video's length.
-async function heldAudio(holds, duration, file) {
+async function heldAudio(holds, duration, file, vo) {
   const parts = [];
   const filters = [];
   let from = 0;
@@ -43,19 +44,21 @@ async function heldAudio(holds, duration, file) {
   filters.push(`[0:a]atrim=start=${from},asetpts=PTS-STARTPTS[last]`);
   parts.push('[last]');
   filters.push(`${parts.join('')}concat=n=${parts.length}:v=0:a=1,apad=whole_dur=${duration}[out]`);
-  await run(FFMPEG, ['-y', '-i', join(HERE, 'assets', 'vo.m4a'), '-filter_complex', filters.join(';'), '-map', '[out]', '-ar', '44100', file]);
+  await run(FFMPEG, ['-y', '-i', join(HERE, vo), '-filter_complex', filters.join(';'), '-map', '[out]', '-ar', '44100', file]);
 }
 
 const server = await serve();
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM || undefined });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
 page.on('pageerror', (e) => console.error('page error:', e.message));
-await page.goto(`http://127.0.0.1:${server.address().port}/stage.html`);
+await page.goto(`http://127.0.0.1:${server.address().port}/stage.html${args.tl ? `?tl=${args.tl}` : ''}`);
 await page.waitForFunction(() => window.__ready || window.__error, null, { timeout: 60000 });
 const error = await page.evaluate(() => window.__error);
 if (error) throw new Error(error);
 const duration = await page.evaluate(() => window.__duration);
 const holds = await page.evaluate(() => window.__holds);
+const vo = await page.evaluate(() => window.__audio);
+const outName = await page.evaluate(() => window.__out);
 console.log(`Stage ready: ${duration.toFixed(2)}s (${Math.floor(duration / 60)}:${String(Math.round(duration % 60)).padStart(2, '0')})`);
 
 mkdirSync(OUT, { recursive: true });
@@ -72,7 +75,7 @@ async function shot() {
 }
 
 if (args.stills) {
-  const dir = join(OUT, 'stills');
+  const dir = join(OUT, args.tl ? `stills-${args.tl}` : 'stills');
   mkdirSync(dir, { recursive: true });
   for (const t of args.stills.split(',').map(Number).sort((a, b) => a - b)) {
     await page.evaluate((x) => window.renderAt(x), t);
@@ -83,7 +86,7 @@ if (args.stills) {
 } else {
   const from = Number(args.from || 0);
   const to = Math.min(Number(args.to || duration), duration);
-  const name = args.out || (args.from || args.to ? `section-${from}-${to}.mp4` : 'living-letter.mp4');
+  const name = args.out || (args.from || args.to ? `section-${from}-${to}.mp4` : outName);
   const silent = join(OUT, 'video-only.mp4');
   const total = Math.round((to - from) * fps);
   // Events must run in order, so a section render first steps up to its start.
@@ -100,7 +103,7 @@ if (args.stills) {
     stdin.end();
   });
   const audio = join(OUT, 'vo-held.wav');
-  await heldAudio(holds, duration, audio);
+  await heldAudio(holds, duration, audio, vo);
   const file = join(OUT, name);
   await run(FFMPEG, ['-y', '-i', silent, '-ss', String(from), '-t', String(to - from), '-i', audio,
     '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', file]);

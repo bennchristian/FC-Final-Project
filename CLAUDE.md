@@ -70,7 +70,7 @@ discussion questions, and an outreach plan for raising concerns with a poster. S
 
 ## 3. Gotchas that cost real time
 
-- This Mac has no `node`. Run the check command with Bun instead: `~/.bun/bin/bun test artifact/test/ && ~/.bun/bin/bun artifact/build.mjs` (all 239 tests pass under Bun 1.4.2).
+- This Mac now has Node 24 (`/usr/local/bin/node`), so the check command above runs as written. Bun (`~/.bun/bin/bun`) is still installed and works as a fallback.
 - **Publishing from a stale or uncommitted checkout drops other sessions' work.** On 2026-10-29 three Artifact versions were published from different branches or from source on no checkout, and each one dropped the others' changes (the guided demo, FR-3a, the prefs layout). Before you republish, pull `main`, build from it, and commit and push the source in the same step.
 
 - A publish whose commits are not pushed leaves `main` behind the live Artifact: on 2026-10-29 version 44 had to be ported back from the live HTML. Push `main` soon after each publish (with the user's OK), and before publishing, fetch and merge `origin/main` if the live version is not one you built.

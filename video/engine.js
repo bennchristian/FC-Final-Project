@@ -2,7 +2,9 @@
 // window.renderAt(t) once per frame, in order. Everything visual is a function of t;
 // events (clicks, state changes in the Artifact) run once, when t first passes them.
 
-import { build } from './timeline.js';
+// ?tl=2min loads timeline-2min.js; no parameter loads the 3-minute timeline.js.
+const TL = new URLSearchParams(location.search).get('tl');
+const { build } = await import(TL ? `./timeline-${TL}.js` : './timeline.js');
 
 const W = 1920;
 const H = 1080;
@@ -182,7 +184,13 @@ function setupOverlays() {
   for (const o of tl.overlays) {
     const el = document.createElement('div');
     el.className = `o ${o.cls || ''}`;
-    el.textContent = o.text;
+    if (o.img) {
+      const img = document.createElement('img');
+      img.src = o.img;
+      img.style.width = '100%';
+      img.style.display = 'block';
+      el.appendChild(img);
+    } else el.textContent = o.text ?? '';
     Object.assign(el.style, { left: `${o.x}px`, top: `${o.y}px`, display: 'none' }, o.style || {});
     if (o.w) el.style.width = `${o.w}px`;
     ov.appendChild(el);
@@ -194,14 +202,16 @@ function drawOverlays(t) {
   tl.overlays.forEach((o, i) => {
     const el = overlayEls[i];
     const until = o.until ?? Infinity;
-    if (t < o.t || t > until + 0.45) {
+    const outDur = o.cut ? 0 : 0.45;
+    if (t < o.t || t > until + outDur) {
       el.style.display = 'none';
       return;
     }
     el.style.display = 'block';
     const p = clamp01((t - o.t) / (o.dur ?? 0.8));
     const out = t > until ? 1 - (t - until) / 0.45 : 1;
-    const shift = `translate(-50%, ${(1 - ease(p)) * 14}px)`;
+    const shift = `translate(-50%, ${(1 - ease(p)) * (o.rise ?? 14)}px)${o.pop ? ` scale(${0.9 + 0.1 * ease(p)})` : ''}`;
+    if (o.blurAt) el.style.filter = t > o.blurAt ? `blur(${8 * ease(clamp01((t - o.blurAt) / 0.5))}px)` : '';
     el.style.transform = shift;
     if (o.write) {
       const edge = p * 130;
@@ -340,6 +350,20 @@ function seekAnims(t) {
   }
 }
 
+// Page-frame animations made while window.__group is 'clock' run on video time from when they were
+// made (the harness stamps __born), and are finished at their end so code awaiting them carries on.
+function clockAnims(t) {
+  const win = frames.page.win;
+  win.__vt = t;
+  for (const a of win.__anims) {
+    if (a.__group !== 'clock' || a.playState !== 'paused') continue;
+    const ms = (t - a.__born) * 1000;
+    const end = a.effect ? a.effect.getComputedTiming().endTime : 0;
+    if (ms >= end) a.finish();
+    else a.currentTime = Math.max(0, ms);
+  }
+}
+
 function frameOpacity(t) {
   let v = 1;
   for (const k of tl.introOpacity) {
@@ -359,6 +383,7 @@ function fitPageFrame() {
 }
 
 async function renderAt(t) {
+  frames.page.win.__vt = t;
   while (nextEvent < tl.events.length && tl.events[nextEvent].t <= t) {
     await tl.events[nextEvent].run(api);
     nextEvent++;
@@ -367,6 +392,8 @@ async function renderAt(t) {
     fitPageFrame();
   }
   seekAnims(t);
+  clockAnims(t);
+  await tick();
   frameOpacity(t);
   for (const track of tl.tracks) track(t, api);
   for (const id of ['intro', 'page']) {
@@ -393,6 +420,8 @@ async function boot() {
   window.renderAt = renderAt;
   window.__duration = tl.duration;
   window.__holds = tl.holds;
+  window.__audio = tl.audio || 'assets/vo.m4a';
+  window.__out = tl.out || 'living-letter.mp4';
   window.__ready = true;
 }
 

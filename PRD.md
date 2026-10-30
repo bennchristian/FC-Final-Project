@@ -342,6 +342,7 @@ A signed-in User can upload a Review File and have it saved as a Saved Review.
 
 A public website (https://living-letter-kappa.vercel.app) shows the Demo Artifact exactly as it is, outside Claude (`ARCHITECTURE.md` AD-19).
 - **Sign-in looks real.** Any email and password are accepted, and nothing leaves the browser. Profile, preferences and Saved Reviews are kept in that browser.
+- **Guest sign-in** *(Bennett, 2026-10-30: "The live app needs a guest sign in - no username / password and sign in")*. Continue as guest signs in with no email or password. The guest is "Guest" with an id made once per browser, so signing in as a guest again on that browser finds the same profile and Saved Reviews.
 - **Reviews look real.** A demo evaluator answers in place of Claude from the Post's own text. Its scores are rough heuristics, and screenshots cannot be read. The sample reel shows its real saved Review. No cost to anyone.
 - **The sign-in screen says so.** It states that this is a demo with simulated Reviews, carries the FR-25 caveat about bringing your own API key at about $0.25 per Post, and links to the Artifact as the full, free version.
 - The companion Web App of §4.13 (FR-25, FR-26) stays planned and is not built.

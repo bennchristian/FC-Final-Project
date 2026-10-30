@@ -16,6 +16,7 @@
   const LOGO_CREAM = __LOGO_CREAM__;
 
   const USER_KEY = 'll-demo-user';
+  const GUEST_KEY = 'll-demo-guest';
   const DB_KEY = 'll-demo-db';
   const MODEL = 'living-letter-demo';
 
@@ -98,9 +99,12 @@
   const signedIn = new Promise((r) => { signedInResolve = r; });
   if (account) signedInResolve(account);
 
+  // A guest has no email: their id is made once per browser, so signing in as a guest again
+  // finds the same Saved Reviews and profile.
+  const accountId = () => (account.guest ? `guest-${account.id}` : `demo-${hash(account.email.toLowerCase())}`);
   const user = {
-    id: async () => `demo-${hash(account.email.toLowerCase())}`,
-    me: async () => ({ id: `demo-${hash(account.email.toLowerCase())}`, name: account.name || account.email }),
+    id: async () => accountId(),
+    me: async () => ({ id: accountId(), name: account.name || account.email }),
     isOwner: () => false,
     canEdit: () => false,
     can: () => false,
@@ -195,6 +199,9 @@
 
   const SWAPS = [[/your Claude account/g, 'your Living Letter account'], [/not even this page’s owner/g, 'not even the Living Letter team']];
   function swapText(root) {
+    // A text node replaced before the observer runs has no parent; throwing here would skip
+    // the later mutation records, such as the "Signed in as …" line that replaced it.
+    if (!root) return;
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     for (let n = walker.nextNode(); n; n = walker.nextNode()) {
       if (!SWAPS.some(([re]) => new RegExp(re.source).test(n.nodeValue))) continue;
@@ -234,7 +241,8 @@
     #ll-signin input { width: 100%; padding: 0.7rem 0.8rem; border: 1px solid var(--line, #D7DCE2); border-radius: var(--radius, 5px); background: var(--field, #fff); color: inherit; font: inherit; }
     #ll-signin input:focus { outline: 2px solid var(--accent, #8A201C); outline-offset: 1px; }
     #ll-signin .primary { width: 100%; margin-top: 1.5rem; padding: 0.8rem; border: 0; border-radius: var(--radius, 5px); background: var(--accent, #8A201C); color: var(--on-accent, #FFFBF5); font: 600 1rem var(--sans, sans-serif); cursor: pointer; }
-    #ll-signin .primary:disabled { opacity: 0.7; cursor: progress; }
+    #ll-signin .primary:disabled, #ll-signin .guest:disabled { opacity: 0.7; cursor: progress; }
+    #ll-signin .guest { width: 100%; margin-top: 0.75rem; padding: 0.75rem; border: 1px solid var(--accent, #8A201C); border-radius: var(--radius, 5px); background: transparent; color: var(--accent, #8A201C); font: 600 1rem var(--sans, sans-serif); cursor: pointer; }
     #ll-signin .switch { margin-top: 1.1rem; text-align: center; font-size: 0.9375rem; }
     #ll-signin .switch button { background: none; border: 0; padding: 0; color: var(--accent, #8A201C); text-decoration: underline; font: inherit; cursor: pointer; }
     #ll-signin .error { color: var(--bad, #8A201C); font-size: 0.875rem; min-height: 1.2em; margin: 0.6rem 0 0; }
@@ -272,6 +280,7 @@
         <input id="ll-password" name="password" type="password" autocomplete="current-password" required>
         <p class="error" aria-live="polite"></p>
         <button class="primary" type="submit">Sign in</button>
+        <button class="guest" type="button">Continue as guest</button>
         <p class="switch"><span class="switch-text">New to Living Letter?</span> <button type="button">Create an account</button></p>
         <p class="note">This is a demo of the Living Letter web app: your account and Reviews are kept only in this browser, and Reviews are worked out by a simple demo evaluator, not by Claude.
           We hope to turn Living Letter into a full web app, but that needs each person to bring their own Anthropic API key, at about $0.25 per Post.
@@ -284,6 +293,7 @@
     const lead = wrap.querySelector('.lead');
     const nameRow = wrap.querySelector('.name-row');
     const submit = wrap.querySelector('.primary');
+    const guest = wrap.querySelector('.guest');
     const switchText = wrap.querySelector('.switch-text');
     const switchButton = wrap.querySelector('.switch button');
     const error = wrap.querySelector('.error');
@@ -313,17 +323,31 @@
       if (password.value.length < 6) { error.textContent = 'Your password needs at least 6 characters.'; password.focus(); return; }
       if (creating && !name) { error.textContent = 'Tell us your name.'; form.name.focus(); return; }
       error.textContent = '';
-      submit.disabled = true;
+      submit.disabled = guest.disabled = true;
       submit.textContent = creating ? 'Creating your account…' : 'Signing in…';
       await wait(800);
       const known = load('ll-demo-names', {});
       if (creating) known[email.toLowerCase()] = name;
       store('ll-demo-names', known);
-      account = { email, name: known[email.toLowerCase()] || name || email.split('@')[0] };
+      finish({ email, name: known[email.toLowerCase()] || name || email.split('@')[0] });
+    });
+
+    guest.addEventListener('click', async () => {
+      error.textContent = '';
+      submit.disabled = guest.disabled = true;
+      guest.textContent = 'Signing in…';
+      await wait(500);
+      let id = load(GUEST_KEY, null);
+      if (!id) { id = newId(); store(GUEST_KEY, id); }
+      finish({ guest: true, id, name: 'Guest' });
+    });
+
+    function finish(signedInAccount) {
+      account = signedInAccount;
       store(USER_KEY, account);
       wrap.remove();
       signedInResolve(account);
-    });
+    }
     setTimeout(() => form.email.focus(), 50);
   }
 
